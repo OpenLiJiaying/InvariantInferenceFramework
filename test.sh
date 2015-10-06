@@ -27,8 +27,6 @@ test_cpp=${file_path}
 test_out="./target.out"
 
 
-
-
 mkdir -p ./data
 rm -rf ./data/*
 mkdir -p ./bin
