@@ -28,3 +28,4 @@ ${bin}/svm2plane:	${src}/svm2plane.cpp
 
 clean:
 	rm ${bin}/* 
+
