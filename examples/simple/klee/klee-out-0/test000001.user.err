@@ -1,0 +1,6 @@
+Error: invalid klee_assume call (provably false)
+File: /home/lijiaying/Research/interpolants/package.3/klee/klee_1.c
+Line: 12
+assembly.ll line: 61
+Stack: 
+	#000000061 in main (argc=1, argv=47701712) at /home/lijiaying/Research/interpolants/package.3/klee/klee_1.c:12

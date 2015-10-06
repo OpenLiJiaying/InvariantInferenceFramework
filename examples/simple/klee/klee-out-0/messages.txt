@@ -1,0 +1,4 @@
+KLEE: ERROR: /home/lijiaying/Research/interpolants/package.3/klee/klee_1.c:12: invalid klee_assume call (provably false)
+KLEE: NOTE: now ignoring this error at this location
+KLEE: ERROR: /home/lijiaying/Research/interpolants/package.3/klee/klee_1.c:20: ASSERTION FAIL: (2) * x + (2) * y >= -1
+KLEE: NOTE: now ignoring this error at this location
