@@ -47,11 +47,11 @@ for j = 1:ITER
     
 %    fprintf('ITER= %d', ITER);
     xlabel('X');ylabel('Y');
-    axis([-100, 100, -100, 100]);
-    set(gca,'XTickMode','manual','XTick',-100:10:100);
-    set(gca,'YTickMode','manual','YTick',-100:10:100);
+    axis([-300, 300, -200, 200]);
+    set(gca,'XTickMode','manual','XTick',-300:50:300);
+    set(gca,'YTickMode','manual','YTick',-200:50:200);
     
-    x = -100:0.2:100;
+    x = -300:1:300;
     y = x;
     plot(zeros(1, length(x)), y, 'c');
     plot(x, zeros(1, length(y)), 'r');
