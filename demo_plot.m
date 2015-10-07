@@ -12,9 +12,8 @@ ITER = fscanf(iterfid, '%d\n', 1);
 %fprintf('ITER= %d', ITER);
 fclose(iterfid);
 
-
 linesfid = fopen(path_lines);
-
+%ITER = 2;
 for j = 1:ITER
     clf;
     
@@ -38,8 +37,12 @@ for j = 1:ITER
     for i = 1:length(label)
         if label(i) == 1
             plot(data(i, 1), data(i, 2), 'b+');
+            plot(data(i, 1)+1, data(i, 2), 'b+');
+            plot(data(i, 1)-1, data(i, 2), 'b+');
         else
             plot(data(i, 1), data(i, 2), 'ro');
+            plot(data(i, 1)+1, data(i, 2), 'ro');
+            plot(data(i, 1)-1, data(i, 2), 'ro');
         end
         hold on;
     end
@@ -55,7 +58,7 @@ for j = 1:ITER
     y = x;
     plot(zeros(1, length(x)), y, 'c');
     plot(x, zeros(1, length(y)), 'r');
-    pause(0.8);
+    pause(0.5);
     
     
     para = fscanf(linesfid, '%d %f %f %f\n', 4);
@@ -79,6 +82,6 @@ for j = 1:ITER
         plot(x, zc, 'b--');
         plot(x, zd, 'b--');
     end    
-    pause(0.8);
+    pause(0.5);
 end
 fclose(linesfid);
