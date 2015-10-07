@@ -2,7 +2,7 @@ clc;
 clear;
 close all;
 
-path_root = '~/demo';
+path_root = './demo';
 path_iter = [path_root, '/data/iternum'];
 path_lines = [path_root, '/data/lines'];
 path_points = [path_root, '/data/points'];
