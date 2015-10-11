@@ -1,6 +1,0 @@
-Error: ASSERTION FAIL: (2) * x + (2) * y >= -1
-File: /home/lijiaying/Research/interpolants/package.3/klee/klee_1.c
-Line: 20
-assembly.ll line: 70
-Stack: 
-	#000000070 in main (argc=1, argv=47701712) at /home/lijiaying/Research/interpolants/package.3/klee/klee_1.c:20

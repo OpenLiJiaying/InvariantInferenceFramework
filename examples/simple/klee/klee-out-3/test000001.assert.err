@@ -1,6 +1,0 @@
-Error: ASSERTION FAIL: y >= 0
-File: /home/lijiaying/Research/interpolants/package.3/klee/klee_3.c
-Line: 17
-assembly.ll line: 51
-Stack: 
-	#000000051 in main (argc=1, argv=35854448) at /home/lijiaying/Research/interpolants/package.3/klee/klee_3.c:17

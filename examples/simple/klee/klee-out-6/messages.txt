@@ -1,2 +1,0 @@
-KLEE: ERROR: /home/lijiaying/Research/interpolants/package.3/klee/klee_3.c:17: ASSERTION FAIL: y >= 0
-KLEE: NOTE: now ignoring this error at this location

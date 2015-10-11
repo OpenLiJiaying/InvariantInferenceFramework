@@ -1,9 +1,0 @@
-array x[4] : w32 -> w8 = symbolic
-array y[4] : w32 -> w8 = symbolic
-(query [(Slt 0
-              N0:(Add w32 N1:(ReadLSB w32 0 x)
-                          N2:(ReadLSB w32 0 y)))
-         (Sle N1 9999)
-         (Sle N2 9999)
-         (Slt (Mul w32 2 N0) 4294967295)]
-        false)
