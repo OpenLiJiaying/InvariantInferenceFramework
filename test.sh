@@ -45,7 +45,7 @@ fi
 g++ $test_cpp -o $test_out
 
 
-NUM_ITER_BEGIN=4
+NUM_ITER_BEGIN=8
 NUM_ITER_AFTER=2
 NUM_ITERS=64
 cond=0
@@ -216,7 +216,7 @@ rm ./data/sample[0-9]*
 rm ./data/train1_*
 rm ./data/train2_*
 echo "*************************************  end  *************************************************************"
-make -s clean
-rm -rf ./bin
+#make -s clean
+#rm -rf ./bin
 rm -f $test_out
 exit 0

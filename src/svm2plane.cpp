@@ -1,18 +1,24 @@
 #include<iostream>
 #include<fstream>
-#include<stdlib.h>
-#include<stdio.h>
+#include<cstdlib>
+#include<cstdio>
 #include<string.h>
 #include<limits>
 using namespace std;
 
-const int MAX = 1000;
+const int MAX = 2048;
+const int maxdimension = 128;
 int tempint;
 char tempchar;
 bool Oflag = false;
 
 class MODEL {
 	public:
+		MODEL(){
+			x = NULL;
+			dimension = 0;
+			label = NULL;
+		}
 		int getIn(ifstream& file) {
 			char line[MAX];
 			file >> line >> svm_type;
@@ -27,17 +33,17 @@ class MODEL {
 			file >> line >> nr_sv1 >> nr_sv2;
 			file >> line;
 			label = new double [total_sv];
-			x = new double* [total_sv];
-			for (int i = 0; i < total_sv; i++) {
-				x[i] = new double [nr_class];
-			}
-			theta = new double [nr_class];
-			for (int j = 0; j < nr_class; j++)
-				theta[j] = 0;
+			x = new double [total_sv][maxdimension];
 			for (int i = 0; i < total_sv; i++) {
 				file >> label[i];
-				for (int j = 0; j < nr_class; j++)
-					file >> tempint >> tempchar >> x[i][j];
+				file >> line;
+				int ret = 0;
+				int j = 0;
+				while (ret != EOF) {
+					ret = std::sscanf(line + ret, "%d:%d", &tempint, &x[i][j++]);
+					if (i == 0)
+						dimension++;
+				}
 			}
 			return 0;
 		}
@@ -72,13 +78,13 @@ class MODEL {
 				return -1;
 			theta0 = label[0] > 0? 1 : -1;
 			for (int i = 0; i < total_sv; i++) {
-				for (int j = 0; j < nr_class; j++) {
+				for (int j = 0; j < dimension; j++) {
 					theta[j] += label[i] * x[i][j];
 				}
 			}
 			for (int i = 0; i < total_sv; i++) {
 				double temp = 0;
-				for (int j = 0; j < nr_class; j++) {
+				for (int j = 0; j < dimension; j++) {
 					temp += x[i][j] * x[0][j];
 				}
 				temp *= label[i];
@@ -88,21 +94,17 @@ class MODEL {
 		}
 
 		~MODEL() {
-/*			if (label)
+			if (label)
 				delete label;
-			if (theta)
-				delete theta;
 			if (x) {
-				for (int j = 0; j < total_sv; j++)
-					if (x[j])
-						delete x[j];
 				delete x;
 			}
-*/		}
+		}
 
 		int nr_class;
-		double* theta;
+		double theta[maxdimension];
 		double theta0;
+		int dimension;
 
 	private:
 		bool check() {
@@ -116,7 +118,7 @@ class MODEL {
 		int label1, label2;
 		int nr_sv1, nr_sv2;
 		double* label = NULL;
-		double** x = NULL;
+		double[maxdimension]* x = NULL;
 };
 
 int main(int argc, char** argv)

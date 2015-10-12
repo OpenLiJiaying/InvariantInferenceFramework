@@ -1,5 +1,5 @@
 /*************************************************************************
-    > File Name: updatelabel.cpp
+    > File Name: markline.cpp
     > Author: Li Jiaying
     > Mail: lijiaying1989@gmail.com 
     > Created Time: Thu 17 Sep 2015 02:33:54 PM
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 				startNr = 0;
 				break;
 			case 'x':
-				cerr << "BUG... " << startNr << "--" << lineNr << endl;
+				cerr << endl << "!!Encounter a bug... Find out in file[" << argv[1] << "] at line[" << startNr << "--" << lineNr << "]" << endl;
 				return -1;
 		}
 		flag[0] = ' ';
