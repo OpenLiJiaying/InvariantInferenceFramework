@@ -61,9 +61,9 @@ int toString() {
 		if (!check())
 			return 0;
 	}
-	cout << " (" << theta[0] << ") * X" << 0;
+	cout << " " << theta[0] << " * x0";
 	for (int j = 1; j < dimension; j++)
-		cout << " +  (" << theta[j] << ") * X" << j;
+		cout << " + " << theta[j] << " * x" << j;
 	if (theta0 == 0)
 		cout << " >= 0";
 	else 
@@ -87,10 +87,13 @@ int calcuateClassifier(ifstream& if1){
 			j++;
 		}
 	}
+	temp *= label[0];
+	theta0 -= temp;
 	dimension = j;
 		
 	for (int i = 1; i < total_sv; i++) {
 		if1 >> label[1];
+		temp = 0;
 		for (int j = 0; j < dimension; j++) {
 			if1 >> tempint >> tempchar >> x[1][j];
 			theta[j] += label[1] * x[1][j];
@@ -187,7 +190,7 @@ int main(int argc, char** argv)
 	while (if2 >> label) {
 		predict = theta0;
 		nr_sample++;
-		for (int i = 0; i < nr_class; i++) {
+		for (int i = 0; i < dimension; i++) {
 			if2 >> tempint >> tempchar >> x[i];
 			predict += x[i] * theta[i];
 		}
