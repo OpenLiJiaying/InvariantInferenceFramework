@@ -68,9 +68,9 @@ g++ $test_cpp -o $test_out
 ######################################## REAL LEARNING STARTS HERE ##########################################################################
 #############################################################################################################################################
 
-NUM_ITER_BEGIN=8
-NUM_ITER_AFTER=2
-NUM_ITERS=64
+NUM_ITER_BEGIN=`expr 4 \* $input_num`
+NUM_ITER_AFTER=`expr 2 \* $input_num`
+NUM_ITERS=128
 cond=0
 prev=0 ## number of previous test cases
 cur=0 ## number of cur run test cases after deletion

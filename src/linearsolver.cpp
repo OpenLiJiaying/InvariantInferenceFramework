@@ -49,7 +49,7 @@ int main(int argc, char** argv) // var_no out_no
 			if (i != pickup)
 				reminder -= solutions[i] * constraints[i];
 		}
-		solutions[pickup] = nearbyint(reminder / constraints[pickup]);
+		solutions[pickup] = nearbyint(reminder / constraints[pickup]); // + rand() % 3 - 1);
 		if (solutions[pickup] > MAX || solutions[pickup] < MIN) {
 			out_no++;
 			continue;
