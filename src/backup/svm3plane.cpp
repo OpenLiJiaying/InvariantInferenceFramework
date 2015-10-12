@@ -7,113 +7,119 @@
 using namespace std;
 
 const int MAX = 2048;
-const int maxDim = 128;
-const int maxSV = 32;
+const int maxdimension = 128;
 int tempint;
 char tempchar;
 bool Oflag = false;
 
-
-
-int nr_class;
-double theta[maxDim];
-double theta0;
-int dimension;
-char svm_type[32];
-char kernel_type[32];
-int total_sv;
-double rho;
-int label1, label2;
-int nr_sv1, nr_sv2;
-double label[maxSV];
-double x[maxSV][maxDim];
-char line[MAX];
-
-
-bool check() {
-	return strcmp(kernel_type, "linear") == 0;
-}
-
-int parse_header(ifstream& file) {
-	file >> line >> svm_type;
-	file >> line >> kernel_type;
-	file >> line >> nr_class;
-	if (nr_class < 2) {
-		return -1;
-	}
-	file >> line >> total_sv;
-	file >> line >> rho;
-	file >> line >> label1 >> label2;
-	file >> line >> nr_sv1 >> nr_sv2;
-	file >> line;
-	/*	label = new double [total_sv];
-		x = new double [total_sv][maxdimension];
-		for (int i = 0; i < total_sv; i++) {
-		file >> label[i];
-		file >> line;
-		int ret = 0;
-		int j = 0;
-		while (ret != EOF) {
-		ret = std::sscanf(line + ret, "%d:%d", &tempint, &x[i][j++]);
-		if (i == 0)
-		dimension++;
+class MODEL {
+	public:
+		MODEL(){
+			x = NULL;
+			dimension = 0;
+			label = NULL;
 		}
-		}
-		*/	
-	return 0;
-}
-
-int toString() {
-	if (Oflag) {
-		cout << "svm_type:[" << svm_type << "] kernel_type:[" << kernel_type << "] nr_class:[" << nr_class << "] total_sv:[" << total_sv << "] rho: [" << rho << "]" << endl;
-		for (int i = 0; i < total_sv; i++) {
-			cout << label[i];
-			for (int j = 0; j < nr_class; j++)
-				cout << " " << x[i][j];
-			cout << endl;
-		}
-		if (!check())
+		int getIn(ifstream& file) {
+			char line[MAX];
+			file >> line >> svm_type;
+			file >> line >> kernel_type;
+			file >> line >> nr_class;
+			if (nr_class < 2) {
+				return -1;
+			}
+			file >> line >> total_sv;
+			file >> line >> rho;
+			file >> line >> label1 >> label2;
+			file >> line >> nr_sv1 >> nr_sv2;
+			file >> line;
+			label = new double [total_sv];
+			x = new double [total_sv][maxdimension];
+			for (int i = 0; i < total_sv; i++) {
+				file >> label[i];
+				file >> line;
+				int ret = 0;
+				int j = 0;
+				while (ret != EOF) {
+					ret = std::sscanf(line + ret, "%d:%d", &tempint, &x[i][j++]);
+					if (i == 0)
+						dimension++;
+				}
+			}
 			return 0;
-	}
-	cout << " (" << theta[0] << ") * X" << 0;
-	for (int j = 1; j < nr_class; j++)
-		cout << " +  (" << theta[j] << ") * X" << j;
-	if (theta0 == 0)
-		cout << " >= 0";
-	else 
-		cout << " >= "<< theta0 * -1;
-	return 0;
-}
-
-int calcuateClassifier(ifstream& if1){
-	if (!check())
-		return -1;
-	if1 >> label[0];
-	if1 >> line;
-	int ret = 0;
-	int j = 0;
-	while (ret <= strlen(line)) {
-		ret += std::sscanf(line + ret, "%d:%lf", &j, &x[0][j]);
-		j++;
-	}
-	dimension = j;
-	theta0 = label[0] > 0? 1 : -1;
-	for (int i = 1; i < total_sv; i++) {
-		if1 >> label[i];
-		double temp = 0;
-		for (int j = 0; j < dimension; j++) {
-			if1 >> tempint >> tempchar >> x[i][j];
-			theta[j] += label[i] * x[i][j];
-			temp += x[i][j] * x[0][j];
 		}
 
-		temp *= label[i];
-		theta0 -= temp;
-	}
-	return 0;
-}
+		int toString() {
+			if (Oflag) {
+				cout << "svm_type:[" << svm_type << "] kernel_type:[" << kernel_type << "] nr_class:[" << nr_class << "] total_sv:[" << total_sv << "] rho: [" << rho << "]" << endl;
+				for (int i = 0; i < total_sv; i++) {
+					cout << label[i];
+					for (int j = 0; j < nr_class; j++)
+						cout << " " << x[i][j];
+					cout << endl;
+				}
+				if (!check())
+					return 0;
+			}
+			//cout << "-----------------------------------------------------------" << endl;
+			//			cout << "CLASSIFIER: \n \t Y =";
+			// cout << "CLASSIFIER: \t ";
+			cout << " (" << theta[0] << ") * X" << 0;
+			for (int j = 1; j < nr_class; j++)
+				cout << " +  (" << theta[j] << ") * X" << j;
+			if (theta0 == 0)
+				cout << " >= 0";
+			else 
+				cout << " >= "<< theta0 * -1;
+			return 0;
+		}
 
+		int calcuateClassiofier(){
+			if (!check())
+				return -1;
+			theta0 = label[0] > 0? 1 : -1;
+			for (int i = 0; i < total_sv; i++) {
+				for (int j = 0; j < dimension; j++) {
+					theta[j] += label[i] * x[i][j];
+				}
+			}
+			for (int i = 0; i < total_sv; i++) {
+				double temp = 0;
+				for (int j = 0; j < dimension; j++) {
+					temp += x[i][j] * x[0][j];
+				}
+				temp *= label[i];
+				theta0 -= temp;
+			}
+			return 0;
+		}
 
+		~MODEL() {
+			if (label)
+				delete label;
+			if (x) {
+				delete x;
+			}
+		}
+
+		int nr_class;
+		double theta[maxdimension];
+		double theta0;
+		int dimension;
+
+	private:
+		bool check() {
+			return strcmp(kernel_type, "linear") == 0;
+		}
+
+		char svm_type[32];
+		char kernel_type[32];
+		int total_sv;
+		double rho;
+		int label1, label2;
+		int nr_sv1, nr_sv2;
+		double* label = NULL;
+		double[maxdimension]* x = NULL;
+};
 
 int main(int argc, char** argv)
 {
@@ -161,15 +167,15 @@ int main(int argc, char** argv)
 		cout << "svm2plane: try 'svm2plane -help' for more information" << endl;
 		return -1;
 	}
-
+	class MODEL model;
 	ifstream if1(model_file);
-	int ret = parse_header(if1);
+	int ret = model.getIn(if1);
 	if (ret < 0) {
 		if1.close();
 		return -2;
 	}
-	calcuateClassifier(if1);
-	toString();
+	model.calcuateClassiofier();
+	model.toString();
 
 	if (tflag == false)
 		return 0;
@@ -188,18 +194,18 @@ int main(int argc, char** argv)
 	}
 	ofstream of2(plane_file);
 
-	double label, *x = new double[nr_class];
+	double label, *x = new double[model.nr_class];
 	int nr_sample = 0, nr_right = 0;
 	double predict;
 
 	//cout << "-----------------------------------------------------------" << endl;
 	ofstream of3("svm2plane.predict_wrong");
 	while (if2 >> label) {
-		predict = theta0;
+		predict = model.theta0;
 		nr_sample++;
-		for (int i = 0; i < nr_class; i++) {
+		for (int i = 0; i < model.nr_class; i++) {
 			if2 >> tempint >> tempchar >> x[i];
-			predict += x[i] * theta[i];
+			predict += x[i] * model.theta[i];
 		}
 		predict = predict >= 0? 1 : -1;
 		of1 << predict << endl;
@@ -207,7 +213,7 @@ int main(int argc, char** argv)
 			nr_right++;
 		else {
 			of3 << "[" << nr_sample << "] <label:" << label << " predict:" << predict << "> data: " << endl;
-			for (int i = 0; i < nr_class; i++) 
+			for (int i = 0; i < model.nr_class; i++) 
 				of3 << i+1 << ":" <<  x[i] << " ";
 		}
 	}
@@ -216,10 +222,10 @@ int main(int argc, char** argv)
 	cout << "\t[" << nr_right * 100.00 / nr_sample << "% (" << nr_right << "/" << nr_sample << ")]" << endl;
 	of2.precision(std::numeric_limits<double>::digits10);
 	of2 << nr_right  / (double)nr_sample;
-	for (int i = 0; i < nr_class; i++) {
-		of2 << "\t" << theta[i];
+	for (int i = 0; i < model.nr_class; i++) {
+		of2 << "\t" << model.theta[i];
 	}
-	of2 << "\t" << theta0 << endl;
+	of2 << "\t" << model.theta0 << endl;
 
 	if1.close();
 	if2.close();
