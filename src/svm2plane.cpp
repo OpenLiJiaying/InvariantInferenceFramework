@@ -8,7 +8,7 @@ using namespace std;
 
 const int MAX = 2048;
 const int maxDim = 128;
-const int maxSV = 32;
+const int maxSV = 2;
 int tempint;
 char tempchar;
 bool Oflag = false;
@@ -46,20 +46,6 @@ int parse_header(ifstream& file) {
 	file >> line >> label1 >> label2;
 	file >> line >> nr_sv1 >> nr_sv2;
 	file >> line;
-	/*	label = new double [total_sv];
-		x = new double [total_sv][maxdimension];
-		for (int i = 0; i < total_sv; i++) {
-		file >> label[i];
-		file >> line;
-		int ret = 0;
-		int j = 0;
-		while (ret != EOF) {
-		ret = std::sscanf(line + ret, "%d:%d", &tempint, &x[i][j++]);
-		if (i == 0)
-		dimension++;
-		}
-		}
-		*/	
 	return 0;
 }
 
@@ -76,7 +62,7 @@ int toString() {
 			return 0;
 	}
 	cout << " (" << theta[0] << ") * X" << 0;
-	for (int j = 1; j < nr_class; j++)
+	for (int j = 1; j < dimension; j++)
 		cout << " +  (" << theta[j] << ") * X" << j;
 	if (theta0 == 0)
 		cout << " >= 0";
@@ -89,25 +75,29 @@ int calcuateClassifier(ifstream& if1){
 	if (!check())
 		return -1;
 	if1 >> label[0];
-	if1 >> line;
-	int ret = 0;
+	theta0 = label[0] > 0? 1 : -1;
 	int j = 0;
-	while (ret <= strlen(line)) {
-		ret += std::sscanf(line + ret, "%d:%lf", &j, &x[0][j]);
-		j++;
+	double temp = 0;
+	if1.getline(line, MAX);
+	for (int i = 0; i < strlen(line); i++) {
+		if (line[i] == ':') {
+			x[0][j] = strtod(line + i + 1, NULL);
+			theta[j] += label[0] * x[0][j];
+			temp += x[0][j] * x[0][j];
+			j++;
+		}
 	}
 	dimension = j;
-	theta0 = label[0] > 0? 1 : -1;
+		
 	for (int i = 1; i < total_sv; i++) {
-		if1 >> label[i];
-		double temp = 0;
+		if1 >> label[1];
 		for (int j = 0; j < dimension; j++) {
-			if1 >> tempint >> tempchar >> x[i][j];
-			theta[j] += label[i] * x[i][j];
-			temp += x[i][j] * x[0][j];
+			if1 >> tempint >> tempchar >> x[1][j];
+			theta[j] += label[1] * x[1][j];
+			temp += x[1][j] * x[0][j];
 		}
 
-		temp *= label[i];
+		temp *= label[1];
 		theta0 -= temp;
 	}
 	return 0;
