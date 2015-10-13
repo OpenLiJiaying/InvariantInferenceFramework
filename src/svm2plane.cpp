@@ -49,29 +49,8 @@ int parse_header(ifstream& file) {
 	return 0;
 }
 
-int toString() {
-	if (Oflag) {
-		cout << "svm_type:[" << svm_type << "] kernel_type:[" << kernel_type << "] nr_class:[" << nr_class << "] total_sv:[" << total_sv << "] rho: [" << rho << "]" << endl;
-		for (int i = 0; i < total_sv; i++) {
-			cout << label[i];
-			for (int j = 0; j < nr_class; j++)
-				cout << " " << x[i][j];
-			cout << endl;
-		}
-		if (!check())
-			return 0;
-	}
-	cout << " " << theta[0] << " * x0";
-	for (int j = 1; j < dimension; j++)
-		cout << " + " << theta[j] << " * x" << j;
-	if (theta0 == 0)
-		cout << " >= 0";
-	else 
-		cout << " >= "<< theta0 * -1;
-	return 0;
-}
 
-int calcuateClassifier(ifstream& if1){
+int calcuate_classifier(ifstream& if1){
 	if (!check())
 		return -1;
 	if1 >> label[0];
@@ -106,6 +85,28 @@ int calcuateClassifier(ifstream& if1){
 	return 0;
 }
 
+int to_string() {
+	if (Oflag) {
+		cout << "svm_type:[" << svm_type << "] kernel_type:[" << kernel_type << "] "
+			" nr_class:[" << nr_class << "] total_sv:[" << total_sv << "] rho: [" << rho << "]" << endl;
+		for (int i = 0; i < total_sv; i++) {
+			cout << label[i];
+			for (int j = 0; j < nr_class; j++)
+				cout << " " << x[i][j];
+			cout << endl;
+		}
+		if (!check())
+			return 0;
+	}
+	cout << " " << theta[0] << " * x0";
+	for (int j = 1; j < dimension; j++)
+		cout << " + " << theta[j] << " * x" << j;
+	if (theta0 == 0)
+		cout << " >= 0";
+	else 
+		cout << " >= "<< theta0 * -1;
+	return 0;
+}
 
 
 int main(int argc, char** argv)
@@ -161,8 +162,8 @@ int main(int argc, char** argv)
 		if1.close();
 		return -2;
 	}
-	calcuateClassifier(if1);
-	toString();
+	calcuate_classifier(if1);
+	to_string();
 
 	if (tflag == false)
 		return 0;

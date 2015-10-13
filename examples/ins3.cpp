@@ -16,7 +16,7 @@ int main (int argc, char** argv) {
 
 	//Precondition: x + y >= 0
 	//assume (x + y >= 0)
-	if (x + y + z > 0)
+	if (x + y + z >= 0)
 		passP = true;
 /*		if (passP) 
 			cout << "? 1 1:" << x << " 2:" << y << " 3:" << z << endl;
@@ -36,7 +36,7 @@ int main (int argc, char** argv) {
 
 	// Postcondition: y > 0
 	// assert (y > 0);
-	if (x + y > 0)
+	if (x + y >= 0)
 		passQ = true;
 	if (passP) { // pass Precondition, Q should be passed!
 		if (passQ) cout << "+ 1 1:" << x << " 2:" << y << " 3:" << z << endl;

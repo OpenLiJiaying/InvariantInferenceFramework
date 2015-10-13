@@ -21,7 +21,7 @@ using namespace std;
 int main(int argc, char** argv) // var_no out_no
 {
 	if (argc < 2) {
-		printf ("ERROR!");
+		printf ("ERROR! Need one more argument to specify number of variables.\n");
 		return -1;
 	}
 	int var_no = atoi(argv[1]);
@@ -60,5 +60,6 @@ int main(int argc, char** argv) // var_no out_no
 		cout << endl;
 	}
 	delete solutions;
+	delete constraints;
 	return 0;
 }
