@@ -70,7 +70,7 @@ g++ $test_cpp -o $test_out
 
 NUM_ITER_BEGIN=`expr 4 \* $input_num`
 NUM_ITER_AFTER=`expr 4 \* $input_num`
-NUM_ITERS=128
+NUM_ITERS=32 #128
 cond=0
 prev=0 ## number of previous test cases
 cur=0 ## number of cur run test cases after deletion
@@ -235,10 +235,12 @@ done
 
 echo $K > ./data/iternum
 rm ./data/temp*
-#rm ./data/sample[0-9]*
-#rm ./data/train1_*
-#rm ./data/train2_*
+rm ./data/sample[0-9]*
+rm ./data/train1_*
+rm ./data/train2_*
 echo "*************************************  end  *************************************************************"
+echo -n "adjust coefficiency...>>  "
+./bin/adjustcoef ./data/svmline ./data/svmline_adjust
 #make -s clean
 #rm -rf ./bin
 rm -f $test_out

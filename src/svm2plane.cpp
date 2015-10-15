@@ -98,13 +98,14 @@ int to_string() {
 		if (!check())
 			return 0;
 	}
-	cout << " " << theta[0] << " * x0";
+	cout << " " << theta[0] << "[0]";
 	for (int j = 1; j < dimension; j++)
-		cout << " + " << theta[j] << " * x" << j;
-	if (theta0 == 0)
-		cout << " >= 0";
-	else 
-		cout << " >= "<< theta0 * -1;
+		cout << "  +  " << theta[j] << "[" << j << "]";
+/*	if (theta0 != 0)
+		cout << " + " << theta0; 
+	cout << " >= 0";
+*/
+	cout << " >= " << -theta0;
 	return 0;
 }
 
@@ -209,11 +210,12 @@ int main(int argc, char** argv)
 	//	cout << "-----------------------------------------------------------" << endl;
 	cout << "\t[" << nr_right * 100.00 / nr_sample << "% (" << nr_right << "/" << nr_sample << ")]" << endl;
 	of2.precision(std::numeric_limits<double>::digits10);
-	of2 << nr_right  / (double)nr_sample;
-	for (int i = 0; i < nr_class; i++) {
-		of2 << "\t" << theta[i];
+//	of2 << nr_right  / (double)nr_sample;
+	of2 << dimension << "\t";
+	for (int i = 0; i < dimension; i++) {
+		of2 << theta[i] << "\t";
 	}
-	of2 << "\t" << theta0 << endl;
+	of2 << theta0 << endl;
 
 	if1.close();
 	if2.close();

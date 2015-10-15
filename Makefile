@@ -1,7 +1,8 @@
 src=./src
 bin=./bin
 
-ALL:	${bin}/randgen ${bin}/markline ${bin}/linearsolver ${bin}/convergecheck ${bin}/existencecheck ${bin}/svm2plane  ${bin}/rand2input 
+ALL:	${bin}/randgen ${bin}/markline ${bin}/linearsolver ${bin}/convergecheck ${bin}/existencecheck ${bin}/svm2plane  ${bin}/rand2input ${bin}/adjustcoef
+	
 .PHONY:	clean
 
 ${bin}/rand2input:	${src}/rand2input.cpp
@@ -24,6 +25,9 @@ ${bin}/existencecheck:	${src}/existencecheck.cpp
 	g++ $< -o $@
 
 ${bin}/svm2plane:	${src}/svm2plane.cpp
+	g++ $< -o $@
+
+${bin}/adjustcoef:	${src}/adjustcoef.cpp
 	g++ $< -o $@
 
 clean:
