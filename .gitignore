@@ -11,3 +11,11 @@ v2.0/dev/*.out
 v2.0/bin/*.out
 v2.0/src/*.out
 v2.0/*.out
+
+data
+bin
+dev/*.out
+bin/*.out
+src/*.out
+*.out
+
