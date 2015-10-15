@@ -1,3 +1,6 @@
 data
 bin
+dev/*.out
+bin/*.out
+src/*.out
 
