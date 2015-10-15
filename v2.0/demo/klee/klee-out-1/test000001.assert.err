@@ -1,0 +1,6 @@
+Error: ASSERTION FAIL: xa + 2 * ya >= -1
+File: /home/lijiaying/Research/github/FIIF/demo/klee/klee_2.c
+Line: 27
+assembly.ll line: 96
+Stack: 
+	#000000096 in main (argc=1, argv=27507072) at /home/lijiaying/Research/github/FIIF/demo/klee/klee_2.c:27

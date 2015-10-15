@@ -1,0 +1,2 @@
+KLEE: ERROR: /home/lijiaying/Research/github/FIIF/demo/klee/klee_2.c:27: ASSERTION FAIL: xa + 2 * ya >= -1
+KLEE: NOTE: now ignoring this error at this location

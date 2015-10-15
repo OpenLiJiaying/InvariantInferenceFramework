@@ -1,6 +1,13 @@
-data
-bin
-dev/*.out
-bin/*.out
-src/*.out
+v1.0/data
+v1.0/bin
+v1.0/dev/*.out
+v1.0/bin/*.out
+v1.0/src/*.out
+v1.0/*.out
 
+v2.0/data
+v2.0/bin
+v2.0/dev/*.out
+v2.0/bin/*.out
+v2.0/src/*.out
+v2.0/*.out
