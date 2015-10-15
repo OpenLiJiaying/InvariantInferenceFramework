@@ -7,7 +7,7 @@
 using namespace std;
 
 const int MAX = 2048;
-const int maxDim = 128;
+const int maxDim = 16;
 const int maxSV = 2;
 int tempint;
 char tempchar;

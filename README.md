@@ -1,15 +1,17 @@
-# FIIF
-A Fast Invariant Inference Framework using Active Learning and SVMs
+# IIF
+A  Invariant Inference Framework using Active Learning and SVMs
 
-## This is FIIF project homepage.
-Currently, this implementation can support 2-int input variables perfectly.
-We will test programs with 3-int or more inputs in the coming future.
-Be patient, please.
+## This is IIF project homepage.
+Currently, this implementation can support at most 128-int input variables perfectly.
+It is safe to  test programs with less than 16 integers now.
+For the cast with integer larger than 16, we have not tested.
+So be patient, please.
 
 
 
 
 ##[Usage]
+You should install libsvm first.
 You should add {libsvm-root-path} to your path before running the following command.
 
 run the test as following command:
