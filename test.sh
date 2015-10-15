@@ -40,21 +40,7 @@ then
 	exit -1
 fi
 #rm ./makeout
-
-
 g++ $test_cpp -o $test_out
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
