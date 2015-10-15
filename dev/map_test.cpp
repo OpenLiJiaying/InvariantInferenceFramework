@@ -8,6 +8,7 @@
 #include <iostream>
 #include <functional>
 #include <unordered_map>
+#include <stdarg.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -17,23 +18,39 @@ using namespace std;
 static int dim = 2;
 
 struct Tuple {
+	static struct Tuple make_tuple(int first, ...) {
+		Tuple* tmp = new Tuple();
+		va_list ap;
+		va_start(ap, first);
+		for (int i = 0; i < dim; i++)
+			tmp->s[i] = va_arg(ap, int);
+		return *tmp;
+	}
+
 	int s[MAXDIM];
-	bool operator==(const Tuple &p) const {
+	/*	bool operator==(const Tuple &p) const {
 		for (int i = 0; i < dim; i++) 
-			if (s[i] != p.s[i])
-				return false;
+		if (s[i] != p.s[i])
+		return false;
 		return true;
+		}
+		*/
+	std::size_t hash(){
+		std::size_t t = 0;
+		for (int i = 0; i < dim; i++) {
+			t = t << 4 | s[i];
+		}
+		return t;
+	}
+	
+	static std::pair<std::size_t, Tuple> make_pair(Tuple& t) {
+		return new std::pair<std::size_t, Tuple> (t.hash(), t);
 	}
 };
 
 
-std::size_t my_hash(const Tuple& p){
-	std::size_t t = 0;
-	for (int i = 0; i < dim; i++) {
-		t = t << 4 | p.s[i];
-	}
-	return t;
-}
+
+
 
 
 
@@ -48,25 +65,22 @@ int main(int argc, char** argv, char** envp)
 	k2.s[0] = 2;
 	k2.s[1] = 341;
 	k2.s[2] = 212;
+	Tuple k3 = Tuple::make_tuple(34,14,521);
+	Tuple k4 = Tuple::make_tuple(-12, 2, -243);
 	std::unordered_map<std::size_t, Tuple> map;
-	std::pair<std::size_t, Tuple> t1 (my_hash(k1), k1);
-	std::pair<std::size_t, Tuple> t2 (my_hash(k2), k2);
-	map.insert(t1);
-	map.insert(t2);
+	map.insert(Tuple::make_pair(k1));
+	map.insert(Tuple::make_pair(k2));
+	map.insert(Tuple::make_pair(k3));
+	map.insert(Tuple::make_pair(k4));
 	for (auto& x: map)
 		cout << x.first << ":" << x.second.s[0] << ", " << x.second.s[1] << ", " << x.second.s[2] << endl;
-	return 0;
-/*
-   pid_t pid;
-   int status;
 
-   pid = fork();
-   if (pid > 0) {
-   waitpid(pid, &status, 0);
-   } else {
-   execve("./test.sh", argv, envp);
-   }
-   cout << "exit value is " << status << endl;
-   */
+	cout << endl;
+	auto m = map.find(t1.first);
+	if (m == map.end()) 
+		cout << "not found" << endl;
+	else
+		cout << m->first << ":" << m->second.s[0] << ", " << m->second.s[1] << ", " << m->second.s[2] << endl;
+
 	return 0;
 }
