@@ -1,74 +1,21 @@
-/*************************************************************************
-  > File Name: test_shell.cpp
-  > Author: Li Jiaying
-  > Mail: lijiaying1989@gmail.com 
-  > Created Time: 2015年10月15日 星期四 13时29分26秒
- ************************************************************************/
 #include <cstdlib>
 #include <iostream>
-#include <functional>
 #include <unordered_map>
 #include <string>
+#include <ctime>
 #include <stdarg.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "iif.h"
+#include "tuple.h"
 using namespace std;
-
-#define MAXDIM  16
-static int dim = 2;
-static int MIN = -100;
-static int MAX = 100;
-
-struct Tuple {
-	static struct Tuple make_tuple(int first, ...) {
-		Tuple* tmp = new Tuple();
-		va_list ap;
-		va_start(ap, first);
-		tmp->s[0] = first;
-		cout << tmp->s[0] << "==";
-		for (int i = 1; i < dim; i++) {
-			tmp->s[i] = va_arg(ap, int);
-			cout << tmp->s[i] << "==";
-		}
-		cout << endl;
-		return *tmp;
-	}
-
-	int s[MAXDIM];
-	/*	bool operator==(const Tuple &p) const {
-		for (int i = 0; i < dim; i++) 
-		if (s[i] != p.s[i])
-		return false;
-		return true;
-		}
-		*/
-	std::size_t hash(){
-		std::size_t t = 0;
-		for (int i = 0; i < dim; i++) {
-			t = t << 4 | s[i];
-		}
-		return t;
-	}
-};
-
-
-
-
-
-static int num_tests_begin = 16;
-static int num_tests_after = 4;
-static int num_iters = 32;
-
-
-
-
 
 
 int main(int argc, char** argv, char** envp)
 {
-	string testfile_path;
+	std::unordered_map<std::size_t, Tuple> map;
 
+	string testfile_path;
+	srand(time(NULL));
 	if (argc >= 3) {
 		testfile_path = argv[1];
 		dim = atoi(argv[2]);
@@ -80,8 +27,8 @@ int main(int argc, char** argv, char** envp)
 		exit(-1);
 	}
 	if (argc >= 5) {
-		MIN = atoi(argv[3]);
-		MAX = atoi(argv[4]);
+		mini = atoi(argv[3]);
+		maxi = atoi(argv[4]);
 	}
 	
 	string testfile_out = "./target.out";
@@ -91,35 +38,22 @@ int main(int argc, char** argv, char** envp)
 
 	for (int k = 1; k < num_iters; k++) {
 		if (k == 1) {	// the first round
-			const char* str_randgen = (string("./bin/randgen ") + to_string(dim) + " " + to_string(num_tests_begin) + 
-					" " + to_string(MIN) + " " + to_string(MAX)).c_str();
-			system(str_randgen);
+			auto m = Tuple::rand_gen();
+			map.insert(make_pair(m->hash(), *m));
+			const char* str_run_target = (string(testfile_out) + " " + m->to_string()).c_str();
+			cout << "str to run target: " << str_run_target << endl;
+			system(str_run_target);
+			
+//			const char* str_randgen = (string("./bin/randgen ") + to_string(dim) + " " + to_string(num_tests_begin) + 
+//					" " + to_string(min) + " " + to_string(max)).c_str();
+//			system(str_randgen);
 		}
 		cout << "other things to do " << k << endl;
 	}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 	cout << sizeof(std::size_t) << endl;
 	auto k1 = Tuple::make_tuple(12, 16, 205);
 	Tuple k2 = Tuple::make_tuple(2, 341, 212);
@@ -140,6 +74,6 @@ int main(int argc, char** argv, char** envp)
 		cout << "not found" << endl;
 	else
 		cout << "m2 found" << m2->first << ":" << m2->second.s[0] << ", " << m2->second.s[1] << ", " << m2->second.s[2] << endl;
-
+*/
 	return 0;
 }
