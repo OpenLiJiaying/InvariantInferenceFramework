@@ -16,8 +16,8 @@ You should add {libsvm-root-path} to your path before running the following comm
 
 run the test as following command:
 cd $project_root
-./test.sh	source.cpp	NumbersOfInputNeed	[RandomedInputLowerBound] [RandomedINputUpperBounder] 
+./learn.sh	source.cpp	NumbersOfInputNeed	[RandomedInputLowerBound] [RandomedINputUpperBounder] 
 
 ##[Examples]
 for example, to test the ./examples/simple/simeple.cpp
-we run FIIF as: ./test.sh	examples/simple/simple.cpp 2 -100 100
+we run IIF as: ./learn.sh	examples/simple/simple.cpp 2 -100 100

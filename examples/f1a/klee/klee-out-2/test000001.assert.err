@@ -1,0 +1,6 @@
+Error: ASSERTION FAIL: y >= 0
+File: /home/lijiaying/Research/github/FIIF/examples/f1a/klee/klee_3.c
+Line: 17
+assembly.ll line: 50
+Stack: 
+	#000000050 in main (argc=1, argv=44946064) at /home/lijiaying/Research/github/FIIF/examples/f1a/klee/klee_3.c:17
