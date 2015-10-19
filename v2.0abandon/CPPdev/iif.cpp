@@ -9,7 +9,6 @@
 #include "tuple.h"
 using namespace std;
 
-
 int main(int argc, char** argv, char** envp)
 {
 	std::unordered_map<std::size_t, Tuple> map;

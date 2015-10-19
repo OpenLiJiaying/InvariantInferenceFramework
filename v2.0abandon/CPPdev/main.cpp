@@ -11,12 +11,12 @@
 #define MAX_DIM  16
 #define MAX_BIT  32
 
-static int dim = 2;
-static int mini = -100;
-static int maxi = 100;
-static int num_tests_begin = 16;
-static int num_tests_after = 4;
-static int num_iters = 32;
+int dim = 2;
+int mini = -100;
+int maxi = 100;
+int num_tests_begin = 16;
+int num_tests_after = 4;
+int num_iters = 32;
 
 
 class Tuple {

@@ -3,12 +3,12 @@
 
 #define MAX_DIM  16
 #define MAX_BIT  32
-int dim = 2;
-int mini = -100;
-int maxi = 100;
+extern int dim;
+extern int mini;
+extern int maxi;
 
-int num_tests_begin = 16;
-int num_tests_after = 4;
-int num_iters = 32;
+int num_tests_begin;
+int num_tests_after;
+int num_iters;
 
 #endif
