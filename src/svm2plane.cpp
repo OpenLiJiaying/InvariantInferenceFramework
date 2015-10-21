@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 	if (argc <= 1) {
 		cout << "svm2plane: missing operand after svm2plane" << endl;
 		cout << "svm2plane: try 'svm2plane -help' for more information" << endl;
-		return -1;
+		return -2;
 	}
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "-model") == 0) {
@@ -154,7 +154,7 @@ int main(int argc, char** argv)
 	if (model_file == NULL) {
 		cout << "svm2plane: missing model file after svm2plane" << endl;
 		cout << "svm2plane: try 'svm2plane -help' for more information" << endl;
-		return -1;
+		return -2;
 	}
 
 	ifstream if1(model_file);
@@ -225,6 +225,8 @@ int main(int argc, char** argv)
 
 	if (out_file)
 		delete out_file;
+	if (nr_right != nr_sample)
+		return 2;
 	return 0;
 }
 

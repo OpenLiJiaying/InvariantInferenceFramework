@@ -55,7 +55,7 @@ g++ $test_cpp -o $test_out
 #############################################################################################################################################
 
 NUM_ITER_BEGIN=`expr 4 \* $input_num`
-NUM_ITER_AFTER=`expr 4 \* $input_num`
+NUM_ITER_AFTER=`expr 2 \* $input_num`
 NUM_ITERS=32 #128
 cond=0
 prev=0 ## number of previous test cases
@@ -142,6 +142,13 @@ while [ $K -le $NUM_ITERS ]; do
 		cd ..
 		echo -n -e "\b\b\b\b\b\b\b\b\b\b"
 		continue
+	fi
+	if [ $cond -eq 2 ]
+	then
+		cd ..
+		echo "accuracy drops."
+		echo  "STOP here. SVM can not find a line to separate them in this iteration."
+		break
 	fi
 
 	cat svmline >> lines
