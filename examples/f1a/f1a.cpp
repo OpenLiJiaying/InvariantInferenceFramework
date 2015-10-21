@@ -10,11 +10,6 @@ bool passP = false;
 bool passQ = false;
 
 
-void loop()
-{
-}
-
-
 int main (int argc, char** argv) {
 	if (argc < 3) return -1;
 	x = atoi(argv[1]);

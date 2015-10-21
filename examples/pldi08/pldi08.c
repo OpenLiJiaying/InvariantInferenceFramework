@@ -1,7 +1,17 @@
-int main (){
+#include<stdio.h>
+#include<time.h>
+#include<stdlib.h>
+#include<iostream>
+using namespace std;
 
-  int x = -50;
-  int y;
+
+int x;
+int y;
+bool passP = false;
+bool passQ = false;
+
+int main (){
+  x = -50;
   while (x < 0){
      x = x + y;
      y++;
