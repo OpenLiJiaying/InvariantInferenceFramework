@@ -1,16 +1,16 @@
-v1.0/data
-v1.0/bin
-v1.0/dev/*.out
-v1.0/bin/*.out
-v1.0/src/*.out
-v1.0/*.out
+data/*
+bin/*
+dev/*.out
+bin/*.out
+src/*.out
+*.out
 
-v2.0/data
-v2.0/bin
-v2.0/dev/*.out
-v2.0/bin/*.out
-v2.0/src/*.out
-v2.0/*.out
+v2.0abandon/data
+v2.0abandon/bin
+v2.0abandon/dev/*.out
+v2.0abandon/bin/*.out
+v2.0abandon/src/*.out
+v2.0abandon/*.out
 
 data
 bin
