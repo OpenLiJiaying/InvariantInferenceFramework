@@ -4,9 +4,9 @@
 #include <string>
 #include <ctime>
 #include <stdarg.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+//#include <unistd.h>
+//#include <sys/types.h>
+//#include <sys/wait.h>
 
 #define MAX_DIM  16
 #define MAX_BIT  32
@@ -60,7 +60,6 @@ class Tuple {
 		return str;
 	}
 };
-
 
 
 
