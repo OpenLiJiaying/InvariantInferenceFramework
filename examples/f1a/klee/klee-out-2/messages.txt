@@ -1,2 +1,0 @@
-KLEE: ERROR: /home/lijiaying/Research/github/FIIF/examples/f1a/klee/klee_3.c:17: ASSERTION FAIL: y >= 0
-KLEE: NOTE: now ignoring this error at this location
