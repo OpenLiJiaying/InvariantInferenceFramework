@@ -27,9 +27,13 @@ int main (int argc, char** argv) {
 	// assert (y > 0);
 	if (x > 0)
 		passQ = true;
-	if (passP) { if (passQ) return 1;
-		else return 2;
-	} else if (passQ) return 3;
-	return 4;
+	exit(0);
+	return 0;
+	if (passP) { 
+		if (passQ) exit(1);
+		else exit(2);
+	} else 
+		if (passQ) exit(3);
+	exit(4);
 }
 

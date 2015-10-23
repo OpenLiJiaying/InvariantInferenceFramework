@@ -5,10 +5,11 @@
 #include <unordered_map>
 #include <string>
 #include <stdarg.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include "iif.h"
 using namespace std;
 
+namespace iif{
 class Tuple {
 	public:
 		static Tuple* make_tuple(int first, ...)
@@ -25,6 +26,7 @@ class Tuple {
 			cout << endl;
 			return tmp;
 		}
+
 		static Tuple* rand_gen()
 		{
 			int length = max - min + 1;
@@ -33,10 +35,16 @@ class Tuple {
 				t->s[i] = rand() % length + min;
 			return t;
 		}
+
 		std::size_t hash();
+		
 		string to_string();
 
+		void to_char_array(char** argv);
+
 		int s[MAX_DIM];
+		int label;
 };
+}
 
 #endif
