@@ -1,0 +1,15 @@
+src=./src
+bin=./bin
+CXX=g++
+
+OBJ=randgen markline linearsolver convergecheck existencecheck svm2plane rand2input adjustcoef
+	
+ALL: $(bin)/$(OBJ)
+
+$(bin)/$(OBJ): $(bin)/%: $(src)/%.cpp
+	$(CXX) $< -o $@
+
+.PHONY: clean
+clean:
+	-rm ${bin}/* 
+
