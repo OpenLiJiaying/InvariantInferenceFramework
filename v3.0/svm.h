@@ -99,6 +99,10 @@ int svm_check_probability_model(const struct svm_model *model);
 
 void svm_set_print_string_function(void (*print_func)(const char *));
 
+void svm_model_visualization(const svm_model *model);
+
+void print_svm_samples(const svm_problem *sp);
+
 #ifdef __cplusplus
 }
 #endif

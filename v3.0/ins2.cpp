@@ -5,6 +5,7 @@ int m(int* a){
 	int y = a[1];
 	//assume (x + y >= 0)
 	assume (x + y > 0);
+//	record_values(x, y);
 	while (y > 0) {
 		record_values(x, y);
 		x++;

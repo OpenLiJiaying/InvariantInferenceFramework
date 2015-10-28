@@ -8,11 +8,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <time.h>
+#include <float.h>
 #include "iif.h"
 #include "svm_linker.h"
 #include "svm.h"
 
-int min = -100, max = 100;
+//int min = -100, max = 100;
+int min = -10, max = 10;
 
 int main(int argc, char** argv)
 {
@@ -54,13 +56,14 @@ int main(int argc, char** argv)
 
 	struct svm_parameter param;
 	param.svm_type = C_SVC;
-	param.kernel_type = RBF;
+	param.kernel_type = LINEAR;
 	param.degree = 3;
 	param.gamma = 0;	// 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.5;
 	param.cache_size = 100;
-	param.C = 1;
+//	param.C = 1;
+	param.C = DBL_MAX;
 	param.eps = 1e-3;
 	param.p = 0.1;
 	param.shrinking = 1;
@@ -71,6 +74,8 @@ int main(int argc, char** argv)
 	
 	struct svm_model* model = svm_train((const struct svm_problem *)&sl, &param);
 	svm_save_model("model_file", model);
+	svm_model_visualization(model);
+	print_svm_samples((const struct svm_problem*)&sl);
 	svm_free_and_destroy_model(&model);
 
 	return 0;

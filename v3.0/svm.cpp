@@ -3124,3 +3124,58 @@ void svm_set_print_string_function(void (*print_func)(const char *))
 	else
 		svm_print_string = print_func;
 }
+
+#ifdef _TEST2_
+void print_svm_samples(const svm_problem *sp)
+{
+	for (int i = 0; i < sp->l; i++) {
+		info("%.8g\t", sp->y[i]);
+		for (int j = 0; j < vars; j++) 
+			info("%d:%.8g ", j, sp->x[i][j].value);
+		info("\n");
+	}
+}
+#else
+void print_svm_samples(const svm_problem *sp){}
+#endif
+
+
+void svm_model_visualization(const svm_model *model)
+{
+	if (model->param.kernel_type != LINEAR) {
+		info("Can not visualize hyperplane for kernel %s\n", kernel_type_table[model->param.kernel_type]);
+		return;
+	}
+	
+	int l = model->l;
+	const double * const *sv_coef = model->sv_coef;
+	const svm_node * const *SV = model->SV;
+
+	double theta[vars];
+	double theta0 = sv_coef[0][0] > 0? 1 : -1;
+	for (int i = 0; i < vars; i++)
+		theta[i] = 0;
+
+	for(int i=0;i<l;i++)
+	{
+		const svm_node *p0 = SV[0];
+//		double label[i] = sv_coef[0][i];
+		double temp = 0;
+		const svm_node *p = SV[i];
+		for (int j = 0; j < vars; j++)
+		{
+//			double x[i][j] = p->value;
+			theta[j] += sv_coef[0][i] * p->value;
+			temp += p0->value * p->value; 
+			p++;
+			p0++;
+		}
+		temp *= sv_coef[0][i];
+		theta0 -= temp;
+	}
+	info(" %.8g [0]", theta[0]);
+	for (int j = 1; j < vars; j++)
+		info ("  +  %.8g [%d]", theta[j], j);
+	info(" >= %.8g\n", -theta0);
+	return;	
+}
