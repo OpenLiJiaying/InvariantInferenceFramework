@@ -5,9 +5,9 @@
 #define LIBSVM_VERSION 320
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 extern int libsvm_version;
 extern const int vars;
@@ -103,8 +103,8 @@ void svm_model_visualization(const svm_model *model);
 
 void print_svm_samples(const svm_problem *sp);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* _LIBSVM_H */
