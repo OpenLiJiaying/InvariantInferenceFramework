@@ -282,7 +282,6 @@ void read_problem(const char *filename)
 	FILE *fp = fopen(filename,"r");
 	char *endptr;
 	char *idx, *val, *label;
-	int tempindex;
 
 	if(fp == NULL)
 	{
@@ -340,11 +339,11 @@ void read_problem(const char *filename)
 				break;
 
 			errno = 0;
-			tempindex = (int) strtol(idx,&endptr,10);
-			if(endptr == idx || errno != 0 || *endptr != '\0' || tempindex <= inst_max_index)
+			x_space[j].index = (int) strtol(idx,&endptr,10);
+			if(endptr == idx || errno != 0 || *endptr != '\0' || x_space[j].index <= inst_max_index)
 				exit_input_error(i+1);
 			else
-				inst_max_index = tempindex;
+				inst_max_index = x_space[j].index;
 
 			errno = 0;
 			x_space[j].value = strtod(val,&endptr);
@@ -356,7 +355,7 @@ void read_problem(const char *filename)
 
 		if(inst_max_index > max_index)
 			max_index = inst_max_index;
-//		x_space[j++].index = -1;
+		x_space[j++].index = -1;
 	}
 
 	if(param.gamma == 0 && max_index > 0)
@@ -365,11 +364,11 @@ void read_problem(const char *filename)
 	if(param.kernel_type == PRECOMPUTED)
 		for(i=0;i<prob.l;i++)
 		{
-//			if (prob.x[i][0].index != 0)
-//			{
-//				fprintf(stderr,"Wrong input format: first column must be 0:sample_serial_number\n");
-//				exit(1);
-//			}
+			if (prob.x[i][0].index != 0)
+			{
+				fprintf(stderr,"Wrong input format: first column must be 0:sample_serial_number\n");
+				exit(1);
+			}
 			if ((int)prob.x[i][0].value <= 0 || (int)prob.x[i][0].value > max_index)
 			{
 				fprintf(stderr,"Wrong input format: sample_serial_number out of range\n");

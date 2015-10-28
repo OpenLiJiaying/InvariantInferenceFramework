@@ -79,7 +79,6 @@ void predict(FILE *input, FILE *output)
 		double target_label, predict_label;
 		char *idx, *val, *label, *endptr;
 		int inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
-		int tempindex;
 
 		label = strtok(line," \t\n");
 		if(label == NULL) // empty line
@@ -103,11 +102,11 @@ void predict(FILE *input, FILE *output)
 			if(val == NULL)
 				break;
 			errno = 0;
-			tempindex = (int) strtol(idx,&endptr,10);
-			if(endptr == idx || errno != 0 || *endptr != '\0' || tempindex <= inst_max_index)
+			x[i].index = (int) strtol(idx,&endptr,10);
+			if(endptr == idx || errno != 0 || *endptr != '\0' || x[i].index <= inst_max_index)
 				exit_input_error(total+1);
 			else
-				inst_max_index = tempindex;
+				inst_max_index = x[i].index;
 
 			errno = 0;
 			x[i].value = strtod(val,&endptr);
@@ -116,7 +115,7 @@ void predict(FILE *input, FILE *output)
 
 			++i;
 		}
-		tempindex = -1;
+		x[i].index = -1;
 
 		if (predict_probability && (svm_type==C_SVC || svm_type==NU_SVC))
 		{
