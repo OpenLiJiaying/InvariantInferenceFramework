@@ -10,8 +10,6 @@
 #include <time.h>
 #include "iif.h"
 
-//#define _TEST_
-
 
 const int max_trace_pnt = 1024;
 const int inputs_init = 4 * VARS;
@@ -24,18 +22,20 @@ struct node negative_set[max_set_idx];
 struct node* counter_example_set = NULL;
 int positive_idx = 0;
 int negative_idx = 0;
+bool positive_set_changed = false;
+bool negative_set_changed = false;
 
 struct node inputs;
 struct node trace[max_trace_pnt];
 int trace_idx = 0;
 
-bool bPassP = false;
-bool bPassQ = false;
+bool _passP = false;
+bool _passQ = false;
 int min = -100, max = 100;
 
 
 	int 
-insert_data(int first, ...)
+record_values(int first, ...)
 {
 	if (trace_idx >= max_trace_pnt)
 		return -1;
@@ -61,46 +61,50 @@ insert_data(int first, ...)
 
 static int before_loop()
 {
-	bPassP = false;
-	bPassQ = false;
+	_passP = false;
+	_passQ = false;
 	trace_idx = 0;
 	return 0;
 }
 
 static int after_loop()
 {
-#ifdef _TEST_
-	std::cout << "after_loop" << bPassP << "--" << bPassQ << std::endl;
+#ifdef _TEST3_
+	std::cout << "after_loop" << _passP << "--" << _passQ << std::endl;
 #endif
-	if (bPassP && bPassQ) {
+	if (_passP && _passQ) {
+		positive_set_changed = true;
 		for (int i = 0; i < trace_idx; i++){
 			positive_set[positive_idx].copy(trace[i].value);
-#ifdef _TEST_
+//			positive_set[positive_idx].hash();
+#ifdef _TEST3_
 			std::cout << positive_set[positive_idx] << "->";
 #endif
 			positive_idx++;
 		}
-#ifdef _TEST_
+#ifdef _TEST3_
 		std::cout << std::endl;
 #endif
 		trace_idx = 0;
 		return 0;
 	}
-	if (!bPassP && !bPassQ) {
+	if (!_passP && !_passQ) {
+		negative_set_changed = true;
 		for (int i = 0; i < trace_idx; i++) {
 			negative_set[negative_idx].copy(trace[i].value);
-#ifdef _TEST_
+//			negative_set[negative_idx].hash();
+#ifdef _TEST3_
 			std::cout << negative_set[negative_idx] << "->";
 #endif
 			negative_idx++;
 		}
-#ifdef _TEST_
+#ifdef _TEST3_
 		std::cout << std::endl;
 #endif
 		trace_idx = 0;
 		return 0;
 	}
-	if (bPassP && !bPassQ) {
+	if (_passP && !_passQ) {
 		counter_example_set = trace;
 		std::cerr << "Encounter counter examples." << std::endl;
 		std::cerr << "Trace: " << std::endl << "init:";
@@ -109,7 +113,7 @@ static int after_loop()
 		std::cout << "end" << std::endl;
 		exit(-1);
 	}
-	if (!bPassP && bPassQ) {
+	if (!_passP && _passQ) {
 		//		for (int i = 0; i < trace_idx; i++)
 		//			question_set[question_idx++].copy(trace[i]);
 		trace_idx = 0;
@@ -119,8 +123,9 @@ static int after_loop()
 }
 
 
-#ifndef _TEST_
-void set_print() {
+#ifdef _TEST1_
+static void 
+nice_set_print() {
 	std::cout << "Positive Set [" << positive_idx << "]:" << std::endl;
 	for (int i = 0; i < positive_idx; i++)
 		std::cout << positive_set[i] << " ";
@@ -131,7 +136,7 @@ void set_print() {
 	std::cout << std::endl;
 }
 #else
-void set_print(){}
+static void nice_set_print(){}
 #endif 
 
 
@@ -156,6 +161,14 @@ main(int argc, char** argv)
 			after_loop();
 		}
 	}
-	set_print();
+	if (positive_set_changed) { 
+		qsort(positive_set, positive_idx, sizeof(node), node::compare);
+		positive_set_changed = false;
+	}
+	if (negative_set_changed) { 
+		qsort(negative_set, negative_idx, sizeof(node), node::compare);
+		negative_set_changed = false;
+	}
+	nice_set_print();
 	return 0;
 }

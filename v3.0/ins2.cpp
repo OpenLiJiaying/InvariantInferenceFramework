@@ -3,21 +3,17 @@
 int m(int* a){
 	int x = a[0];
 	int y = a[1];
-	//Precondition: x + y >= 0
 	//assume (x + y >= 0)
-	if (x + y > 0)
-		bPassP = true;
+	assume (x + y > 0);
 	while (y > 0) {
-		insert_data(x, y);
+		record_values(x, y);
 		x++;
 		y--;
 	}
 
-	// Postcondition: y > 0
 	// assert (y > 0);
-	insert_data(x, y);
-	if (x > 0)
-		bPassQ = true;
+	record_values(x, y);
+	assert (x > 0);
 
 	return 0;
 }
