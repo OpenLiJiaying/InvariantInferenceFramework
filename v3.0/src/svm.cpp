@@ -37,6 +37,8 @@ static inline double powi(double base, int times)
 #define INF HUGE_VAL
 #define TAU 1e-12
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
+struct svm_node* positive_nodes = NULL;
+struct svm_node* negative_nodes = NULL;
 
 static void print_string_stdout(const char *s)
 {
@@ -3140,7 +3142,7 @@ void print_svm_samples(const svm_problem *sp){}
 #endif
 
 
-void svm_model_visualization(const svm_model *model)
+void svm_model_visualization(const svm_model *model, coef* co)
 {
 	if (model->param.kernel_type != LINEAR) {
 		info("Can not visualize hyperplane for kernel %s\n", kernel_type_table[model->param.kernel_type]);
@@ -3151,7 +3153,7 @@ void svm_model_visualization(const svm_model *model)
 	const double * const *sv_coef = model->sv_coef;
 	const svm_node * const *SV = model->SV;
 
-	double theta[vars];
+	double* theta = co->theta;
 	double theta0 = sv_coef[0][0] > 0? 1 : -1;
 	for (int i = 0; i < vars; i++)
 		theta[i] = 0;
@@ -3173,9 +3175,16 @@ void svm_model_visualization(const svm_model *model)
 		temp *= sv_coef[0][i];
 		theta0 -= temp;
 	}
-	info(" %.8g [0]", theta[0]);
+	co->theta0 = theta0;
+	info(" %.16g [0]", theta[0]);
 	for (int j = 1; j < vars; j++)
-		info ("  +  %.8g [%d]", theta[j], j);
-	info(" >= %.8g\n", -theta0);
+		info ("  +  %.16g [%d]", theta[j], j);
+	info(" >= %.16g\n", -theta0);
 	return;	
+}
+
+
+struct svm_model *svm_I_train(const struct svm_problem *prob, const struct svm_parameter *param) 
+{
+	return svm_train(prob, param);
 }

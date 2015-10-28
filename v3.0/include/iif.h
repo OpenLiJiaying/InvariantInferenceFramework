@@ -9,8 +9,6 @@
 #include <stdarg.h>
 #include <iostream>
 
-
-
 // _TEST_ simplest output
 //#define _TEST0_	 
 #define _TEST1_	 
@@ -33,17 +31,38 @@
 #endif
 
 
+
+extern bool _passP;
+extern bool _passQ;
+
+#undef assume
+#undef assert
+
+#define assume(expr) do { \
+	_passP = (expr)? true : false;\
+} while(0)
+
+#define assert(expr) do { \
+	_passQ = (expr)? true : false;\
+} while(0)
+
+
+
 #ifndef VARS 
 const int vars = 2;
 #else
 const int vars = VARS;
 #endif
 
+extern int maxv;
+extern int minv;
+
 const int max_trace_pnt = 1024;
 const int inputs_init = 4 * vars;
 const int inputs_aft = 2 * vars;
 const int max_inputs = inputs_init;
 const int max_set_idx = 10240;
+const int max_iter = 32;
 
 
 struct node
@@ -97,19 +116,11 @@ extern int inputs[];
 extern struct node trace[];
 extern int trace_idx;
 
-extern bool _passP;
-extern bool _passQ;
 
-#undef assume
-#undef assert
-
-#define assume(expr) do { \
-	_passP = (expr)? true : false;\
-} while(0)
-
-#define assert(expr) do { \
-	_passQ = (expr)? true : false;\
-} while(0)
+struct coef{
+	double theta0;
+	double theta[vars];
+};
 
 
 // function lists
@@ -124,5 +135,8 @@ int record_values(int, ...);
 int before_loop();
 int after_loop();
 void nice_set_print(); 
+
+
+int linear_solver(const struct coef, int*);
 
 #endif

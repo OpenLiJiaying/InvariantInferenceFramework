@@ -1,5 +1,5 @@
-#ifndef _LIBSVM_H
-#define _LIBSVM_H
+#ifndef _LIBSVM_H_
+#define _LIBSVM_H_
 #include "iif.h"
 
 #define LIBSVM_VERSION 320
@@ -23,6 +23,9 @@ struct svm_problem
 	double *y;
 	struct svm_node **x;
 };
+
+extern struct svm_node* positive_nodes;
+extern struct svm_node* negative_nodes;
 
 enum { C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR, NU_SVR };	/* svm_type */
 enum { LINEAR, POLY, RBF, SIGMOID, PRECOMPUTED }; /* kernel_type */
@@ -99,9 +102,12 @@ int svm_check_probability_model(const struct svm_model *model);
 
 void svm_set_print_string_function(void (*print_func)(const char *));
 
-void svm_model_visualization(const svm_model *model);
+void svm_model_visualization(const svm_model *model, coef* co);
 
 void print_svm_samples(const svm_problem *sp);
+
+struct svm_model *svm_I_train(const struct svm_problem *prob, const struct svm_parameter *param);
+
 
 //#ifdef __cplusplus
 //}

@@ -21,6 +21,24 @@ int negative_idx = 0;
 bool positive_set_changed = false;
 bool negative_set_changed = false;
 
+#ifdef _TEST1_
+void nice_set_print()
+{
+	std::cout << "Positive Set [" << positive_idx << "]:" << std::endl;
+	for (int i = 0; i < positive_idx; i++)
+		std::cout << positive_set[i] << " ";
+	std::cout << std::endl;
+	std::cout << "Negative Set [" << negative_idx << "]:" << std::endl;
+	for (int i = 0; i < negative_idx; i++)
+		std::cout << negative_set[i] << " ";
+	std::cout << std::endl;
+}
+#else
+static void nice_set_print(){}
+#endif 
+
+
+
 
 
 int inputs[vars];
@@ -122,19 +140,4 @@ int after_loop()
 }
 
 
-#ifdef _TEST1_
-void nice_set_print()
-{
-	std::cout << "Positive Set [" << positive_idx << "]:" << std::endl;
-	for (int i = 0; i < positive_idx; i++)
-		std::cout << positive_set[i] << " ";
-	std::cout << std::endl;
-	std::cout << "Negative Set [" << negative_idx << "]:" << std::endl;
-	for (int i = 0; i < negative_idx; i++)
-		std::cout << negative_set[i] << " ";
-	std::cout << std::endl;
-}
-#else
-static void nice_set_print(){}
-#endif 
 
