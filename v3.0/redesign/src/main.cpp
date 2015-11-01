@@ -9,7 +9,7 @@
 #include "header.h"
 
 int minv = -200, maxv = 200;
-//void print_null(const char *s) {}
+void print_null(const char *s) {}
 TraceSet<int>* TS;
 
 int main(int argc, char** argv)
@@ -59,6 +59,12 @@ int main(int argc, char** argv)
 		after_loop();
 	}
 	std::cout << "\t(2) program Trace Set... {" << TS <<"\n}" << std::endl;
+
+	SVM_algo *psvm = new SVM_algo(print_null);
+	std::cout << "\t(2) converting data into svm format..." << std::endl;
+	psvm->fromTraceSet2SVMProblem(TS);
+	psvm->classify();
+	std::cout << "RESULT: " << psvm->equation << std::endl;
 
 /*
 start_processing:	

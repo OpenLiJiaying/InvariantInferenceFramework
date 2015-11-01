@@ -115,7 +115,7 @@ struct svm_model *svm_I_train(const struct svm_problem *prob, const struct svm_p
 //}
 //#endif
 
-void print_null(const char *s) {}
+//void print_null(const char *s) {}
 class SVM_algo // : public ClassifyAlgo
 {
 	public:
@@ -124,7 +124,7 @@ class SVM_algo // : public ClassifyAlgo
 		svm_parameter param;
 		svm_problem problem;
 
-		SVM_algo()
+		SVM_algo(void (*f) (const char*))
 		{
 			problem.y = NULL;
 			problem.x = NULL;
@@ -147,7 +147,7 @@ class SVM_algo // : public ClassifyAlgo
 			param.nr_weight = 0;
 			param.weight_label = NULL;
 			param.weight = NULL;
-			svm_set_print_string_function(print_null);
+			svm_set_print_string_function(f);
 		}
 
 		~SVM_algo()
