@@ -1,7 +1,7 @@
 #ifndef _LIBSVM_H_
 #define _LIBSVM_H_
-#include "iif.h"
-
+#include "header.h"
+#include "float.h"
 #define LIBSVM_VERSION 320
 
 
@@ -11,6 +11,8 @@
 
 extern int libsvm_version;
 extern const int vars;
+
+
 
 struct svm_node
 {
@@ -70,10 +72,10 @@ struct svm_model
 
 	int *label;		/* label of each class (label[k]) */
 	int *nSV;		/* number of SVs for each class (nSV[k]) */
-				/* nSV[0] + nSV[1] + ... + nSV[k-1] = l */
+	/* nSV[0] + nSV[1] + ... + nSV[k-1] = l */
 	/* XXX */
 	int free_sv;		/* 1 if svm_model is created by svm_load_model*/
-				/* 0 if svm_model is created by svm_train */
+	/* 0 if svm_model is created by svm_train */
 };
 
 struct svm_model *svm_train(const struct svm_problem *prob, const struct svm_parameter *param);
@@ -102,7 +104,7 @@ int svm_check_probability_model(const struct svm_model *model);
 
 void svm_set_print_string_function(void (*print_func)(const char *));
 
-void svm_model_visualization(const svm_model *model, coef* co);
+void svm_model_visualization(const svm_model *model, Equation* equ);
 
 void print_svm_samples(const svm_problem *sp);
 
@@ -112,5 +114,104 @@ struct svm_model *svm_I_train(const struct svm_problem *prob, const struct svm_p
 //#ifdef __cplusplus
 //}
 //#endif
+
+void print_null(const char *s) {}
+class SVM_algo // : public ClassifyAlgo
+{
+	public:
+		svm_model* model;
+		Equation* equation;
+		svm_parameter param;
+		svm_problem problem;
+
+		SVM_algo()
+		{
+			problem.y = NULL;
+			problem.x = NULL;
+			
+			equation = new Equation();
+
+			param.svm_type = C_SVC;
+			param.kernel_type = LINEAR;
+			param.degree = 3;
+			param.gamma = 0;	// 1/num_features
+			param.coef0 = 0;
+			param.nu = 0.5;
+			param.cache_size = 100;
+			//	param.C = 1;
+			param.C = DBL_MAX;
+			param.eps = 1e-3;
+			param.p = 0.1;
+			param.shrinking = 1;
+			param.probability = 0;
+			param.nr_weight = 0;
+			param.weight_label = NULL;
+			param.weight = NULL;
+			svm_set_print_string_function(print_null);
+		}
+
+		~SVM_algo()
+		{
+			if (model != NULL)
+				delete model;
+			if (problem.y != NULL)
+				delete problem.y;
+			// here we should check x[i] for each.
+			// be careful about whether it is imported from double trace set or int trace set.
+			// these two cases should be handled separatly.
+			if (problem.x != NULL)
+				delete []problem.x;
+		}
+
+		int classify() 
+		{
+			if (problem.y == NULL || problem.x == NULL)
+				return -1;
+			model = svm_train(&problem, &param);
+			svm_model_visualization(model, equation);
+			return 0;
+		}
+
+		int fromTraceSet2SVMProblem(TraceSet<double>* ts)
+		{
+			int l = 0;
+			for (LoopTrace<double>* lt = ts->first; lt != NULL; lt = lt->next)
+				l += lt->length;
+			problem.l = l;
+			problem.y = new double [l + 2];
+			problem.x = new svm_node* [l + 2];
+			int i = 0;
+			for (LoopTrace<double>* lt = ts->first; lt != NULL; lt = lt->next) {
+				for (LoopState<double>* ls = lt->first; ls != NULL; ls = ls->next) {
+					problem.y[i] = ls->label;
+					problem.x[i++] = (svm_node*)ls->values;
+				}
+			}
+			return l;
+		}
+
+		int fromTraceSet2SVMProblem(TraceSet<int>* ts)
+		{
+			int l = 0;
+			for (LoopTrace<int>* lt = ts->first; lt != NULL; lt = lt->next)
+				l += lt->length;
+			problem.l = l;
+			problem.y = new double [l + 2];
+			problem.x = new svm_node* [l + 2];
+			int i = 0;
+			for (LoopTrace<int>* lt = ts->first; lt != NULL; lt = lt->next) {
+				for (LoopState<int>* ls = lt->first; ls != NULL; ls = ls->next) {
+					problem.y[i] = ls->label;
+					problem.x[i] = new svm_node[vars];
+					for (int j = 0; j < vars; j++) {
+						problem.x[i][j].value = ls->values[j];
+					}
+				}
+			}
+			return l;
+		}
+
+	private:
+};
 
 #endif /* _LIBSVM_H */

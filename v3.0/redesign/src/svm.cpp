@@ -3142,7 +3142,7 @@ void print_svm_samples(const svm_problem *sp){}
 #endif
 
 
-void svm_model_visualization(const svm_model *model, coef* co)
+void svm_model_visualization(const svm_model *model, Equation* equ)
 {
 	if (model->param.kernel_type != LINEAR) {
 		info("Can not visualize hyperplane for kernel %s\n", kernel_type_table[model->param.kernel_type]);
@@ -3153,7 +3153,7 @@ void svm_model_visualization(const svm_model *model, coef* co)
 	const double * const *sv_coef = model->sv_coef;
 	const svm_node * const *SV = model->SV;
 
-	double* theta = co->theta;
+	double* theta = equ->theta;
 	double theta0 = sv_coef[0][0] > 0? 1 : -1;
 	for (int i = 0; i < vars; i++)
 		theta[i] = 0;
@@ -3175,11 +3175,12 @@ void svm_model_visualization(const svm_model *model, coef* co)
 		temp *= sv_coef[0][i];
 		theta0 -= temp;
 	}
-	co->theta0 = theta0;
-	info(" %.16g [0]", theta[0]);
+	equ->theta0 = theta0;
+/*	info(" %.16g [0]", theta[0]);
 	for (int j = 1; j < vars; j++)
 		info ("  +  %.16g [%d]", theta[j], j);
 	info(" >= %.16g\n", -theta0);
+	*/
 	return;	
 }
 

@@ -8,57 +8,52 @@
 #include <cstdio>
 #include <cstdlib>
 #include <time.h>
-#include "instrumentation.h"
 #include "header.h"
 
-
-int trace_idx = 0;
+//int trace_idx = 0;
 
 bool _passP = false;
 bool _passQ = false;
-ProgramStateChain<int>* curPSC;
-
-
-int record_values(int first, ...)
-{
-	if (trace_idx >= max_trace_pnt)
-		return -1;
-	va_list ap;
-	va_start(ap, first);
-	trace[trace_idx].value[0] = first;
-#ifdef _TEST_
-	std::cout << "insert: (" << first;
-#endif
-	for (int i = 1; i < vars; i++) {
-		trace[trace_idx].value[i] = va_arg(ap, int);
-#ifdef _TEST_
-		std::cout << ", " << trace[trace_idx].value[i];
-#endif
-	}
-	va_end(ap);
-#ifdef _TEST_
-	std::cout << ")" << std::endl;
-#endif
-	trace_idx++;
-	return 0;
-}
-
+char *LabelTable[10] =  { "UnSet", "Positive", "Negative", "Question", "Bugtrace"};
+LoopTrace<int>* LT;
 
 int before_loop()
 {
 	_passP = false;
 	_passQ = false;
-	trace_idx = 0;
-//	if (curPSC != NULL)
-//		delete curPSC;
-	curPSC = new ProgramStateChain<int>();
+//	trace_idx = 0;
+//	if (LP != NULL)
+//		delete LP;
+	LT = new LoopTrace<int>();
 	return 0;
 }
 
 
 int after_loop()
 {
-	std::cout << curPSC << std::endl;
+	int label = 0;
+	if (_passP && _passQ) {
+		label = 1; 
+	} else if (!_passP && !_passQ) {
+		label = 2; 
+	} else if (!_passP && _passQ) {
+		label = 3; 
+	} else if (_passP && !_passQ) {
+		label = 4;
+		std::cout << "Program BUG! Encountered a counter-example." << std::endl;
+		std::cout << "loop traces: " << LT << std::endl;
+		return -1;
+	}
+	LT->labeling(label);
+//	std::cout << LT << std::endl;
+	//" @@["<< LabelTable[label] << "]" << std::endl;
+	TS->addNewLoopTrace(LT);
+
+	return 0;
+}
+/*
+{
+	std::cout << LT << std::endl;
 #ifdef _TEST3_
 	std::cout << "after_loop" << _passP << "--" << _passQ << std::endl;
 #endif
@@ -75,7 +70,7 @@ int after_loop()
 #ifdef _TEST3_
 		std::cout << std::endl;
 #endif
-		trace_idx = 0;
+//		trace_idx = 0;
 		return 0;
 	}
 	if (!_passP && !_passQ) {
@@ -111,6 +106,6 @@ int after_loop()
 	}
 	return -1;
 }
-
+*/
 
 

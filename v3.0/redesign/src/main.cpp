@@ -5,14 +5,12 @@
   > Created Time: Wed Oct 28 01:47:17 2015
  ************************************************************************/
 #include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <time.h>
 #include <float.h>
 #include "header.h"
 
 int minv = -200, maxv = 200;
-void print_null(const char *s) {}
+//void print_null(const char *s) {}
+TraceSet<int>* TS;
 
 int main(int argc, char** argv)
 {
@@ -24,6 +22,7 @@ int main(int argc, char** argv)
 		minv = atoi(argv[1]);
 		maxv = atoi(argv[2]);
 	}
+	TS = new TraceSet<int>();
 /*
  * struct svm_parameter param;
 	param.svm_type = C_SVC;
@@ -59,6 +58,7 @@ int main(int argc, char** argv)
 		m(inputs);
 		after_loop();
 	}
+	std::cout << "\t(2) program Trace Set... {" << TS <<"\n}" << std::endl;
 
 /*
 start_processing:	
