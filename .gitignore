@@ -1,22 +1,8 @@
-data/*
-bin/*
+*.out
 dev/*.out
 bin/*.out
 src/*.out
-*.out
-
-v2.0abandon/data
-v2.0abandon/bin
-v2.0abandon/dev/*.out
-v2.0abandon/bin/*.out
-v2.0abandon/src/*.out
-v2.0abandon/*.out
 
 data
 bin
-dev/*.out
-bin/*.out
-src/*.out
-*.out
-
 build
