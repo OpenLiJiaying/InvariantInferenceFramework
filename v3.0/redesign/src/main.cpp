@@ -79,6 +79,7 @@ start_processing:
 #endif
 		std::cout << inputs_aft << std::endl;
 		for (int i = 0; i < inputs_aft; i++) {
+			std::cout << "NEXT INPUTS:  ";
 			psvm->equation->linearSolver(inputs);
 			for (int j = 0; j < vars; j++)
 				std::cout << " " << inputs[j];
@@ -86,7 +87,7 @@ start_processing:
 			before_loop();
 			m(inputs);
 			after_loop();
-			std::cout << "NEXT INPUTS:  ";
+			std::cout << LT << std::endl;
 		}
 		goto start_processing;
 

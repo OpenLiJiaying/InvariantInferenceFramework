@@ -15,7 +15,6 @@ class LoopState{
 		}
 
 		LoopState(T first, ...) {
-//			std::cout << "##mark " << first;
 			if (values == NULL) values = new T [vars];
 			va_list ap;
 			va_start(ap, first);

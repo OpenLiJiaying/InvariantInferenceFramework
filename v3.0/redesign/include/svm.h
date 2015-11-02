@@ -197,37 +197,12 @@ class SVM_algo // : public ClassifyAlgo
 			return 0;
 		}
 
-		int fromTraceSet2SVMProblem(TraceSet<double>* ts)
-		{
-			if (model != NULL)
-				svm_free_and_destroy_model(&model);
-			int l = 0;
-			for (LoopTrace<double>* lt = ts->first; lt != NULL; lt = lt->next)
-				l += lt->length;
-			problem.l = l;
-			problem.y = new double [l + 2];
-			problem.x = new svm_node* [l + 2];
-			int i = 0;
-			for (LoopTrace<double>* lt = ts->first; lt != NULL; lt = lt->next) {
-				for (LoopState<double>* ls = lt->first; ls != NULL; ls = ls->next) {
-					problem.y[i] = ls->label;
-					//problem.x[i++] = (svm_node*)ls->values;
-					problem.x[i] = new svm_node[vars];
-					for (int j = 0; j < vars; j++) {
-						problem.x[i][j].value = ls->values[j];
-					}
-				}
-			}
-			return l;
-		}
-
 		template<class T>
 		int insertFromTraceSet2SVMProblem(TraceSet<T>* ts)
 		{
 			int start = problem.l;
 			int l = 0;
 			for (LoopTrace<int>* lt = ts->first; lt != NULL; lt = lt->next)
-				if (lt->label != 2)
 					l += lt->length;
 			problem.l += l;
 			if (problem.l > max_items) {
@@ -236,8 +211,6 @@ class SVM_algo // : public ClassifyAlgo
 			}
 			int i = start;
 			for (LoopTrace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
-				if (lt->label == 2) //qustion chain
-					continue;
 				for (LoopState<T>* ls = lt->first; ls != NULL; ls = ls->next) {
 					problem.y[i] = ls->label;
 					problem.x[i] = new svm_node[vars];
