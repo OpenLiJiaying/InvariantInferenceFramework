@@ -198,18 +198,17 @@ class SVM_algo // : public ClassifyAlgo
 		}
 
 		template<class T>
-		int insertFromTraceSet2SVMProblem(TraceSet<T>* ts)
+		int insertFromTraceSet(TraceSet<T>* ts)
 		{
-			int start = problem.l;
 			int l = 0;
 			for (LoopTrace<int>* lt = ts->first; lt != NULL; lt = lt->next)
 					l += lt->length;
-			problem.l += l;
-			if (problem.l > max_items) {
+			if (problem.l + l > max_items) {
 				std::cout << "exceed max items SVM can handle." << std::endl;
 				return -1;
 			}
-			int i = start;
+			int i = problem.l;
+			problem.l += l;
 			for (LoopTrace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
 				for (LoopState<T>* ls = lt->first; ls != NULL; ls = ls->next) {
 					problem.y[i] = ls->label;

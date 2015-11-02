@@ -28,13 +28,16 @@ class LoopTrace
 		void addNewLoopState(LoopState<T>* ps) 
 		{
 			length++;
+			std::cout << ">" << ps;
 			if (first == NULL) {
 				last = first = ps;
 				first->next = NULL;
-				return;
+			} else {
+				last->next = ps;
+				last = ps;
 			}
-			last->next = ps;
-			last = ps;
+			std::cout << ".";
+			return;
 		}
 
 		friend std::ostream& operator << (std::ostream& out, const LoopTrace* lt)

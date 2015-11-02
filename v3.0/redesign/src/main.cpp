@@ -8,11 +8,12 @@
 #include <float.h>
 #include "header.h"
 
-int minv = -200, maxv = 200;
+int minv = -100, maxv = 100;
 void print_null(const char *s) {}
 TraceSet<int>* TS;
+LoopTrace<int> *LT;
 
-int inputs[vars];
+Solution<int> inputs;
 
 
 
@@ -26,50 +27,44 @@ int main(int argc, char** argv)
 		minv = atoi(argv[1]);
 		maxv = atoi(argv[2]);
 	}
-	TS = new TraceSet<int>[3]();
+	TS = new TraceSet<int>[4]();
+	TS = &TS[1];
 
 	int rnd = 1;
 	srand(time(NULL));
-#ifdef _TEST0_
+	SVM_algo *psvm = new SVM_algo(print_null);
 	std::cout << "[1]******************************************************" << std::endl;
 	std::cout << "\t(1) running programs... [" << inputs_init <<"]" << std::endl;
-#endif
 init:
 	for (int i = 0; i < inputs_init; i++) {
 		for (int j = 0; j < vars; j++) {
-			inputs[j] = rand() % (maxv - minv + 1) + minv;
+			inputs.x[j] = rand() % (maxv - minv + 1) + minv;
 		}
+		LT = new LoopTrace<int>();
 		before_loop();
-		m(inputs);
+		m(inputs.x);
 		after_loop();
 	}
-//	std::cout << "\t(2) program Trace Set... " /*<<"{" << TS <<"\n}"*/ << std::endl;
 
-	SVM_algo *psvm = new SVM_algo(print_null);
-	std::cout << "\t(2) converting data into svm format..." << std::endl;
-	if (TS[0].first == NULL || TS[1].first == NULL)
+	if (TS[-1].first == NULL || TS[1].first == NULL)
 		goto init;
 
 start_processing:	
-	std::cout << "START TRAINING..." << std::endl;
+	std::cout << "\t(2) start training process..." << std::endl;
 //	std::cout << &TS[1] << std::endl;
-	psvm->insertFromTraceSet2SVMProblem<int>(&TS[1]);
+	psvm->insertFromTraceSet<int>(&TS[1]);
 //	std::cout << &(psvm->problem) << std::endl;
 	std::cout << "Positive done" << std::endl;
 //	std::cout << &TS[0] << std::endl;
-	psvm->insertFromTraceSet2SVMProblem<int>(&TS[0]);
+	psvm->insertFromTraceSet<int>(&TS[-1]);
 //	std::cout << &(psvm->problem) << std::endl;
-	std::cout << "after converting" << std::endl;
-//	std::cout << "SVM_PROBLEM: " << std::endl;
+//	std::cout << "after converting" << std::endl;
+//	//	std::cout << "SVM_PROBLEM: " << std::endl;
 //	std::cout << &(psvm->problem) << std::endl; 
 	psvm->classify();
-	std::cout << "after classify" << std::endl;
+//	std::cout << "after classify" << std::endl;
 	std::cout << "RESULT: " << psvm->equation << std::endl;
 
-/*
-	std::cout << "\t(3) svm training...[" << sl.l << "]" << std::endl;
-	svm_free_and_destroy_model(&model);
-*/
 
 	rnd++;
 	if (rnd <= max_iter) {
@@ -81,13 +76,13 @@ start_processing:
 		for (int i = 0; i < inputs_aft; i++) {
 			std::cout << "NEXT INPUTS:  ";
 			psvm->equation->linearSolver(inputs);
-			for (int j = 0; j < vars; j++)
-				std::cout << " " << inputs[j];
-			std::cout << std::endl;
+			std::cout << &inputs <<  std::endl;
+			LT = new LoopTrace<int>();
 			before_loop();
-			m(inputs);
+			m(inputs.x);
+			std::cout << LT;
 			after_loop();
-			std::cout << LT << std::endl;
+//			std::cout << LT << std::endl;
 		}
 		goto start_processing;
 

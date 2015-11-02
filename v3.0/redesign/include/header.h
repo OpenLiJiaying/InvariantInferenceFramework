@@ -36,7 +36,7 @@ extern int maxv;
 extern int minv;
 
 const int max_trace_pnt = 1024;
-const int inputs_init = 4 * vars;
+const int inputs_init = 4; // * vars;
 const int inputs_aft = 2 * vars;
 const int max_inputs = inputs_init;
 const int max_set_idx = 10240;
