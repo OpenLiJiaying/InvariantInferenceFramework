@@ -4,8 +4,8 @@
 extern bool _passP;
 extern bool _passQ;
 
-#undef assume
-#undef assert
+//#undef assume
+//#undef assert
 
 #define assume(expr) do { \
 	_passP = (expr)? true : false;\

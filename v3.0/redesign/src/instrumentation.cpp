@@ -44,7 +44,7 @@ int after_loop()
 		return -1;
 	}
 	LT->labeling(label);
-	TS[label].addNewLoopTrace(LT);
-	std::cout << "[done]\n";
+	TS[label].addLoopTrace(LT);
+	std::cout << "[done]" << LabelTable[label] << "\n";
 	return 0;
 }

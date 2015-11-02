@@ -1,7 +1,5 @@
 #ifndef _TRACE_SET_H_
 #define _TRACE_SET_H_
-#include <stdarg.h>
-#include <iostream>
 #include "header.h"
 
 
@@ -26,15 +24,17 @@ class TraceSet
 			}
 		}
 
-		void addNewLoopTrace(LoopTrace<type>* lt = LT) 
+		int addLoopTrace(LoopTrace<type>* lt = LT) 
 		{
 			if (first == NULL) {
 				last = first = lt;
-				first->next = NULL;
-				return;
+				last->next = NULL;
+				return 0;
 			}
 			last->next = lt;
 			last = lt;
+			last->next = NULL;
+			return 0;
 		}
 
 		friend std::ostream& operator << (std::ostream& out, const TraceSet* ts)

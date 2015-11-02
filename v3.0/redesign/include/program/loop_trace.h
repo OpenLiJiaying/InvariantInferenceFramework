@@ -25,7 +25,7 @@ class LoopTrace
 			}
 		}
 
-		void addNewLoopState(LoopState<T>* ps) 
+		int addLoopState(LoopState<T>* ps) 
 		{
 			length++;
 			std::cout << ">" << ps;
@@ -35,14 +35,15 @@ class LoopTrace
 			} else {
 				last->next = ps;
 				last = ps;
+				last->next = NULL;
 			}
 			std::cout << ".";
-			return;
+			return 0;
 		}
 
 		friend std::ostream& operator << (std::ostream& out, const LoopTrace* lt)
 		{
-			out << LabelTable[lt->label] << " state chain: ";
+			out << LabelTable[lt->label] << " trace: ";
 			if (lt->first == NULL) {
 				out << "NULL";
 				return out;
@@ -67,15 +68,17 @@ class LoopTrace
 				p->labeling(label);
 				p = p->next;
 			}
+			return 0;
 		}
 
 		LoopState<T>* first;
-		LoopState<T>* last;
 		int label;
 		int length;
 		LoopTrace<T>* next;
+	private:
+		LoopState<T>* last;
 };
 
+extern LoopTrace<int>* LT;
 
-extern LoopTrace<int> *LT;
 #endif

@@ -1,9 +1,7 @@
 #ifndef _LOOP_STATE_H_
 #define _LOOP_STATE_H_
-#include <stdarg.h>
-#include <iostream>
+#include "header.h"
 
-extern const int vars;
 extern char** LabelTable;
 
 template<class T>

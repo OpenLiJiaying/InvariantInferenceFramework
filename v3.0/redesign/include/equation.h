@@ -26,7 +26,7 @@ class Solution{
 		friend std::ostream& operator << (std::ostream& out, const Solution* sol)
 		{
 			out << "(" << sol->x[0];
-			for (int j = 0; j < vars; j++)
+			for (int j = 1; j < vars; j++)
 				out << ", " << sol->x[j];
 			out << ")";
 			return out;
@@ -34,6 +34,7 @@ class Solution{
 
 		T x[vars];
 };
+
 
 class Equation{
 	public:
@@ -64,20 +65,26 @@ class Equation{
 			return out;
 		}
 
-		int linearSolver(Solution<int>& sol) 
+		static int linearSolver(const Equation* equ, Solution<int>* sol) 
 		{
+			if (sol == NULL) return -1;
+			if (equ == NULL) {
+				for (int i = 0; i < vars; i++)
+					sol->x[i] = rand() % (maxv - minv + 1) + minv;
+				return 0;
+			}
 			int pick;
 			double reminder;
 solve:
 			pick = rand() % vars;
-			reminder = -theta0;
+			reminder = - equ->theta0;
 			for (int i = 0; i < vars; i++) {
-				sol.x[i] = rand() % (maxv - minv + 1) + minv;
+				sol->x[i] = rand() % (maxv - minv + 1) + minv;
 				if (i != pick)
-					reminder -= sol.x[i] * theta[i];
+					reminder -= sol->x[i] * equ->theta[i];
 			}
-			sol.x[pick] = nearbyint(reminder / theta[pick]); // + rand() % 3 - 1);
-			if (sol.x[pick] > maxv || sol.x[pick] < minv) {
+			sol->x[pick] = nearbyint(reminder / equ->theta[pick]); // + rand() % 3 - 1);
+			if (sol->x[pick] > maxv || sol->x[pick] < minv) {
 				goto solve;
 			}
 			std::cout << "solved the equation to get one solution";

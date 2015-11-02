@@ -2,8 +2,8 @@
 #define _INSTRUMENTATION_H_
 #include "header.h"
 
-#define recordi(first, args...) LT->addNewLoopState(new LoopState<int>(first, ##args))
-#define recordd(first, args...) LT->addNewLoopState(new LoopState<double>(first, ##args))
+#define recordi(first, args...) LT->addLoopState(new LoopState<int>(first, ##args))
+#define recordd(first, args...) LT->addLoopState(new LoopState<double>(first, ##args))
 
 
 // function lists

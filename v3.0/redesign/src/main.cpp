@@ -10,10 +10,11 @@
 
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}
-TraceSet<int>* TS;
-LoopTrace<int> *LT;
 
-Solution<int> inputs;
+LoopTrace<int>* LT;
+TraceSet<int>* TS;
+
+Solution<int>* inputs;
 
 
 
@@ -29,6 +30,7 @@ int main(int argc, char** argv)
 	}
 	TS = new TraceSet<int>[4]();
 	TS = &TS[1];
+	inputs = new Solution<int>();
 
 	int rnd = 1;
 	srand(time(NULL));
@@ -37,12 +39,10 @@ int main(int argc, char** argv)
 	std::cout << "\t(1) running programs... [" << inputs_init <<"]" << std::endl;
 init:
 	for (int i = 0; i < inputs_init; i++) {
-		for (int j = 0; j < vars; j++) {
-			inputs.x[j] = rand() % (maxv - minv + 1) + minv;
-		}
+		Equation::linearSolver(NULL, inputs);
 		LT = new LoopTrace<int>();
 		before_loop();
-		m(inputs.x);
+		m(inputs->x);
 		after_loop();
 	}
 
@@ -51,11 +51,7 @@ init:
 
 start_processing:	
 	std::cout << "\t(2) start training process..." << std::endl;
-//	std::cout << &TS[1] << std::endl;
 	psvm->insertFromTraceSet<int>(&TS[1]);
-//	std::cout << &(psvm->problem) << std::endl;
-	std::cout << "Positive done" << std::endl;
-//	std::cout << &TS[0] << std::endl;
 	psvm->insertFromTraceSet<int>(&TS[-1]);
 //	std::cout << &(psvm->problem) << std::endl;
 //	std::cout << "after converting" << std::endl;
@@ -68,18 +64,16 @@ start_processing:
 
 	rnd++;
 	if (rnd <= max_iter) {
-#ifdef _TEST0_
 		std::cout << "[" << rnd << "]*********************************************************" << std::endl;
 		std::cout << "\t(1) running programs...[" << inputs_aft << "]" << std::endl;
-#endif
 		std::cout << inputs_aft << std::endl;
 		for (int i = 0; i < inputs_aft; i++) {
 			std::cout << "NEXT INPUTS:  ";
-			psvm->equation->linearSolver(inputs);
-			std::cout << &inputs <<  std::endl;
+			Equation::linearSolver(psvm->equation, inputs);
+			std::cout << inputs <<  std::endl;
 			LT = new LoopTrace<int>();
 			before_loop();
-			m(inputs.x);
+			m(inputs->x);
 			std::cout << LT;
 			after_loop();
 //			std::cout << LT << std::endl;
@@ -87,7 +81,6 @@ start_processing:
 		goto start_processing;
 
 	}
-
 
 
 	return 0;
