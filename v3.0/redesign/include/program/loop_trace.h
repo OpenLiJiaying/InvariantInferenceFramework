@@ -50,6 +50,7 @@ class LoopTrace
 				p = p->next;
 			}
 			out << "END";
+			out << "[" << lt->length <<"]";
 			return out;
 		}
 

@@ -33,11 +33,11 @@ class Equation{
 					<< /*std::setprecision(std::fixed) <<*/ "{" <<j << "}";
 			out << " >= " << /*std::setprecision(16) <<*/ - equ->theta0;
 			out << /*std::setprecision(std::fixed) <<*/ "\n";
+			return out;
 		}
 
-		int* linearSolver() 
+		int linearSolver(int* x) 
 		{
-			int *x = new int[vars];
 			int pick;
 			double reminder;
 solve:
@@ -52,7 +52,8 @@ solve:
 			if (x[pick] > maxv || x[pick] < minv) {
 				goto solve;
 			}
-			return x;
+			std::cout << "solved the equation to get one solution";
+			return 0;
 		}
 
 		double theta0;

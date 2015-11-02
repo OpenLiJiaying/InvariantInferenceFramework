@@ -12,6 +12,10 @@ int minv = -200, maxv = 200;
 void print_null(const char *s) {}
 TraceSet<int>* TS;
 
+int inputs[vars];
+
+
+
 int main(int argc, char** argv)
 {
 	if (argc < 1) {
@@ -22,27 +26,7 @@ int main(int argc, char** argv)
 		minv = atoi(argv[1]);
 		maxv = atoi(argv[2]);
 	}
-	TS = new TraceSet<int>();
-/*
- * struct svm_parameter param;
-	param.svm_type = C_SVC;
-	param.kernel_type = LINEAR;
-	param.degree = 3;
-	param.gamma = 0;	// 1/num_features
-	param.coef0 = 0;
-	param.nu = 0.5;
-	param.cache_size = 100;
-	//	param.C = 1;
-	param.C = DBL_MAX;
-	param.eps = 1e-3;
-	param.p = 0.1;
-	param.shrinking = 1;
-	param.probability = 0;
-	param.nr_weight = 0;
-	param.weight_label = NULL;
-	param.weight = NULL;
-	svm_set_print_string_function(print_null);
-*/
+	TS = new TraceSet<int>[3]();
 
 	int rnd = 1;
 	srand(time(NULL));
@@ -50,6 +34,7 @@ int main(int argc, char** argv)
 	std::cout << "[1]******************************************************" << std::endl;
 	std::cout << "\t(1) running programs... [" << inputs_init <<"]" << std::endl;
 #endif
+init:
 	for (int i = 0; i < inputs_init; i++) {
 		for (int j = 0; j < vars; j++) {
 			inputs[j] = rand() % (maxv - minv + 1) + minv;
@@ -58,47 +43,33 @@ int main(int argc, char** argv)
 		m(inputs);
 		after_loop();
 	}
-	std::cout << "\t(2) program Trace Set... {" << TS <<"\n}" << std::endl;
+//	std::cout << "\t(2) program Trace Set... " /*<<"{" << TS <<"\n}"*/ << std::endl;
 
 	SVM_algo *psvm = new SVM_algo(print_null);
 	std::cout << "\t(2) converting data into svm format..." << std::endl;
-	psvm->fromTraceSet2SVMProblem(TS);
+	if (TS[0].first == NULL || TS[1].first == NULL)
+		goto init;
+
+start_processing:	
+	std::cout << "START TRAINING..." << std::endl;
+//	std::cout << &TS[1] << std::endl;
+	psvm->insertFromTraceSet2SVMProblem<int>(&TS[1]);
+//	std::cout << &(psvm->problem) << std::endl;
+	std::cout << "Positive done" << std::endl;
+//	std::cout << &TS[0] << std::endl;
+	psvm->insertFromTraceSet2SVMProblem<int>(&TS[0]);
+//	std::cout << &(psvm->problem) << std::endl;
+	std::cout << "after converting" << std::endl;
+//	std::cout << "SVM_PROBLEM: " << std::endl;
+//	std::cout << &(psvm->problem) << std::endl; 
 	psvm->classify();
+	std::cout << "after classify" << std::endl;
 	std::cout << "RESULT: " << psvm->equation << std::endl;
 
 /*
-start_processing:	
-	if (positive_set_changed) { 
-		qsort(positive_set, positive_idx, sizeof(node), node::compare);
-		positive_set_changed = false;
-	}
-	if (negative_set_changed) { 
-		qsort(negative_set, negative_idx, sizeof(node), node::compare);
-		negative_set_changed = false;
-	}
-	//	nice_set_print();
-
-#ifdef _TEST0_
-	std::cout << "\t(2) converting data into svm format..." << std::endl;
-#endif
-	svm_linker sl;
-	sl.add_node_set(positive_set, positive_idx, 1);
-	sl.add_node_set(negative_set, negative_idx, -1);
-
-#ifdef _TEST0_
 	std::cout << "\t(3) svm training...[" << sl.l << "]" << std::endl;
-#endif
-	struct svm_model* model = svm_train((const struct svm_problem *)&sl, &param);
-//	svm_save_model("model_file", model);
-	struct coef co;
-	svm_model_visualization(model, &co);
-	printf(" %.16g [0]", co.theta[0]);
-	for (int j = 1; j < vars; j++)
-		printf ("  +  %.16g [%d]", co.theta[j], j);
-	printf (" >= %.16g\n", -co.theta0);
-
-	print_svm_samples((const struct svm_problem*)&sl);
 	svm_free_and_destroy_model(&model);
+*/
 
 	rnd++;
 	if (rnd <= max_iter) {
@@ -106,17 +77,21 @@ start_processing:
 		std::cout << "[" << rnd << "]*********************************************************" << std::endl;
 		std::cout << "\t(1) running programs...[" << inputs_aft << "]" << std::endl;
 #endif
+		std::cout << inputs_aft << std::endl;
 		for (int i = 0; i < inputs_aft; i++) {
-			linear_solver(co, inputs);
+			psvm->equation->linearSolver(inputs);
+			for (int j = 0; j < vars; j++)
+				std::cout << " " << inputs[j];
+			std::cout << std::endl;
 			before_loop();
 			m(inputs);
 			after_loop();
+			std::cout << "NEXT INPUTS:  ";
 		}
 		goto start_processing;
 
 	}
 
-*/
 
 
 	return 0;

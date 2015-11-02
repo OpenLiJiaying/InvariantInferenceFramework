@@ -6,7 +6,7 @@
  ************************************************************************/
 #include <cstdlib>
 #include <cmath>
-#include "iif.h"
+#include "header.h"
 
 //extern int maxv;
 //extern int minv;
@@ -15,7 +15,7 @@
 
 // dot_product(theta, x) + theta0 = 0
 // find x to satisfy the above fomula.
-int linear_solver(const struct coef co, int* x)
+int linear_solver(const Equation co, int* x)
 {
 	double theta0 = co.theta0;
 	const double* theta = co.theta;

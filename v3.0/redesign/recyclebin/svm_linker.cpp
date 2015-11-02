@@ -5,8 +5,9 @@
     > Created Time: 2015年10月28日 星期三 17时08分44秒
  ************************************************************************/
 #include <cstdlib>
-#include "svm_linker.h"
+//#include "svm_linker.h"
 
+/*
 int svm_linker::add_node_set(node* pnode, int num, double label)
 {
 	if (l + num >= 2 * max_set_idx) {
@@ -26,4 +27,4 @@ int svm_linker::keep_and_reset_rest(int idx)
 	l = idx;
 	return l;
 }
-
+*/

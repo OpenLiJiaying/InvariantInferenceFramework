@@ -14,7 +14,8 @@
 
 bool _passP = false;
 bool _passQ = false;
-char *LabelTable[10] =  { "UnSet", "Positive", "Negative", "Question", "Bugtrace"};
+char *lt[10] =  { "Negative", "UnSet", "Positive", "Question", "Bugtrace"};
+char** LabelTable = &lt[1];
 LoopTrace<int>* LT;
 
 int before_loop()
@@ -34,20 +35,22 @@ int after_loop()
 	int label = 0;
 	if (_passP && _passQ) {
 		label = 1; 
+		LT->labeling(label);
+		TS[1].addNewLoopTrace(LT);
 	} else if (!_passP && !_passQ) {
-		label = 2; 
+		label = -1; 
+		LT->labeling(label);
+		TS[0].addNewLoopTrace(LT);
 	} else if (!_passP && _passQ) {
-		label = 3; 
+		label = 2; 
+		LT->labeling(label);
+		TS[2].addNewLoopTrace(LT);
 	} else if (_passP && !_passQ) {
-		label = 4;
+		label = 3;
 		std::cout << "Program BUG! Encountered a counter-example." << std::endl;
 		std::cout << "loop traces: " << LT << std::endl;
 		return -1;
 	}
-	LT->labeling(label);
-//	std::cout << LT << std::endl;
-	//" @@["<< LabelTable[label] << "]" << std::endl;
-	TS->addNewLoopTrace(LT);
 
 	return 0;
 }

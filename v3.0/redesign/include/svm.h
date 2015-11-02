@@ -11,12 +11,18 @@
 
 extern int libsvm_version;
 extern const int vars;
+const int max_items = 100000;
 
 
 
 struct svm_node
 {
 	double value;
+	friend std::ostream& operator << (std::ostream& out, const svm_node* sn)
+	{
+		out << sn->value;
+		return out;
+	}
 };
 
 struct svm_problem
@@ -24,6 +30,18 @@ struct svm_problem
 	int l;
 	double *y;
 	struct svm_node **x;
+
+	friend std::ostream& operator << (std::ostream& out, const svm_problem* sp)
+	{
+		for (int i = 0; i < sp->l; i++) {
+			out << sp->y[i] << "(" << (sp->x[i][0]).value;
+			for (int j = 1; j < vars; j++)
+				out << ", " << (sp->x[i][j]).value;
+//				out << ", " << &(sp->x[i][j]);
+			out << ") ";
+		}
+		return out;
+	}
 };
 
 extern struct svm_node* positive_nodes;
@@ -126,10 +144,12 @@ class SVM_algo // : public ClassifyAlgo
 
 		SVM_algo(void (*f) (const char*))
 		{
-			problem.y = NULL;
-			problem.x = NULL;
+			problem.y = new double [max_items];
+			problem.x = new svm_node* [max_items];
+			problem.l = 0;
 			
 			equation = new Equation();
+			model = NULL;
 
 			param.svm_type = C_SVC;
 			param.kernel_type = LINEAR;
@@ -147,7 +167,8 @@ class SVM_algo // : public ClassifyAlgo
 			param.nr_weight = 0;
 			param.weight_label = NULL;
 			param.weight = NULL;
-			svm_set_print_string_function(f);
+			if (f != NULL)
+				svm_set_print_string_function(f);
 		}
 
 		~SVM_algo()
@@ -159,8 +180,12 @@ class SVM_algo // : public ClassifyAlgo
 			// here we should check x[i] for each.
 			// be careful about whether it is imported from double trace set or int trace set.
 			// these two cases should be handled separatly.
-			if (problem.x != NULL)
-				delete []problem.x;
+			if (problem.x != NULL) {
+				for (int i = 0; i < problem.l; i++)
+					if (problem.x[i] != NULL)
+						delete problem.x[i];
+					delete []problem.x;
+			}
 		}
 
 		int classify() 
@@ -174,6 +199,8 @@ class SVM_algo // : public ClassifyAlgo
 
 		int fromTraceSet2SVMProblem(TraceSet<double>* ts)
 		{
+			if (model != NULL)
+				svm_free_and_destroy_model(&model);
 			int l = 0;
 			for (LoopTrace<double>* lt = ts->first; lt != NULL; lt = lt->next)
 				l += lt->length;
@@ -184,28 +211,40 @@ class SVM_algo // : public ClassifyAlgo
 			for (LoopTrace<double>* lt = ts->first; lt != NULL; lt = lt->next) {
 				for (LoopState<double>* ls = lt->first; ls != NULL; ls = ls->next) {
 					problem.y[i] = ls->label;
-					problem.x[i++] = (svm_node*)ls->values;
+					//problem.x[i++] = (svm_node*)ls->values;
+					problem.x[i] = new svm_node[vars];
+					for (int j = 0; j < vars; j++) {
+						problem.x[i][j].value = ls->values[j];
+					}
 				}
 			}
 			return l;
 		}
 
-		int fromTraceSet2SVMProblem(TraceSet<int>* ts)
+		template<class T>
+		int insertFromTraceSet2SVMProblem(TraceSet<T>* ts)
 		{
+			int start = problem.l;
 			int l = 0;
 			for (LoopTrace<int>* lt = ts->first; lt != NULL; lt = lt->next)
-				l += lt->length;
-			problem.l = l;
-			problem.y = new double [l + 2];
-			problem.x = new svm_node* [l + 2];
-			int i = 0;
-			for (LoopTrace<int>* lt = ts->first; lt != NULL; lt = lt->next) {
-				for (LoopState<int>* ls = lt->first; ls != NULL; ls = ls->next) {
+				if (lt->label != 2)
+					l += lt->length;
+			problem.l += l;
+			if (problem.l > max_items) {
+				std::cout << "exceed max items SVM can handle." << std::endl;
+				return -1;
+			}
+			int i = start;
+			for (LoopTrace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
+				if (lt->label == 2) //qustion chain
+					continue;
+				for (LoopState<T>* ls = lt->first; ls != NULL; ls = ls->next) {
 					problem.y[i] = ls->label;
 					problem.x[i] = new svm_node[vars];
 					for (int j = 0; j < vars; j++) {
 						problem.x[i][j].value = ls->values[j];
 					}
+					i++;
 				}
 			}
 			return l;

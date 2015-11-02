@@ -4,7 +4,7 @@
 #include <iostream>
 
 extern const int vars;
-extern char* LabelTable[10];
+extern char** LabelTable;
 
 template<class T>
 class LoopState{
