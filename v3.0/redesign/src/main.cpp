@@ -64,7 +64,7 @@ start_svm:
 //	std::cout << "after classify" << std::endl;
 	std::cout << "\t(3) RESULT: " << psvm->equation; // << std::endl;
 	double passRat = psvm->predictOnProblem();
-	std::cout << " \t passrate=[" << passRat * 100 << "%]." << std::endl;
+	std::cout << " [" << passRat * 100 << "%]." << std::endl;
 	if (passRat < 1) {
 		std::cout << "The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 		goto start_svm_i;
@@ -74,7 +74,7 @@ start_svm:
 	std::cout << "\t(4) check convergence: ";
 	if (psvm->equation->isSimilar(p) == 0) {
 		if (bCon == true) {
-			std::cout << "[SUCCESS] rounding off" << std::endl;
+			std::cout << "[SUCCESS] \t rounding off" << std::endl;
 			goto svm_end;
 		}
 		bCon = true;
@@ -82,7 +82,7 @@ start_svm:
 	else {
 		bCon = false;
 	}
-	std::cout << "[FAIL] next round " << ((bCon == true)? "T" : "F") << std::endl;
+	std::cout << "[FAIL] \t next round " << ((bCon == true)? "T" : "F") << std::endl;
 	if (p != NULL) {
 		delete p;
 	}
@@ -113,8 +113,9 @@ start_svm:
 	}
 
 svm_end:
-	//psvm->equation->roundoff();
-	delete p;
+	psvm->equation->roundoff(p);
+	std::cout << p << std::endl;
+	//delete p;
 	delete psvm->equation;
 	if (rnd == max_iter)
 		std::cout << "[THE END] Reaching the maximum round of iteration[" << rnd << "]************************" << std::endl;
