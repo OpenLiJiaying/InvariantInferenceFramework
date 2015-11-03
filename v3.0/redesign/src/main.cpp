@@ -116,7 +116,10 @@ svm_end:
 	//psvm->equation->roundoff();
 	delete p;
 	delete psvm->equation;
-	std::cout << "[THE END] Reaching the maximum round of iteration[" << rnd << "]************************" << std::endl;
+	if (rnd == max_iter)
+		std::cout << "[THE END] Reaching the maximum round of iteration[" << rnd << "]************************" << std::endl;
+	else 
+		std::cout << "[THE END] Get converged after round of iteration[" << rnd << "]************************" << std::endl;
 
 start_svm_i:
 	//
