@@ -7,6 +7,18 @@
 extern int maxv;
 extern int minv;
 
+const double UPBOUND = pow(0.1, 3);
+
+inline double _roundoff(double x)
+{
+	int inx = nearbyint(x);
+	if ((inx >= x * (1 - UPBOUND) && inx <= x * (1 + UPBOUND))
+		|| (inx <= x * (1 - UPBOUND) && inx >= x * (1 + UPBOUND)))
+		return double(inx);
+	return x;
+}
+
+
 template<class T>
 class Solution{
 	public:
@@ -104,7 +116,7 @@ solve:
 			return res;
 		}
 
-		int isSimilar(const Equation* e, int precision = 6)
+		int isSimilar(const Equation* e, int precision = 4)
 		{
 			if (e == NULL) return -1;
 			if ((theta0 == 0) && (e->theta0 == 0))
@@ -124,6 +136,18 @@ solve:
 				if ((theta[i] < e->theta[i] * down) || (theta[i] > e->theta[i] * up))
 					return -1;
 			}
+			return 0;
+		}
+
+		int roundoff(Equation* e)
+		{
+			double min = abs(theta0);
+			for (int i = 1; i < vars; i++)
+				min = abs(theta[i]) < min ? abs(theta[i]) : min;
+			if (min <= pow(0.1, 4)) min = 1;
+			for (int i = 0; i < vars; i++)
+				e->theta[i] = _roundoff(theta[i] / min);
+			e->theta0 = _roundoff(theta0 / min);
 			return 0;
 		}
 
