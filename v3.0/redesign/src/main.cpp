@@ -69,38 +69,46 @@ init:
 
 
 start_svm:	
-	std::cout << "\t(2) start training process...[" << psvm->problem.l << "]" << std::endl;
+	std::cout << "\t(2) start training process...[";
 	psvm->insertFromTraceSet<int>(&TS[POS]);
 	psvm->insertFromTraceSet<int>(&TS[NEG]);
+	std::cout << psvm->problem.l << "]" << std::endl;
 //	std::cout << &(psvm->problem) << std::endl;
 //	std::cout << "SVM_PROBLEM: " << std::endl;
 //	std::cout << &(psvm->problem) << std::endl; 
 	psvm->classify();
-	std::cout << "\t(3) RESULT: " << psvm->equation; // << std::endl;
+	std::cout << "\t    RESULT: " << psvm->equation << std::endl;
 
 
 	/*	
 	 *	check on its own training data.
 	 *	There should be no prediction errors.
 	 */
+	std::cout << "\t(3) checking on training traces.";
 	double passRat = psvm->predictOnProblem();
-	std::cout << " [" << passRat * 100 << "%]." << std::endl;
+	std::cout << " [" << passRat * 100 << "%]";
 	if (passRat < 1) {
-		std::cout << "The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
+		std::cout << " [FAIL] The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 		goto start_svm_i;
 	}
+	std::cout << " [PASS]" << std::endl;
 
 
 	/*
 	*	Check on Question traces.
 	*	There should not exists one traces, in which a negative state is behind a positive state.
 	*/
-	std::cerr << "\t(4) Checking on Question traces.";
-	if (TS[QST].first == NULL) std::cout << "No question traces...";
+	std::cout << "\t(4) checking on Question traces.";
+	if (TS[QST].first == NULL) std::cout << "No such traces...";
+	//std::cout << std::endl;
 	for (LoopTrace<int>* lt = TS[QST].first; lt != NULL; lt = lt->next) {
+		if (lt->length <= 1) continue;
 		int pre = -1, cur = 0;
+		std::cout << std::endl;
+		std::cout << "\t\t##" << lt << " >>> ";
 		for (LoopState<int>* ls = lt->first; ls != NULL; ls = ls->next) {
 			cur = Equation::calc<int>(psvm->equation, ls->values);
+			std::cout << ((cur >= 0) ? "+" : "-");
 			if ((pre > 0) && (cur < 0)) {
 				std::cerr << "Predict wrongly on Question traces." << std::endl;
 				return -1;
@@ -108,26 +116,30 @@ start_svm:
 			pre = cur;
 		}
 	}
-	std::cerr << "[done]" << std::endl;
+	//std::cout << "\t    ";
+	std::cout << " [PASS]" << std::endl;
 
 
 
-	std::cout << "\t(5) check convergence: ";
+	
 	/*
 	 *	bCon is used to store the convergence check return value for the last time.
 	 *	We only admit convergence if the three consecutive round are converged.
 	 *	This is to prevent in some round the points are too right to adjust the classifier.
 	 */
+	std::cout << "\t(5) check convergence: ";
 	if (psvm->equation->isSimilar(p) == 0) {
 		if (bCon == true) {
-			std::cout << "[SUCCESS] \t rounding off" << std::endl;
+			std::cout << "[TT] \t[SUCCESS] rounding off" << std::endl;
 			goto svm_end;
 		}
+		std::cout << "[FT] \t[FAIL] neXt round" << std::endl;
 		bCon = true;
 	} else {
+		std::cout << ((bCon == true) ? "[T" : "[F") << "F] ";
 		bCon = false;
 	}
-	std::cout << "[FAIL] \t next round " << ((bCon == true)? "T" : "F") << std::endl;
+	std::cout << "\t [FAIL] neXt round " << std::endl;
 	if (p != NULL) {
 		delete p;
 	}
@@ -164,6 +176,7 @@ svm_end:
 	std::cout << "\t\t"<< p << std::endl;
 	delete p;
 	delete psvm->equation;
+
 
 start_svm_i:
 	//

@@ -1,5 +1,5 @@
 #include "../include/header.h"
-#include <iostream>
+//#include <iostream>
 
 int m(int* a){
 	int x = a[0];
