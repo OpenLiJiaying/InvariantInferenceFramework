@@ -3,8 +3,15 @@
 #include "header.h"
 #include <stdarg.h>
 
+#ifdef WIN32
 #define recordi(first, args, ...) LT->addLoopState(new LoopState<int>(first, ##args))
 #define recordd(first, args, ...) LT->addLoopState(new LoopState<double>(first, ##args))
+#endif
+
+#ifdef linux
+#define recordi(first, args ...) LT->addLoopState(new LoopState<int>(first, ##args))
+#define recordd(first, args ...) LT->addLoopState(new LoopState<double>(first, ##args))
+#endif
 
 
 // function lists

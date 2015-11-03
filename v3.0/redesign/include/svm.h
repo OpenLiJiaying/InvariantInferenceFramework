@@ -231,7 +231,7 @@ class SVM_algo // : public ClassifyAlgo
 		int predict(T* v)
 		{
 			if (equation == NULL) return -2;
-			if (ls == NULL) return -2;
+			if (v == NULL) return -2;
 			double res = Equation::calc<T>(equation, v);
 			if (res >= 0) return 1;
 			else return -1;
