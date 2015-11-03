@@ -8,12 +8,11 @@
 #include <float.h>
 #include "../include/header.h"
 
-int minv = -100, maxv = 100;
+int minv = -200, maxv = 200;
 void print_null(const char *s) {}
 
 LoopTrace<int>* LT;
 TraceSet<int>* TS;
-
 Solution<int>* inputs;
 
 
@@ -35,8 +34,12 @@ int main(int argc, char** argv)
 	int rnd = 1;
 	srand(time(NULL));
 	SVM_algo *psvm = new SVM_algo(print_null);
-	std::cout << "[1]******************************************************" << std::endl;
+	//std::cout << "[1]******************************************************" << std::endl;
+	std::cout << "[" << rnd << "]-----------------------------------------------------------------------------------------------------" << std::endl;
 	std::cout << "\t(1) running programs... [" << inputs_init <<"]" << std::endl;
+
+
+
 init:
 	for (int i = 0; i < inputs_init; i++) {
 		Equation::linearSolver(NULL, inputs);
@@ -58,17 +61,20 @@ start_svm:
 	psvm->insertFromTraceSet<int>(&TS[-1]);
 //	std::cout << &(psvm->problem) << std::endl;
 //	std::cout << "after converting" << std::endl;
-//	//	std::cout << "SVM_PROBLEM: " << std::endl;
+//	std::cout << "SVM_PROBLEM: " << std::endl;
 //	std::cout << &(psvm->problem) << std::endl; 
 	psvm->classify();
-//	std::cout << "after classify" << std::endl;
 	std::cout << "\t(3) RESULT: " << psvm->equation; // << std::endl;
+
+
+
 	double passRat = psvm->predictOnProblem();
 	std::cout << " [" << passRat * 100 << "%]." << std::endl;
 	if (passRat < 1) {
 		std::cout << "The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 		goto start_svm_i;
 	}
+
 
 
 	std::cout << "\t(4) check convergence: ";
@@ -94,12 +100,12 @@ start_svm:
 
 	rnd++;
 	if (rnd <= max_iter) {
-		std::cout << "[" << rnd << "]*********************************************************" << std::endl;
+		std::cout << "[" << rnd << "]-----------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "\t(1) running programs...[" << inputs_aft << "]" << std::endl;
 		for (int i = 0; i < inputs_aft; i++) {
 			//std::cout << "NEXT INPUTS:  ";
 			//Equation::linearSolver(psvm->equation, inputs);
-			Equation::linearSolver(NULL, inputs);
+			Equation::linearSolver(p, inputs);
 			//std::cout << inputs <<  std::endl;
 			LT = new LoopTrace<int>();
 			before_loop();
@@ -112,15 +118,20 @@ start_svm:
 
 	}
 
+
 svm_end:
-	psvm->equation->roundoff(p);
-	std::cout << p << std::endl;
-	//delete p;
-	delete psvm->equation;
 	if (rnd == max_iter)
-		std::cout << "[THE END] Reaching the maximum round of iteration[" << rnd << "]************************" << std::endl;
+		std::cout << "[THE END] Reach the maximum rounds of iteration[" << rnd 
+		<< "]-------------------------------------------------------" << std::endl;
 	else 
-		std::cout << "[THE END] Get converged after round of iteration[" << rnd << "]************************" << std::endl;
+		std::cout << "[THE END] Finally get converged after [" << rnd 
+		<< "] iterations----------------------------------------------------" << std::endl;
+
+	std::cout << "*********************************************************************************************************" << std::endl;
+	psvm->equation->roundoff(p);
+	std::cout << "\t\t"<< p << std::endl;
+	delete p;
+	delete psvm->equation;
 
 start_svm_i:
 	//

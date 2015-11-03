@@ -100,7 +100,7 @@ solve:
 			if (sol->x[pick] > maxv || sol->x[pick] < minv) {
 				goto solve;
 			}
-			std::cout << "solved the equation to get one solution";
+			//std::cout << "solved the equation to get one solution";
 			return 0;
 		}
 
