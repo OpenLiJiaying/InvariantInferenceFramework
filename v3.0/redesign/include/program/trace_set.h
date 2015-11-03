@@ -1,5 +1,6 @@
 #ifndef _TRACE_SET_H_
 #define _TRACE_SET_H_
+
 #include "loop_state.h"
 #include "loop_trace.h"
 #include "../equation.h"

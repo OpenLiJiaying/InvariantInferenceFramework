@@ -2,9 +2,6 @@
 #define _EQUATION_H_
 #include "header.h"
 #include <iomanip>
-#include <iostream>
-#include <stdarg.h>
-#include <cmath>
 
 
 extern int maxv;
@@ -107,7 +104,7 @@ solve:
 			return res;
 		}
 
-		int isSimilar(const Equation* e, int precision = 4)
+		int isSimilar(const Equation* e, int precision = 6)
 		{
 			if (e == NULL) return -1;
 			if ((theta0 == 0) && (e->theta0 == 0))
