@@ -1,6 +1,6 @@
 #ifndef _LOOP_TRACE_H_
 #define _LOOP_TRACE_H_
-#include "header.h"
+#include "../header.h"
 
 
 template <class T>
@@ -28,7 +28,7 @@ class LoopTrace
 		int addLoopState(LoopState<T>* ps) 
 		{
 			length++;
-			std::cout << ">" << ps;
+			//std::cout << ">" << ps;
 			if (first == NULL) {
 				last = first = ps;
 				first->next = NULL;
@@ -37,7 +37,7 @@ class LoopTrace
 				last = ps;
 				last->next = NULL;
 			}
-			std::cout << ".";
+			//std::cout << ".";
 			return 0;
 		}
 

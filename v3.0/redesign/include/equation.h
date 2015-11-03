@@ -61,7 +61,7 @@ class Equation{
 				out << "  +  " << /*std::setprecision(16) <<*/ equ->theta[j] 
 					<< /*std::setprecision(std::fixed) <<*/ "{" <<j << "}";
 			out << " >= " << /*std::setprecision(16) <<*/ - equ->theta0;
-			out << /*std::setprecision(std::fixed) <<*/ "\n";
+			//out << /*std::setprecision(std::fixed) <<*/ "\n";
 			return out;
 		}
 
@@ -89,6 +89,18 @@ solve:
 			}
 			std::cout << "solved the equation to get one solution";
 			return 0;
+		}
+
+		template<class T>
+		static double calc(const Equation* equ, T* sol)
+		{
+			if (sol == NULL) return -1;
+			if (equ == NULL) return -1;
+			double res = equ->theta0;
+			for (int i = 0; i < vars; i++) {
+				res += equ->theta[i] * sol[i];
+			}
+			return res;
 		}
 
 		double theta0;

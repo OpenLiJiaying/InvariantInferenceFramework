@@ -1,6 +1,6 @@
 #ifndef _LOOP_STATE_H_
 #define _LOOP_STATE_H_
-#include "header.h"
+#include "../header.h"
 
 extern char (*LabelTable)[10];
 
@@ -13,7 +13,8 @@ class LoopState{
 		}
 
 		LoopState(T first, ...) {
-			if (values == NULL) values = new T [vars];
+			//if (values == NULL) 
+			values = new T [vars];
 			va_list ap;
 			va_start(ap, first);
 			values[0] = first;

@@ -8,7 +8,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <time.h>
-#include "header.h"
+#include "../include/header.h"
+
 
 //int trace_idx = 0;
 
@@ -19,10 +20,10 @@ char(*LabelTable)[10] = &lt[1];
 
 int before_loop()
 {
-	std::cout << "---> before_loop";
+	//std::cout << "---> before_loop";
 	_passP = false;
 	_passQ = false;
-	std::cout << "[done]";
+	//std::cout << "[done]";
 	return 0;
 }
 
@@ -30,7 +31,7 @@ int before_loop()
 int after_loop()
 {
 	int label = 0;
-	std::cout << "---> after_loop.";
+	//std::cout << "---> after_loop.";
 	if (_passP && _passQ) {
 		label = 1; 
 	} else if (!_passP && !_passQ) {
@@ -45,6 +46,6 @@ int after_loop()
 	}
 	LT->labeling(label);
 	TS[label].addLoopTrace(LT);
-	std::cout << "[done]" << LabelTable[label] << std::endl;
+	//std::cout << "[done]" << LabelTable[label] << std::endl;
 	return 0;
 }

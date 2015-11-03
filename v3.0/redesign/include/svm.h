@@ -193,9 +193,10 @@ class SVM_algo // : public ClassifyAlgo
 			if (problem.y == NULL || problem.x == NULL)
 				return -1;
 			model = svm_train(&problem, &param);
-			for (int i = 0; i < 100000; i++)
+			/*for (int i = 0; i < 100000; i++)
 				if (sin(i) + cos(i) > 1.414)
 					std::cout << ".";
+					*/
 			svm_model_visualization(model, equation);
 			svm_free_and_destroy_model(&model);
 			return 0;
@@ -225,6 +226,27 @@ class SVM_algo // : public ClassifyAlgo
 			}
 			return l;
 		}
+
+		template<class T>
+		int predict(T* v)
+		{
+			if (equation == NULL) return -2;
+			if (ls == NULL) return -2;
+			double res = Equation::calc<T>(equation, v);
+			if (res >= 0) return 1;
+			else return -1;
+		}
+
+		double predictOnProblem()
+		{
+			if (problem.l <= 0) return 0;
+			int pass = 0;
+			for (int i = 0; i < problem.l; i++) {
+				pass += (Equation::calc<double>(equation, (double*)problem.x[i]) * problem.y[i] > 0) ? 1 : 0;
+			}
+			return (double)pass / problem.l;
+		}
+
 
 	private:
 };

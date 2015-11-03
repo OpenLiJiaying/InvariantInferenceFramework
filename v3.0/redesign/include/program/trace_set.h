@@ -1,6 +1,6 @@
 #ifndef _TRACE_SET_H_
 #define _TRACE_SET_H_
-#include "header.h"
+#include "../header.h"
 
 
 template <class type>

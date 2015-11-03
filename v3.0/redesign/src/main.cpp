@@ -6,7 +6,7 @@
  ************************************************************************/
 #include <iostream>
 #include <float.h>
-#include "header.h"
+#include "../include/header.h"
 
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}
@@ -50,7 +50,7 @@ init:
 		goto init;
 
 start_processing:	
-	std::cout << "\t(2) start training process..." << std::endl;
+	std::cout << "\t(2) start training process...[" << psvm->problem.l << "]" << std::endl;
 	psvm->insertFromTraceSet<int>(&TS[1]);
 	psvm->insertFromTraceSet<int>(&TS[-1]);
 //	std::cout << &(psvm->problem) << std::endl;
@@ -59,23 +59,24 @@ start_processing:
 //	std::cout << &(psvm->problem) << std::endl; 
 	psvm->classify();
 //	std::cout << "after classify" << std::endl;
-	//std::cout << "RESULT: " << psvm->equation << std::endl;
+	std::cout << "\t(3) RESULT: " << psvm->equation; // << std::endl;
+	double passRat = psvm->predictOnProblem();
+	std::cout << " \t passrate=[" << passRat * 100 << "%]." << std::endl;
 
 
 	rnd++;
 	if (rnd <= max_iter) {
 		std::cout << "[" << rnd << "]*********************************************************" << std::endl;
 		std::cout << "\t(1) running programs...[" << inputs_aft << "]" << std::endl;
-		std::cout << inputs_aft << std::endl;
 		for (int i = 0; i < inputs_aft; i++) {
-			std::cout << "NEXT INPUTS:  ";
+			//std::cout << "NEXT INPUTS:  ";
 			//Equation::linearSolver(psvm->equation, inputs);
 			Equation::linearSolver(NULL, inputs);
-			std::cout << inputs <<  std::endl;
+			//std::cout << inputs <<  std::endl;
 			LT = new LoopTrace<int>();
 			before_loop();
 			m(inputs->x);
-			std::cout << LT;
+//			std::cout << LT;
 			after_loop();
 //			std::cout << LT << std::endl;
 		}
