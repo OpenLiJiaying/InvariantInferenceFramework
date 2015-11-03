@@ -28,9 +28,9 @@ extern bool _passQ;
 extern int maxv;
 extern int minv;
 
-const int inputs_init = 4; // * vars;
-const int inputs_aft = 2 * vars;
-const int max_iter = 32;
+const int inputs_init = 8 * vars;
+const int inputs_aft = 4 * vars;
+const int max_iter = 64;
 
 
 #endif

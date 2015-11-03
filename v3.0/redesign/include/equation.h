@@ -2,6 +2,10 @@
 #define _EQUATION_H_
 #include "header.h"
 #include <iomanip>
+#include <iostream>
+#include <stdarg.h>
+#include <cmath>
+
 
 extern int maxv;
 extern int minv;
@@ -32,6 +36,8 @@ class Solution{
 			return out;
 		}
 
+
+
 		T x[vars];
 };
 
@@ -58,10 +64,8 @@ class Equation{
 		{
 			out << std::setprecision(16) << equ->theta[0] << " {0}";
 			for (int j = 1; j < vars; j++)
-				out << "  +  " << /*std::setprecision(16) <<*/ equ->theta[j] 
-					<< /*std::setprecision(std::fixed) <<*/ "{" <<j << "}";
-			out << " >= " << /*std::setprecision(16) <<*/ - equ->theta0;
-			//out << /*std::setprecision(std::fixed) <<*/ "\n";
+				out << "  +  " << equ->theta[j] << "{" <<j << "}";
+			out << " >= " << - equ->theta0;
 			return out;
 		}
 
@@ -101,6 +105,29 @@ solve:
 				res += equ->theta[i] * sol[i];
 			}
 			return res;
+		}
+
+		int isSimilar(const Equation* e, int precision = 4)
+		{
+			if (e == NULL) return -1;
+			if ((theta0 == 0) && (e->theta0 == 0))
+				return -1;
+			double ratio = theta0 / e->theta0;
+			double down, up;
+			if (ratio >= 0) {
+				down = ratio * (1 - pow(0.1, precision));
+				up = ratio * (1 + pow(0.1, precision));
+			}
+			else {
+				up = ratio * (1 - pow(0.1, precision));
+				down = ratio * (1 + pow(0.1, precision));
+			}
+			//std::cout << "[" << down << ", " << ratio << ", " << up << "]" << std::endl;
+			for (int i = 0; i < vars; i++) {
+				if ((theta[i] < e->theta[i] * down) || (theta[i] > e->theta[i] * up))
+					return -1;
+			}
+			return 0;
 		}
 
 		double theta0;

@@ -1,6 +1,8 @@
 #ifndef _LOOP_TRACE_H_
 #define _LOOP_TRACE_H_
-#include "../header.h"
+//#include "../header.h"
+#include <iostream>
+#include "loop_state.h"
 
 
 template <class T>
