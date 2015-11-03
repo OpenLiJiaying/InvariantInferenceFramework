@@ -6,8 +6,8 @@
  ************************************************************************/
 #ifndef _IIF_H_
 #define _IIF_H_
-#include <stdarg.h>
-#include <iostream>
+//#include <stdarg.h>
+//#include <iostream>
 
 // _TEST_ simplest output
 //#define _TEST0_	 

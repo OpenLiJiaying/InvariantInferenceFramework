@@ -49,6 +49,9 @@ init:
 	if (TS[-1].first == NULL || TS[1].first == NULL)
 		goto init;
 
+	Equation* p = NULL;
+	Equation* pp = NULL;
+	bool bCon = false;
 start_svm:	
 	std::cout << "\t(2) start training process...[" << psvm->problem.l << "]" << std::endl;
 	psvm->insertFromTraceSet<int>(&TS[1]);
@@ -66,6 +69,27 @@ start_svm:
 		std::cout << "The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 		goto start_svm_i;
 	}
+
+
+	std::cout << "\t(4) check convergence: ";
+	if (psvm->equation->isSimilar(p) == 0) {
+		if (bCon == true) {
+			std::cout << "[SUCCESS] rounding off" << std::endl;
+			goto svm_end;
+		}
+		bCon = true;
+	}
+	else {
+		bCon = false;
+	}
+	std::cout << "[FAIL] next round " << ((bCon == true)? "T" : "F") << std::endl;
+	if (p != NULL) {
+		delete p;
+	}
+	p = psvm->equation;
+	psvm->equation = NULL;
+
+
 
 
 	rnd++;
@@ -88,6 +112,10 @@ start_svm:
 
 	}
 
+svm_end:
+	//psvm->equation->roundoff();
+	delete p;
+	delete psvm->equation;
 	std::cout << "[THE END] Reaching the maximum round of iteration[" << rnd << "]************************" << std::endl;
 
 start_svm_i:

@@ -1,6 +1,11 @@
 #ifndef _LIBSVM_H_
 #define _LIBSVM_H_
-#include "header.h"
+//#include "header.h"
+#include <iostream>
+#include <stdarg.h>
+#include "program/loop_state.h"
+#include "program/loop_trace.h"
+#include "program/trace_set.h"
 #include "float.h"
 #define LIBSVM_VERSION 320
 
@@ -148,7 +153,7 @@ class SVM_algo // : public ClassifyAlgo
 			problem.x = new svm_node* [max_items];
 			problem.l = 0;
 			
-			equation = new Equation();
+			equation = NULL;
 			model = NULL;
 
 			param.svm_type = C_SVC;
@@ -197,6 +202,7 @@ class SVM_algo // : public ClassifyAlgo
 				if (sin(i) + cos(i) > 1.414)
 					std::cout << ".";
 					*/
+			equation = new Equation();
 			svm_model_visualization(model, equation);
 			svm_free_and_destroy_model(&model);
 			return 0;

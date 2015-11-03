@@ -1,6 +1,8 @@
 #ifndef _LOOP_STATE_H_
 #define _LOOP_STATE_H_
-#include "../header.h"
+//#include "../header.h"
+#include <iostream>
+
 
 extern char (*LabelTable)[10];
 
