@@ -15,6 +15,16 @@ LoopTrace<int>* LT;
 TraceSet<int>* TS;
 Solution<int>* inputs;
 
+enum{NEG=-1, XUSE, POS, QST, CNE};
+
+void run_target(Solution<int>* sol)
+{
+	LT = new LoopTrace<int>();
+//	std::cout << "inputs" << sol <<  std::endl;
+	before_loop();
+	m(sol->x);
+	after_loop();
+}
 
 
 int main(int argc, char** argv)
@@ -32,6 +42,8 @@ int main(int argc, char** argv)
 	inputs = new Solution<int>();
 
 	int rnd = 1;
+	Equation* p = NULL;
+	bool bCon = false;
 	srand(time(NULL));
 	SVM_algo *psvm = new SVM_algo(print_null);
 	//std::cout << "[1]******************************************************" << std::endl;
@@ -41,33 +53,36 @@ int main(int argc, char** argv)
 
 
 init:
+	/* 
+	 *	The first round is very special, so we put this round apart with its following rounds.
+	 *	1> We used random values as inputs for program executions in the first round.
+	 *	2> We need to make sure there are at last two classes of generated traces. "positive" and "negative" 
+	 */
 	for (int i = 0; i < inputs_init; i++) {
 		Equation::linearSolver(NULL, inputs);
-		LT = new LoopTrace<int>();
-		before_loop();
-		m(inputs->x);
-		after_loop();
+		run_target(inputs);
 	}
 
 	if (TS[-1].first == NULL || TS[1].first == NULL)
 		goto init;
 
-	Equation* p = NULL;
-	Equation* pp = NULL;
-	bool bCon = false;
+
+
 start_svm:	
 	std::cout << "\t(2) start training process...[" << psvm->problem.l << "]" << std::endl;
-	psvm->insertFromTraceSet<int>(&TS[1]);
-	psvm->insertFromTraceSet<int>(&TS[-1]);
+	psvm->insertFromTraceSet<int>(&TS[POS]);
+	psvm->insertFromTraceSet<int>(&TS[NEG]);
 //	std::cout << &(psvm->problem) << std::endl;
-//	std::cout << "after converting" << std::endl;
 //	std::cout << "SVM_PROBLEM: " << std::endl;
 //	std::cout << &(psvm->problem) << std::endl; 
 	psvm->classify();
 	std::cout << "\t(3) RESULT: " << psvm->equation; // << std::endl;
 
 
-
+	/*	
+	 *	check on its own training data.
+	 *	There should be no prediction errors.
+	 */
 	double passRat = psvm->predictOnProblem();
 	std::cout << " [" << passRat * 100 << "%]." << std::endl;
 	if (passRat < 1) {
@@ -76,16 +91,40 @@ start_svm:
 	}
 
 
+	/*
+	*	Check on Question traces.
+	*	There should not exists one traces, in which a negative state is behind a positive state.
+	*/
+	std::cerr << "\t(4) Checking on Question traces.";
+	if (TS[QST].first == NULL) std::cout << "No question traces...";
+	for (LoopTrace<int>* lt = TS[QST].first; lt != NULL; lt = lt->next) {
+		int pre = -1, cur = 0;
+		for (LoopState<int>* ls = lt->first; ls != NULL; ls = ls->next) {
+			cur = Equation::calc<int>(psvm->equation, ls->values);
+			if ((pre > 0) && (cur < 0)) {
+				std::cerr << "Predict wrongly on Question traces." << std::endl;
+				return -1;
+			}
+			pre = cur;
+		}
+	}
+	std::cerr << "[done]" << std::endl;
 
-	std::cout << "\t(4) check convergence: ";
+
+
+	std::cout << "\t(5) check convergence: ";
+	/*
+	 *	bCon is used to store the convergence check return value for the last time.
+	 *	We only admit convergence if the three consecutive round are converged.
+	 *	This is to prevent in some round the points are too right to adjust the classifier.
+	 */
 	if (psvm->equation->isSimilar(p) == 0) {
 		if (bCon == true) {
 			std::cout << "[SUCCESS] \t rounding off" << std::endl;
 			goto svm_end;
 		}
 		bCon = true;
-	}
-	else {
+	} else {
 		bCon = false;
 	}
 	std::cout << "[FAIL] \t next round " << ((bCon == true)? "T" : "F") << std::endl;
@@ -103,16 +142,9 @@ start_svm:
 		std::cout << "[" << rnd << "]-----------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << "\t(1) running programs...[" << inputs_aft << "]" << std::endl;
 		for (int i = 0; i < inputs_aft; i++) {
-			//std::cout << "NEXT INPUTS:  ";
-			//Equation::linearSolver(psvm->equation, inputs);
 			Equation::linearSolver(p, inputs);
-			//std::cout << inputs <<  std::endl;
-			LT = new LoopTrace<int>();
-			before_loop();
-			m(inputs->x);
-//			std::cout << LT;
-			after_loop();
-//			std::cout << LT << std::endl;
+			
+			run_target(inputs);
 		}
 		goto start_svm;
 
