@@ -13,4 +13,5 @@ int m(int* a){
 
 	recordi(x, y);
 	assert (x > 0);
+	return 0;
 }

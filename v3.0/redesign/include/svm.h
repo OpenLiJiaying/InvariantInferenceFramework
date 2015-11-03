@@ -122,7 +122,7 @@ int svm_check_probability_model(const struct svm_model *model);
 
 void svm_set_print_string_function(void (*print_func)(const char *));
 
-void svm_model_visualization(const svm_model *model, Equation* equ);
+int svm_model_visualization(const svm_model *model, Equation* equ);
 
 void print_svm_samples(const svm_problem *sp);
 
@@ -193,7 +193,11 @@ class SVM_algo // : public ClassifyAlgo
 			if (problem.y == NULL || problem.x == NULL)
 				return -1;
 			model = svm_train(&problem, &param);
+			for (int i = 0; i < 100000; i++)
+				if (sin(i) + cos(i) > 1.414)
+					std::cout << ".";
 			svm_model_visualization(model, equation);
+			svm_free_and_destroy_model(&model);
 			return 0;
 		}
 

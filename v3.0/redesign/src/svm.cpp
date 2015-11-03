@@ -3143,11 +3143,13 @@ void print_svm_samples(const svm_problem *sp){}
 #endif
 
 
-void svm_model_visualization(const svm_model *model, Equation* equ)
+int svm_model_visualization(const svm_model *model, Equation* equ)
 {
+	if (model == NULL)
+		return -1;
 	if (model->param.kernel_type != LINEAR) {
 		info("Can not visualize hyperplane for kernel %s\n", kernel_type_table[model->param.kernel_type]);
-		return;
+		return -1;
 	}
 	
 	int l = model->l;
@@ -3182,7 +3184,7 @@ void svm_model_visualization(const svm_model *model, Equation* equ)
 		info ("  +  %.16g [%d]", theta[j], j);
 	info(" >= %.16g\n", -theta0);
 	*/
-	return;	
+	return 0;	
 }
 
 

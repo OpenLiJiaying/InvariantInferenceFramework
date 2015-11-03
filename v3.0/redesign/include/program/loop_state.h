@@ -2,7 +2,7 @@
 #define _LOOP_STATE_H_
 #include "header.h"
 
-extern char** LabelTable;
+extern char (*LabelTable)[10];
 
 template<class T>
 class LoopState{
@@ -39,6 +39,7 @@ class LoopState{
 		int labeling(int label) 
 		{
 			this->label = label;
+			return 0;
 		}
 		
 		LoopState<T> *next;

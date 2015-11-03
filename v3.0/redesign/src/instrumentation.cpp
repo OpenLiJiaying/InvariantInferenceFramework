@@ -14,8 +14,8 @@
 
 bool _passP = false;
 bool _passQ = false;
-char *lt[10] =  { "Negative", "UnSet", "Positive", "Question", "Bugtrace"};
-char** LabelTable = &lt[1];
+char lt[5][10] =  { "Negative", "UnSet", "Positive", "Question", "Bugtrace"};
+char(*LabelTable)[10] = &lt[1];
 
 int before_loop()
 {
@@ -45,6 +45,6 @@ int after_loop()
 	}
 	LT->labeling(label);
 	TS[label].addLoopTrace(LT);
-	std::cout << "[done]" << LabelTable[label] << "\n";
+	std::cout << "[done]" << LabelTable[label] << std::endl;
 	return 0;
 }

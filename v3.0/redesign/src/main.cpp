@@ -59,7 +59,7 @@ start_processing:
 //	std::cout << &(psvm->problem) << std::endl; 
 	psvm->classify();
 //	std::cout << "after classify" << std::endl;
-	std::cout << "RESULT: " << psvm->equation << std::endl;
+	//std::cout << "RESULT: " << psvm->equation << std::endl;
 
 
 	rnd++;
@@ -69,7 +69,8 @@ start_processing:
 		std::cout << inputs_aft << std::endl;
 		for (int i = 0; i < inputs_aft; i++) {
 			std::cout << "NEXT INPUTS:  ";
-			Equation::linearSolver(psvm->equation, inputs);
+			//Equation::linearSolver(psvm->equation, inputs);
+			Equation::linearSolver(NULL, inputs);
 			std::cout << inputs <<  std::endl;
 			LT = new LoopTrace<int>();
 			before_loop();
@@ -82,6 +83,7 @@ start_processing:
 
 	}
 
+	std::cout << "[THE END] Reaching the maximum round of iteration[" << rnd << "]************************" << std::endl;
 
 	return 0;
 }
