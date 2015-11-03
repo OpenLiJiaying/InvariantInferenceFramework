@@ -49,7 +49,7 @@ init:
 	if (TS[-1].first == NULL || TS[1].first == NULL)
 		goto init;
 
-start_processing:	
+start_svm:	
 	std::cout << "\t(2) start training process...[" << psvm->problem.l << "]" << std::endl;
 	psvm->insertFromTraceSet<int>(&TS[1]);
 	psvm->insertFromTraceSet<int>(&TS[-1]);
@@ -62,6 +62,10 @@ start_processing:
 	std::cout << "\t(3) RESULT: " << psvm->equation; // << std::endl;
 	double passRat = psvm->predictOnProblem();
 	std::cout << " \t passrate=[" << passRat * 100 << "%]." << std::endl;
+	if (passRat < 1) {
+		std::cout << "The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
+		goto start_svm_i;
+	}
 
 
 	rnd++;
@@ -80,11 +84,14 @@ start_processing:
 			after_loop();
 //			std::cout << LT << std::endl;
 		}
-		goto start_processing;
+		goto start_svm;
 
 	}
 
 	std::cout << "[THE END] Reaching the maximum round of iteration[" << rnd << "]************************" << std::endl;
+
+start_svm_i:
+	//
 
 	return 0;
 }
