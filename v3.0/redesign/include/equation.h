@@ -141,9 +141,9 @@ solve:
 
 		int roundoff(Equation* e)
 		{
-			double min = abs(theta0);
+			double min = std::abs(theta0);
 			for (int i = 1; i < vars; i++)
-				min = abs(theta[i]) < min ? abs(theta[i]) : min;
+				min = std::abs(theta[i]) < min ? std::abs(theta[i]) : min;
 			if (min <= pow(0.1, 4)) min = 1;
 			for (int i = 0; i < vars; i++)
 				e->theta[i] = _roundoff(theta[i] / min);
