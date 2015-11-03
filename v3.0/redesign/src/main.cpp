@@ -133,7 +133,7 @@ start_svm:
 			std::cout << "[TT] \t[SUCCESS] rounding off" << std::endl;
 			goto svm_end;
 		}
-		std::cout << "[FT] \t[FAIL] neXt round" << std::endl;
+		std::cout << "[FT]" << std::endl;
 		bCon = true;
 	} else {
 		std::cout << ((bCon == true) ? "[T" : "[F") << "F] ";
