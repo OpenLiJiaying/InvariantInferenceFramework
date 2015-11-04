@@ -3,8 +3,8 @@
 #include "header.h"
 #include <iostream>
 #include <stdarg.h>
-#include "program/loop_state.h"
-#include "program/loop_trace.h"
+#include "program/state.h"
+#include "program/trace.h"
 #include "program/trace_set.h"
 #include "float.h"
 #define LIBSVM_VERSION 320
@@ -147,7 +147,7 @@ class SVM_algo // : public ClassifyAlgo
 		svm_parameter param;
 		svm_problem problem;
 
-		SVM_algo(void (*f) (const char*))
+		SVM_algo(void (*f) (const char*) = NULL)
 		{
 			problem.y = new double [max_items];
 			problem.x = new svm_node* [max_items];
@@ -193,10 +193,17 @@ class SVM_algo // : public ClassifyAlgo
 			}
 		}
 
-		int classify() 
+
+
+		int train() 
 		{
 			if (problem.y == NULL || problem.x == NULL)
 				return -1;
+			const char* error_msg = svm_check_parameter(&problem, &param);
+			if (error_msg) {
+				std::cout << "ERROR: " << error_msg << std::endl;
+				exit(-1);
+			}
 			model = svm_train(&problem, &param);
 			/*for (int i = 0; i < 100000; i++)
 				if (sin(i) + cos(i) > 1.414)
@@ -212,7 +219,7 @@ class SVM_algo // : public ClassifyAlgo
 		int insertFromTraceSet(TraceSet<T>* ts)
 		{
 			int l = 0;
-			for (LoopTrace<int>* lt = ts->first; lt != NULL; lt = lt->next)
+			for (Trace<int>* lt = ts->first; lt != NULL; lt = lt->next)
 					l += lt->length;
 			if (problem.l + l > max_items) {
 				std::cout << "exceed max items SVM can handle." << std::endl;
@@ -220,8 +227,8 @@ class SVM_algo // : public ClassifyAlgo
 			}
 			int i = problem.l;
 			problem.l += l;
-			for (LoopTrace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
-				for (LoopState<T>* ls = lt->first; ls != NULL; ls = ls->next) {
+			for (Trace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
+				for (State<T>* ls = lt->first; ls != NULL; ls = ls->next) {
 					problem.y[i] = ls->label;
 					problem.x[i] = new svm_node[vars];
 					for (int j = 0; j < vars; j++) {
@@ -257,4 +264,202 @@ class SVM_algo // : public ClassifyAlgo
 	private:
 };
 
+
+const int max_equ = 8;
+
+class SVM_I_algo : public SVM_algo
+{
+public:
+	svm_model* model;
+	Equation* equation[max_equ];
+	int equ_num;
+	svm_parameter param;
+	svm_problem problem1;  // 1
+	svm_problem problem2;  // -1
+
+	SVM_I_algo(void(*f) (const char*) = NULL)
+	{
+		problem1.y = new double[max_items];
+		problem1.x = new svm_node*[max_items];
+		problem1.l = 0;
+		problem2.y = new double[max_items];
+		problem2.x = new svm_node*[max_items];
+		problem2.l = 0;
+
+		equ_num = 0;
+		for (int i = 0; i < max_equ; i++)
+			equation[i] = NULL;
+		model = NULL;
+
+		param.svm_type = C_SVC;
+		param.kernel_type = LINEAR;
+		param.degree = 3;
+		param.gamma = 0;	// 1/num_features
+		param.coef0 = 0;
+		param.nu = 0.5;
+		param.cache_size = 100;
+		//	param.C = 1;
+		param.C = DBL_MAX;
+		param.eps = 1e-3;
+		param.p = 0.1;
+		param.shrinking = 1;
+		param.probability = 0;
+		param.nr_weight = 0;
+		param.weight_label = NULL;
+		param.weight = NULL;
+		if (f != NULL)
+			svm_set_print_string_function(f);
+	}
+
+	~SVM_I_algo()
+	{
+		if (model != NULL)
+			delete model;
+		if (problem1.y != NULL)
+			delete problem1.y;
+		if (problem1.x != NULL) {
+			for (int i = 0; i < problem1.l; i++)
+				if (problem1.x[i] != NULL)
+					delete problem1.x[i];
+			delete[]problem1.x;
+		}
+		if (problem2.y != NULL)
+			delete problem2.y;
+		if (problem2.x != NULL) {
+			for (int i = 0; i < problem2.l; i++)
+				if (problem2.x[i] != NULL)
+					delete problem2.x[i];
+			delete[]problem2.x;
+		}
+	}
+
+
+
+	template<class T>
+	int insertFromTraceSet(TraceSet<T>* ts)
+	{
+		svm_problem* problem;
+		if (ts->label == 1) problem = &problem1;
+		if (ts->label == -1) problem = &problem2;
+
+		int l = 0;
+		for (Trace<int>* lt = ts->first; lt != NULL; lt = lt->next)
+			l += lt->length;
+		if (problem->l + l > max_items) {
+			std::cout << "exceed max items SVM can handle." << std::endl;
+			return -1;
+		}
+		int i = problem->l;
+		problem->l += l;
+		for (Trace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
+			for (State<T>* ls = lt->first; ls != NULL; ls = ls->next) {
+				problem->y[i] = ls->label;
+				problem->x[i] = new svm_node[vars];
+				for (int j = 0; j < vars; j++) {
+					problem->x[i][j].value = ls->values[j];
+				}
+				i++;
+			}
+		}
+		return l;
+	}
+
+	template<class T>
+	int predict(T* v)
+	{
+		if (equ_num <= 0) return -2;
+		if (v == NULL) return -2;
+		/*
+		 * We use conjunction of positive as predictor.
+		 * For example, (A >= 0) /\ (B >= 0) /\ (C >= 0) /\ ...
+		 * Only when the give input pass all the equations, it returns 1;
+		 * Otherwise, -1 will be returned.
+		*/
+		for (int i = 0; i < equ_num; i++) {
+			double res = Equation::calc<T>(equation[i], v);
+			if (res < 0) return -1;
+		}
+		return 1;
+	}
+
+	double predictOnProblem()
+	{
+		int total = problem1.l + problem2.l;
+		int pass = 0;
+		if (problem1.l > 0) {
+			for (int i = 0; i < problem1.l; i++) {
+				pass += (predict<double>((double*)problem1.x[i]) >= 0) ? 1 : 0;
+			}
+		}
+		if (problem2.l > 0) {
+			for (int i = 0; i < problem1.l; i++) {
+				pass += (predict<double>((double*)problem2.x[i]) < 0) ? 1 : 0;
+			}
+		}
+		return (double)pass / total;
+		return 0;
+	}
+
+	int getMisclassified(int& idx) // negative points may be misclassified.
+	{
+		if ((problem2.y == NULL) || (problem2.x == NULL))
+			return -1;
+		if (equ_num <= 0) {
+			idx = 0;
+			return 0;
+		}
+		for (int i = 0; i < problem2.l; i++)
+			if (predict<double>((double*)problem2.x[i]) >= 0) {
+				idx = i;
+				return 0;
+			}
+		idx = -1;
+		return 0;
+	}
+
+
+	int train()
+	{
+		if (problem1.y == NULL || problem1.x == NULL
+			|| problem2.y == NULL || problem2.x == NULL)
+			return -1;
+
+		equ_num = 0;
+		for (int misidx = -1; equ_num < max_equ; equ_num++) {
+			int ret = getMisclassified(misidx);
+			if (ret == -1) return -1;
+			if ((ret == 0) && (misidx == -1)) {
+				std::cout << "finish classified..." << std::endl;
+				return 0;
+			}
+
+			int length = problem1.l;
+			problem1.y[length] = -1;
+			for (int i = 0; i < vars; i++) {
+				problem1.x[length][i] = problem2.x[misidx][i];
+			}
+			problem1.l++;
+			model = svm_train(&problem1, &param);
+			problem1.l--;
+			svm_model_visualization(model, equation[equ_num]);
+			svm_free_and_destroy_model(&model);
+		}
+		return 0;
+	}
+
+	friend std::ostream& operator << (std::ostream& out, const SVM_I_algo* si) {
+		if (si->equ_num <= 0) {
+			out << "Having Learnt...\n";
+			return out;
+		}
+		out << "{ \n\t(" << si->equation[0] << ")";
+		for (int i = 1; i < si->equ_num; i++) {
+			out << " \n\t /\ (" << si->equation[i] << ")";
+		}
+		out << "}\n";
+		return out;
+	}
+
+private:
+};
 #endif /* _LIBSVM_H */

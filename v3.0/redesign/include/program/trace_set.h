@@ -1,8 +1,8 @@
 #ifndef _TRACE_SET_H_
 #define _TRACE_SET_H_
 
-#include "loop_state.h"
-#include "loop_trace.h"
+#include "state.h"
+#include "trace.h"
 #include "../equation.h"
 #include <iostream>
 
@@ -16,21 +16,23 @@ class TraceSet
 		{
 			first = NULL;
 			last = NULL;
+			length = 0;
 		};
 
 		~TraceSet() 
 		{
-			LoopTrace<type>* p = first;
-			LoopTrace<type>* pp; 
+/*			Trace<type>* p = first;
+			Trace<type>* pp; 
 			while (p != NULL) {
 				pp = p->next;
 				delete p;
 				p = pp;
 			}
-		}
+*/		}
 
-		int addLoopTrace(LoopTrace<type>* lt = LT) 
+		int addLoopTrace(Trace<type>* lt = LT) 
 		{
+			length += lt->length;
 			if (first == NULL) {
 				last = first = lt;
 				last->next = NULL;
@@ -48,9 +50,9 @@ class TraceSet
 				out << "NULL";
 				return out;
 			}
-			LoopTrace<type>* p = ts->first;
+			Trace<type>* p = ts->first;
 			while (p != NULL) {
-				out << "\n ||-->|| " << p;
+				out << "\n" /*<< " ||-->|| "*/ << p;
 				p = p->next;
 			}
 			return out;
@@ -61,16 +63,34 @@ class TraceSet
 			if (first == NULL) {
 				return 0;
 			}
-			LoopTrace<type>* p = first;
+			this->label = label;
+			Trace<type>* p = first;
 			while (p != NULL) {
 				p->labeling(label);
 				p = p->next;
 			}
 			return 0;
 		}
-		LoopTrace<type>* first;
-		LoopTrace<type>* last;
-//		int label;
+
+		int reset()
+		{
+			/*Trace<type>* p = first;
+			Trace<type>* pp;
+			while (p != NULL) {
+				pp = p->next;
+				delete p;
+				p = pp;
+			}
+			*/
+			first = NULL;
+			last = NULL;
+			length = 0;
+			return 0;
+		}
+		Trace<type>* first;
+		Trace<type>* last;
+		int label;
+		int length;
 };
 
 
