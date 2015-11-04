@@ -195,7 +195,7 @@ class SVM_algo // : public ClassifyAlgo
 
 
 
-		int train() 
+		virtual int train() 
 		{
 			if (problem.y == NULL || problem.x == NULL)
 				return -1;
@@ -250,7 +250,7 @@ class SVM_algo // : public ClassifyAlgo
 			else return -1;
 		}
 
-		double predictOnProblem()
+		virtual double predictOnProblem()
 		{
 			if (problem.l <= 0) return 0;
 			int pass = 0;
