@@ -51,8 +51,9 @@ class TraceSet
 				return out;
 			}
 			Trace<type>* p = ts->first;
+
 			while (p != NULL) {
-				out << "\n" /*<< " ||-->|| "*/ << p;
+				out  << p << "\n" /*<< " ||-->|| "*/;
 				p = p->next;
 			}
 			return out;

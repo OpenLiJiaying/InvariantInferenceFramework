@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 		std::cout << "}" << std::endl;
 
 		if (TS[CNE].length > 0) {
-			std::cout << "Program BUG! Encountered a counter-example." << std::endl;
+			std::cout << "Program BUG! Encountered counter-example(s)." << std::endl;
 			std::cout << &TS[CNE] << std::endl;
 			return -1;
 		}
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 		double passRat = psvm->predictOnProblem();
 		std::cout << " [" << passRat * 100 << "%]";
 		if (passRat < 1) {
-			std::cout << " [FAIL] The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
+			std::cout << " [FAIL] \n The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
 			goto start_svm_i;
 		}
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 					cur = Equation::calc<int>(psvm->equation, ls->values);
 					std::cout << ((cur >= 0) ? "+" : "-");
 					if ((pre > 0) && (cur < 0)) {
-						std::cerr << "Predict wrongly on Question traces." << std::endl;
+						std::cerr << "\n Predict wrongly on Question traces." << std::endl;
 						return -1;
 					}
 					pre = cur;
@@ -264,7 +264,7 @@ start_svm_i:
 		double passRat = psvm->predictOnProblem();
 		std::cout << " [" << passRat * 100 << "%]";
 		if (passRat < 1) {
-			std::cout << " [FAIL] The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
+			std::cout << " [FAIL] \n The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
 			psvm = new SVM_I_algo(print_null);
 			rnd = 1;

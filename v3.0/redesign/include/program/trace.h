@@ -52,7 +52,7 @@ class Trace
 			}
 			State<T>* p = lt->first;
 			while (p != NULL) {
-				out << p << " --> ";
+				out << p << " -> ";
 				p = p->next;
 			}
 			out << "END";
