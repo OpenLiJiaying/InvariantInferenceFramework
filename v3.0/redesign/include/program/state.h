@@ -7,14 +7,14 @@
 extern char (*LabelTable)[10];
 
 template<class T>
-class LoopState{
+class State{
 	public:
-		~LoopState() {
+		~State() {
 			if (values != NULL)
 				delete [] values;
 		}
 
-		LoopState(T first, ...) {
+		State(T first, ...) {
 			//if (values == NULL) 
 			values = new T [vars];
 			va_list ap;
@@ -26,7 +26,7 @@ class LoopState{
 			va_end(ap);
 		}
 
-		friend std::ostream& operator << (std::ostream& out, const LoopState* ps){
+		friend std::ostream& operator << (std::ostream& out, const State* ps){
 			if (ps->values == NULL) { 
 				out << "(NULL)";
 				return out;
@@ -45,7 +45,7 @@ class LoopState{
 			return 0;
 		}
 		
-		LoopState<T> *next;
+		State<T> *next;
 	
 		T *values;
 		int label; // -1, 0, 1 or otherss

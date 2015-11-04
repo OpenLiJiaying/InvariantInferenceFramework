@@ -2,24 +2,24 @@
 #define _LOOP_TRACE_H_
 //#include "../header.h"
 //#include <iostream>
-#include "loop_state.h"
+#include "state.h"
 
 
 template <class T>
-class LoopTrace
+class Trace
 {
 	public:
-		LoopTrace()
+		Trace()
 		{
 			first = NULL;
 			last = NULL;
 			length = 0;
 		};
 
-		~LoopTrace() 
+		~Trace() 
 		{
-			LoopState<T>* p = first;
-			LoopState<T>* pp; 
+			State<T>* p = first;
+			State<T>* pp; 
 			while (p != NULL) {
 				pp = p->next;
 				delete p;
@@ -27,7 +27,7 @@ class LoopTrace
 			}
 		}
 
-		int addLoopState(LoopState<T>* ps) 
+		int addState(State<T>* ps) 
 		{
 			length++;
 			//std::cout << ">" << ps;
@@ -43,14 +43,14 @@ class LoopTrace
 			return 0;
 		}
 
-		friend std::ostream& operator << (std::ostream& out, const LoopTrace* lt)
+		friend std::ostream& operator << (std::ostream& out, const Trace* lt)
 		{
 			out << LabelTable[lt->label] << " trace: ";
 			if (lt->first == NULL) {
 				out << "NULL";
 				return out;
 			}
-			LoopState<T>* p = lt->first;
+			State<T>* p = lt->first;
 			while (p != NULL) {
 				out << p << " --> ";
 				p = p->next;
@@ -65,7 +65,7 @@ class LoopTrace
 			this->label = label;
 			if (first == NULL)
 				return 0;
-			LoopState<T>* p = first;
+			State<T>* p = first;
 			while (p != NULL) {
 				p->labeling(label);
 				p = p->next;
@@ -73,14 +73,14 @@ class LoopTrace
 			return 0;
 		}
 
-		LoopState<T>* first;
+		State<T>* first;
 		int label;
 		int length;
-		LoopTrace<T>* next;
+		Trace<T>* next;
 	private:
-		LoopState<T>* last;
+		State<T>* last;
 };
 
-extern LoopTrace<int>* LT;
+extern Trace<int>* LT;
 
 #endif

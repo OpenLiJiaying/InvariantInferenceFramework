@@ -1,6 +1,8 @@
 #ifndef _HEADER_H_
 #define _HEADER_H_
 
+//#define VARS 3
+
 #ifndef VARS 
 const int vars = 2;
 #else
@@ -14,8 +16,8 @@ const int vars = VARS;
 //#include <cstdio>
 
 #include "equation.h"
-#include "program/loop_state.h"
-#include "program/loop_trace.h"
+#include "program/state.h"
+#include "program/trace.h"
 #include "program/trace_set.h"
 #include "assert.h"
 #include "svm.h"

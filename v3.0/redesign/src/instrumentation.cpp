@@ -39,10 +39,7 @@ int after_loop()
 	} else if (!_passP && _passQ) {
 		label = 2; 
 	} else if (_passP && !_passQ) {
-		label = 0;
-		std::cout << "Program BUG! Encountered a counter-example." << std::endl;
-		std::cout << "loop traces: " << LT << std::endl;
-		return -1;
+		label = 3;
 	}
 	LT->labeling(label);
 	TS[label].addLoopTrace(LT);
