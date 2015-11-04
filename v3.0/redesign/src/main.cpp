@@ -51,6 +51,7 @@ int main(int argc, char** argv)
 
 	int rnd;
 	for (rnd = 1; rnd <= max_iter; rnd++) {
+		psvm->equation = NULL;
 		TS[POS].reset();
 		TS[NEG].reset();
 		/*
@@ -182,13 +183,13 @@ int main(int argc, char** argv)
 		if (p != NULL) {
 			delete p;
 		}
-		p = psvm->equation;
-		psvm->equation = NULL;
+		p = psvm->equation;	
 	}
 
 
 
 	// finish classification...
+	std::cout << "*********************************************************************************************************" << std::endl;
 	if (rnd == max_iter)
 		std::cout << "[THE END] Reach the maximum rounds of iteration[" << rnd 
 		<< "]-------------------------------------------------------" << std::endl;
@@ -196,9 +197,14 @@ int main(int argc, char** argv)
 		std::cout << "[THE END] Finally get converged after [" << rnd 
 		<< "] iterations----------------------------------------------------" << std::endl;
 
-	std::cout << "*********************************************************************************************************" << std::endl;
-	psvm->equation->roundoff(p);
-	std::cout << "\t\t"<< p << std::endl;
+	
+	Equation equs[8];
+	int equ_num = psvm->roundoff(equs);
+	std::cout << "Hypothesis Invairant: {\n";
+	std::cout << "\t\t" << &equs[0] << std::endl;
+	for (int i = 1; i < equ_num; i++)
+		std::cout << "\t  /\\ " << &equs[i] << std::endl;
+	std::cout << std::endl;
 	delete p;
 	delete psvm->equation;
 	return 0;

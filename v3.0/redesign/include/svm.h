@@ -266,6 +266,12 @@ class SVM_algo // : public ClassifyAlgo
 			return out;
 		}
 
+		virtual int roundoff(Equation* p)
+		{
+			equation->roundoff(&p[0]);
+			return 1;
+		}
+
 		virtual int size()
 		{
 			return problem.l;
@@ -473,6 +479,14 @@ public:
 	int size()
 	{
 		return problem1.l + problem2.l;
+	}
+
+	 int roundoff(Equation *p)
+	{
+		for (int i = 0; i < equ_num; i++) {
+			equation[i]->roundoff(&p[i]);
+		}
+		return equ_num;
 	}
 private:
 };
