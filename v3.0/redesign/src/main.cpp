@@ -150,7 +150,6 @@ int main(int argc, char** argv)
 					std::cout << ((cur >= 0) ? "+" : "-");
 					if ((pre > 0) && (cur < 0)) {
 						std::cerr << "Predict wrongly on Question traces." << std::endl;
-
 						return -1;
 					}
 					pre = cur;
@@ -204,7 +203,7 @@ int main(int argc, char** argv)
 	std::cout << "\t\t" << &equs[0] << std::endl;
 	for (int i = 1; i < equ_num; i++)
 		std::cout << "\t  /\\ " << &equs[i] << std::endl;
-	std::cout << std::endl;
+	std::cout << "}" << std::endl;
 	delete p;
 	delete psvm->equation;
 	return 0;
