@@ -260,7 +260,16 @@ class SVM_algo // : public ClassifyAlgo
 			return (double)pass / problem.l;
 		}
 
+		friend std::ostream& operator << (std::ostream& out, const SVM_algo* si) {
+			out << "Learnt from SVM...\n";
+			out << si->equation << std::endl;
+			return out;
+		}
 
+		virtual int size()
+		{
+			return problem.l;
+		}
 	private:
 };
 
@@ -270,10 +279,10 @@ const int max_equ = 8;
 class SVM_I_algo : public SVM_algo
 {
 public:
-	svm_model* model;
+	//svm_model* model;
 	Equation* equation[max_equ];
 	int equ_num;
-	svm_parameter param;
+	//svm_parameter param;
 	svm_problem problem1;  // 1
 	svm_problem problem2;  // -1
 
@@ -461,6 +470,10 @@ public:
 		return out;
 	}
 
+	int size()
+	{
+		return problem1.l + problem2.l;
+	}
 private:
 };
 #endif /* _LIBSVM_H */

@@ -105,12 +105,13 @@ int main(int argc, char** argv)
 		std::cout << "+" << TS[POS].length << " | -" << TS[NEG].length << " | ";
 		psvm->insertFromTraceSet<int>(&TS[POS]);
 		psvm->insertFromTraceSet<int>(&TS[NEG]);
-		std::cout << psvm->problem.l << "]" << std::endl;
+		std::cout << psvm->size() << "]" << std::endl;
+		//	std::cout << psvm->problem.l << "]" << std::endl;
 		//	std::cout << &(psvm->problem) << std::endl;
 		//	std::cout << "SVM_PROBLEM: " << std::endl;
 		//	std::cout << &(psvm->problem) << std::endl; 
 		psvm->train();
-		std::cout << "\t |-->> " << psvm->equation << std::endl;
+		std::cout << "\t |-->> " << psvm << std::endl;
 
 
 		/*
