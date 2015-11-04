@@ -261,7 +261,7 @@ class SVM_algo // : public ClassifyAlgo
 		}
 
 		friend std::ostream& operator << (std::ostream& out, const SVM_algo* si) {
-			out << "Learnt from SVM...\n";
+			out << "Learnt from SVM...";
 			out << si->equation << std::endl;
 			return out;
 		}
@@ -457,7 +457,7 @@ public:
 	}
 
 	friend std::ostream& operator << (std::ostream& out, const SVM_I_algo* si) {
-		out << "Learnt from SVM-I...\n";
+		out << "Learnt from SVM-I...";
 		if (si->equ_num <= 0) {
 			out << "Having Learnt...\n";
 			return out;

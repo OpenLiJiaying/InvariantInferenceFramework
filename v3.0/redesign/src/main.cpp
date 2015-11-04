@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 		//	std::cout << "SVM_PROBLEM: " << std::endl;
 		//	std::cout << &(psvm->problem) << std::endl; 
 		psvm->train();
-		std::cout << "\t |-->> " << psvm << std::endl;
+		std::cout << "\t |-->> " << psvm; //<< std::endl;
 
 
 		/*
