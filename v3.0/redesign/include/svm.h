@@ -448,13 +448,14 @@ public:
 	}
 
 	friend std::ostream& operator << (std::ostream& out, const SVM_I_algo* si) {
+		out << "Learnt from SVM-I...\n";
 		if (si->equ_num <= 0) {
 			out << "Having Learnt...\n";
 			return out;
 		}
 		out << "{ \n\t(" << si->equation[0] << ")";
 		for (int i = 1; i < si->equ_num; i++) {
-			out << " \n\t /\ (" << si->equation[i] << ")";
+			out << " \n\t /\\ (" << si->equation[i] << ")";
 		}
 		out << "}\n";
 		return out;
