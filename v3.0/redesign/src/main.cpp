@@ -246,7 +246,7 @@ int main(int argc, char** argv)
 	}
 
 
-	if (bSvmI) goto start_svm_i;
+	if (!bSvmI) {
 	// finish classification...
 	std::cout << "*********************************************************************************************************" << std::endl;
 	if (rnd == max_iter)
@@ -266,6 +266,7 @@ int main(int argc, char** argv)
 	delete psvm->equation;
 	return 0;
 
+	}
 
 
 
