@@ -284,7 +284,7 @@ class SVM_algo // : public ClassifyAlgo
 };
 
 
-const int max_equ = 32;
+const int max_equ = 8;
 
 class SVM_I_algo : public SVM_algo
 {
@@ -493,9 +493,10 @@ public:
 			out << "Having Learnt...\n";
 			return out;
 		}
-		out << "{ \n\t    (" << si->equation[0] << ") \t\t(0)";
+		out << std::setprecision(16);
+		out << "{ \n\t    " << si->equation[0] << "\t\t(0)";
 		for (int i = 1; i < si->equ_num; i++) {
-			out << " \n\t /\\ " << i << "(" << si->equation[i] << ")\t\t(" << i << ")";
+			out << " \n\t /\\ " << si->equation[i] << "\t\t" << "(" << i << ")";
 		}
 		out << "}\n";
 		return out;
