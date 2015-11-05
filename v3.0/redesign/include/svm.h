@@ -415,7 +415,7 @@ public:
 			for (int i = 0; i < problem1.l; i++) {
 				bool bPass = (Equation::calc<double>(equation[equ_num], (double*)problem1.x[i]) * problem1.y[i] >= 0) ? 1 : 0;
 				pass += bPass;
-				
+			/*	
 				std::cout << "(";
 				for (int j = 0; j < vars - 1; j++)
 					std::cout << problem1.x[i][j].value << ",";
@@ -424,6 +424,7 @@ public:
 				else std::cout << "Fail\t";
 				if ((i + 1) % 4 == 0)
 					std::cout << std::endl << "\t";
+			*/
 			}
 		}
 		std::cout << std::endl << pass << "/" << total << "..";
@@ -492,9 +493,9 @@ public:
 			out << "Having Learnt...\n";
 			return out;
 		}
-		out << "{ \n\t    0(" << si->equation[0] << ")";
+		out << "{ \n\t    (" << si->equation[0] << ") \t\t(0)";
 		for (int i = 1; i < si->equ_num; i++) {
-			out << " \n\t /\\ " << i << "(" << si->equation[i] << ")";
+			out << " \n\t /\\ " << i << "(" << si->equation[i] << ")\t\t(" << i << ")";
 		}
 		out << "}\n";
 		return out;
