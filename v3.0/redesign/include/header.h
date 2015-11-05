@@ -9,6 +9,8 @@ const int vars = 2;
 const int vars = VARS;
 #endif
 
+const int max_items = 100000;
+
 #include <stdarg.h>
 #include <iostream>
 #include <cstdlib>
@@ -34,5 +36,8 @@ const int inputs_init = 4 * vars;
 const int inputs_aft = 2 * vars;
 const int max_iter = 64;
 
+extern double PS[max_items][vars];
+extern double NS[max_items][vars];
+extern int pIndex, nIndex;
 
 #endif

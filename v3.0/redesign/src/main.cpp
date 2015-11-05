@@ -11,11 +11,15 @@
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}
 
+double PS[max_items][vars], NS[max_items][vars];
+int pIndex, nIndex;
+
+
 Trace<int>* LT;
 TraceSet<int>* TS;
 Solution<int>* inputs;
 
-enum{NEG=-1, XUSE, POS, QST, CNE};
+enum{NEG=-1, QST, POS, CNE};
 
 void run_target(Solution<int>* sol)
 {
@@ -25,6 +29,19 @@ void run_target(Solution<int>* sol)
 	m(sol->x);
 	after_loop();
 }
+
+
+int fromSetToProblem(double** set, int length, int label, svm_problem& pro)
+{
+	int start = pro.l;
+	for (int i = 0; i < length; i++) 
+	{
+		pro.y[start + i] = label;
+		pro.x[start + i] = (svm_node*)&set[i];
+	}
+	pro.l += length;
+}
+
 
 
 int main(int argc, char** argv)
@@ -37,8 +54,12 @@ int main(int argc, char** argv)
 		minv = atoi(argv[1]);
 		maxv = atoi(argv[2]);
 	}
-	TS = new TraceSet<int>[5]();
-	TS = &TS[XUSE];
+
+	pIndex = 0;
+	nIndex = 0;
+
+	TS = new TraceSet<int>[4]();
+	TS = &TS[1];
 	inputs = new Solution<int>();
 
 	Equation* p = NULL;
@@ -125,7 +146,8 @@ int main(int argc, char** argv)
 		if (passRat < 1) {
 			std::cout << " [FAIL] \n The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
-			goto start_svm_i;
+			//goto start_svm_i;
+			break;
 		}
 		std::cout << " [PASS]" << std::endl;
 

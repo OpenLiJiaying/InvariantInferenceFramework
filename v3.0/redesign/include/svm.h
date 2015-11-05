@@ -16,7 +16,7 @@
 
 extern int libsvm_version;
 extern const int vars;
-const int max_items = 1000000;
+//const int max_items = 1000000;
 
 
 

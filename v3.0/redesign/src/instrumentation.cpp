@@ -15,7 +15,7 @@
 
 bool _passP = false;
 bool _passQ = false;
-char lt[5][10] =  { "Negative", "UnSet", "Positive", "Question", "Bugtrace"};
+char lt[4][10] =  { "Negative", "Question", "Positive", "Bugtrace"};
 char(*LabelTable)[10] = &lt[1];
 
 int before_loop()
@@ -27,19 +27,31 @@ int before_loop()
 	return 0;
 }
 
+template<class T>
+static int insertTrace(double** set, int& index,  Trace<T>* t)
+{
+	for (State<T>* s = t->first; s != NULL; s = s->next) {
+		for (int i = 0; i < vars; i++)
+			PS[index][i] = s->values[i];
+		index++;
+	}
+}
+
 
 int after_loop()
 {
 	int label = 0;
 	//std::cout << "---> after_loop.";
 	if (_passP && _passQ) {
-		label = 1; 
+		label = 1;
+		//insertTrace<int>((double**)PS, pIndex, LT);
 	} else if (!_passP && !_passQ) {
 		label = -1; 
+		//insertTrace<int>((double**)NS, nIndex, LT);
 	} else if (!_passP && _passQ) {
-		label = 2; 
+		label = 0; 
 	} else if (_passP && !_passQ) {
-		label = 3;
+		label = 2;
 	}
 	LT->labeling(label);
 	TS[label].addLoopTrace(LT);
