@@ -27,32 +27,49 @@ int before_loop()
 	return 0;
 }
 
+#ifdef __OPT
 template<class T>
-static int insertTrace(double** set, int& index,  Trace<T>* t)
+static int insertTrace(int label, Trace<T>* t)
 {
-	for (State<T>* s = t->first; s != NULL; s = s->next) {
-		for (int i = 0; i < vars; i++)
-			PS[index][i] = s->values[i];
-		index++;
+	if (label == 1) {
+		for (State<T>* s = t->first; s != NULL; s = s->next) {
+			for (int i = 0; i < vars; i++)
+				Pset[pIndex][i] = s->values[i];
+			pIndex++;
+		}
+	} else if (label == -1) {
+		for (State<T>* s = t->first; s != NULL; s = s->next) {
+			for (int i = 0; i < vars; i++)
+				Nset[nIndex][i] = s->values[i];
+			nIndex++;
+		}
 	}
+	return 0;
 }
+#endif
 
 
 int after_loop()
 {
 	int label = 0;
-	//std::cout << "---> after_loop.";
 	if (_passP && _passQ) {
 		label = 1;
-		//insertTrace<int>((double**)PS, pIndex, LT);
+#ifdef __OPT
+		insertTrace<int>(1, LT);
+		return 0;
+#endif
 	} else if (!_passP && !_passQ) {
 		label = -1; 
-		//insertTrace<int>((double**)NS, nIndex, LT);
+#ifdef __OPT
+		insertTrace<int>( -1, LT);
+		return 0;
+#endif
 	} else if (!_passP && _passQ) {
 		label = 0; 
 	} else if (_passP && !_passQ) {
 		label = 2;
 	}
+
 	LT->labeling(label);
 	TS[label].addLoopTrace(LT);
 	//std::cout << "[done]" << LabelTable[label] << std::endl;

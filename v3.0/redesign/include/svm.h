@@ -23,11 +23,13 @@ extern const int vars;
 struct svm_node
 {
 	double value;
+#ifndef __OPT
 	friend std::ostream& operator << (std::ostream& out, const svm_node* sn)
 	{
 		out << sn->value;
 		return out;
 	}
+#endif
 };
 
 struct svm_problem
@@ -149,8 +151,10 @@ class SVM_algo // : public ClassifyAlgo
 
 		SVM_algo(void (*f) (const char*) = NULL)
 		{
+#ifndef __OPT
 			problem.y = new double [max_items];
 			problem.x = new svm_node* [max_items];
+#endif
 			problem.l = 0;
 			
 			equation = NULL;
@@ -280,7 +284,7 @@ class SVM_algo // : public ClassifyAlgo
 };
 
 
-const int max_equ = 8;
+const int max_equ = 32;
 
 class SVM_I_algo : public SVM_algo
 {
@@ -294,16 +298,18 @@ public:
 
 	SVM_I_algo(void(*f) (const char*) = NULL)
 	{
+#ifndef __OPT
 		problem1.y = new double[max_items];
 		problem1.x = new svm_node*[max_items];
-		problem1.l = 0;
 		problem2.y = new double[max_items];
 		problem2.x = new svm_node*[max_items];
+#endif
+		problem1.l = 0;
 		problem2.l = 0;
 
 		equ_num = 0;
 		for (int i = 0; i < max_equ; i++)
-			equation[i] = NULL;
+			equation[i] = new Equation();
 		model = NULL;
 
 		param.svm_type = C_SVC;
@@ -329,23 +335,7 @@ public:
 	~SVM_I_algo()
 	{
 		if (model != NULL)
-			delete model;
-		if (problem1.y != NULL)
-			delete problem1.y;
-		if (problem1.x != NULL) {
-			for (int i = 0; i < problem1.l; i++)
-				if (problem1.x[i] != NULL)
-					delete problem1.x[i];
-			delete[]problem1.x;
-		}
-		if (problem2.y != NULL)
-			delete problem2.y;
-		if (problem2.x != NULL) {
-			for (int i = 0; i < problem2.l; i++)
-				if (problem2.x[i] != NULL)
-					delete problem2.x[i];
-			delete[]problem2.x;
-		}
+			svm_free_and_destroy_model(&model);
 	}
 
 
@@ -397,6 +387,7 @@ public:
 		return 1;
 	}
 
+
 	double predictOnProblem()
 	{
 		int total = problem1.l + problem2.l;
@@ -407,13 +398,40 @@ public:
 			}
 		}
 		if (problem2.l > 0) {
-			for (int i = 0; i < problem1.l; i++) {
+			for (int i = 0; i < problem2.l; i++) {
 				pass += (predict<double>((double*)problem2.x[i]) < 0) ? 1 : 0;
 			}
 		}
 		return (double)pass / total;
 		return 0;
 	}
+
+	double CheckPostive()
+	{
+		int total = problem1.l;
+		int pass = 0;
+		std::cout << "\t";
+		if (problem1.l > 1) {
+			for (int i = 0; i < problem1.l; i++) {
+				bool bPass = (Equation::calc<double>(equation[equ_num], (double*)problem1.x[i]) * problem1.y[i] >= 0) ? 1 : 0;
+				pass += bPass;
+				
+				std::cout << "(";
+				for (int j = 0; j < vars - 1; j++)
+					std::cout << problem1.x[i][j].value << ",";
+				std::cout << problem1.x[i][vars-1].value << ")";
+				if (bPass) std::cout << "Pass\t";
+				else std::cout << "Fail\t";
+				if ((i + 1) % 4 == 0)
+					std::cout << std::endl << "\t";
+			}
+		}
+		std::cout << std::endl << pass << "/" << total << "..";
+
+	
+		return (double)pass / total;
+	}
+
 
 	int getMisclassified(int& idx) // negative points may be misclassified.
 	{
@@ -439,8 +457,9 @@ public:
 			|| problem2.y == NULL || problem2.x == NULL)
 			return -1;
 
-		equ_num = 0;
-		for (int misidx = -1; equ_num < max_equ; equ_num++) {
+		
+		for (equ_num = 0; equ_num < max_equ; equ_num++) {
+			int misidx = -1;
 			int ret = getMisclassified(misidx);
 			if (ret == -1) return -1;
 			if ((ret == 0) && (misidx == -1)) {
@@ -450,14 +469,19 @@ public:
 
 			int length = problem1.l;
 			problem1.y[length] = -1;
-			for (int i = 0; i < vars; i++) {
-				problem1.x[length][i] = problem2.x[misidx][i];
-			}
+			problem1.x[length] = problem2.x[misidx];
 			problem1.l++;
+
+			std::cout << "." << equ_num << std::endl;
+
 			model = svm_train(&problem1, &param);
-			problem1.l--;
 			svm_model_visualization(model, equation[equ_num]);
+			
+			double precision = CheckPostive();
 			svm_free_and_destroy_model(&model);
+			problem1.l--;
+			std::cout << "\n On training set precision: " << precision * 100 << "%" << std::endl;
+			//std::cout << "\n On whole set precision: " << predictOnProblem() * 100 << "%" << std::endl;
 		}
 		return 0;
 	}
@@ -468,9 +492,9 @@ public:
 			out << "Having Learnt...\n";
 			return out;
 		}
-		out << "{ \n\t(" << si->equation[0] << ")";
+		out << "{ \n\t    0(" << si->equation[0] << ")";
 		for (int i = 1; i < si->equ_num; i++) {
-			out << " \n\t /\\ (" << si->equation[i] << ")";
+			out << " \n\t /\\ " << i << "(" << si->equation[i] << ")";
 		}
 		out << "}\n";
 		return out;

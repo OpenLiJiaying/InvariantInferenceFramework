@@ -6,19 +6,24 @@
  ************************************************************************/
 #include <iostream>
 #include <float.h>
+#include <string.h>
 #include "../include/header.h"
 
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}
 
-double PS[max_items][vars], NS[max_items][vars];
+//double set[max_items][vars];
+double Pset[max_items][vars], Nset[max_items][vars];
 int pIndex, nIndex;
+
+
+double agent_label[max_items * 2];
+double* agent_set[max_items * 2];
 
 
 Trace<int>* LT;
 TraceSet<int>* TS;
 Solution<int>* inputs;
-
 enum{NEG=-1, QST, POS, CNE};
 
 void run_target(Solution<int>* sol)
@@ -31,6 +36,7 @@ void run_target(Solution<int>* sol)
 }
 
 
+#ifdef __OPT
 int fromSetToProblem(double** set, int length, int label, svm_problem& pro)
 {
 	int start = pro.l;
@@ -42,7 +48,7 @@ int fromSetToProblem(double** set, int length, int label, svm_problem& pro)
 	pro.l += length;
 	return length;
 }
-
+#endif
 
 
 int main(int argc, char** argv)
@@ -56,9 +62,14 @@ int main(int argc, char** argv)
 		maxv = atoi(argv[2]);
 	}
 
+	bool bSvmI = false;
+
+	int oldpIndex = 0, oldnIndex = 0;
 	pIndex = 0;
 	nIndex = 0;
-
+	for (int i = 0; i < 2 * max_items; i++)
+		agent_label[i] = -1;
+	
 	TS = new TraceSet<int>[4]();
 	TS = &TS[1];
 	inputs = new Solution<int>();
@@ -68,14 +79,19 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	SVM_algo *psvm = new SVM_algo(print_null);
 
-
-
+#ifdef __OPT
+	psvm->problem.y = agent_label;
+	psvm->problem.x = (svm_node**)agent_set;
+#endif
 
 	int rnd;
 	for (rnd = 1; rnd <= max_iter; rnd++) {
 		psvm->equation = NULL;
+#ifndef __OPT
 		TS[POS].reset();
 		TS[NEG].reset();
+#endif
+		
 		/*
 		*	The first round is very special, so we put this round apart with its following rounds.
 		*	1> We used random values as inputs for program executions in the first round.
@@ -93,18 +109,26 @@ int main(int argc, char** argv)
 				run_target(inputs);
 			}
 
+
 			if (TS[CNE].length > 0) {
 				std::cout << "}\nProgram BUG! Encountered a counter-example." << std::endl;
 				std::cout << &TS[CNE] << std::endl;
 				return -1;
 			}
 
+#ifndef __OPT
 			if (TS[NEG].length == 0 || TS[POS].length == 0) {
 				if (TS[NEG].length == 0) std::cout << "Negative 0" << std::endl;
 				if (TS[POS].length == 0) std::cout << "Positive 0" << std::endl;
 				goto init;
 			}
-				
+#else
+			if (pIndex == 0 || nIndex == 0) {
+				if (pIndex == 0) std::cout << "Negative 0" << std::endl;
+				if (nIndex == 0) std::cout << "Positive 0" << std::endl;
+				goto init;
+			}
+#endif			
 		}
 		else {
 			std::cout << "[" << rnd << "]-----------------------------------------------------------------------------------------------------"
@@ -125,9 +149,24 @@ int main(int argc, char** argv)
 		}
 
 		std::cout << "\t(2) start training process...[";
+#ifndef __OPT
 		std::cout << "+" << TS[POS].length << " | -" << TS[NEG].length << " | ";
 		psvm->insertFromTraceSet<int>(&TS[POS]);
 		psvm->insertFromTraceSet<int>(&TS[NEG]);
+#else
+		std::cout << "+" << pIndex - oldpIndex << " | -" << nIndex - oldnIndex << " | ";
+		memmove(agent_set + pIndex, agent_set + oldpIndex, oldnIndex * sizeof(double*));
+		for (int i = oldpIndex; i < pIndex; i++) {
+			agent_set[i] = Pset[i];
+			agent_label[i] = 1;
+		}
+		for (int i = oldnIndex; i < nIndex; i++) {
+			agent_set[pIndex + i] = Nset[i];
+		}
+		psvm->problem.l = pIndex + nIndex;
+		oldpIndex = pIndex;
+		oldnIndex = nIndex;
+#endif
 		std::cout << psvm->size() << "]" << std::endl;
 		//	std::cout << psvm->problem.l << "]" << std::endl;
 		//	std::cout << &(psvm->problem) << std::endl;
@@ -147,7 +186,7 @@ int main(int argc, char** argv)
 		if (passRat < 1) {
 			std::cout << " [FAIL] \n The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
 			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
-			//goto start_svm_i;
+			bSvmI = true;
 			break;
 		}
 		std::cout << " [PASS]" << std::endl;
@@ -207,7 +246,7 @@ int main(int argc, char** argv)
 	}
 
 
-
+	if (bSvmI) goto start_svm_i;
 	// finish classification...
 	std::cout << "*********************************************************************************************************" << std::endl;
 	if (rnd == max_iter)
@@ -218,12 +257,10 @@ int main(int argc, char** argv)
 		<< "] iterations----------------------------------------------------" << std::endl;
 
 	
-	Equation equs[8];
-	int equ_num = psvm->roundoff(equs);
+	Equation equ;
+	psvm->roundoff(&equ);
 	std::cout << "Hypothesis Invairant: {\n";
-	std::cout << "\t\t" << &equs[0] << std::endl;
-	for (int i = 1; i < equ_num; i++)
-		std::cout << "\t  /\\ " << &equs[i] << std::endl;
+	std::cout << "\t\t" << &equ << std::endl;
 	std::cout << "}" << std::endl;
 	delete p;
 	delete psvm->equation;
@@ -232,107 +269,62 @@ int main(int argc, char** argv)
 
 
 
-
-
-
-
 start_svm_i:
-	psvm = new SVM_I_algo(print_null);
-	goto istart;
+	std::cout << "start SVM-I" << std::endl;
+	SVM_I_algo * psvmi = new SVM_I_algo(print_null);
 
-	for (rnd = 1; rnd <= max_iter; rnd++) {
-		TS[POS].reset();
-		TS[NEG].reset();
-		/*
-		*	The first round is very special, so we put this round apart with its following rounds.
-		*	1> We used random values as inputs for program executions in the first round.
-		*	2> We need to make sure there are at last two classes of generated traces. "positive" and "negative"
-		*/
-
-		std::cout << "[" << rnd << "]-----------------------------------------------------------------------------------------------------"
-			<< std::endl;
-		std::cout << "\t(1) running programs...[" << inputs_aft << "] {";
-		for (int i = 0; i < inputs_aft; i++) {
-			Equation::linearSolver(p, inputs);
-			std::cout << inputs << " | ";
-			run_target(inputs);
-		}
-
-		std::cout << "}" << std::endl;
-
-		if (TS[CNE].length > 0) {
-			std::cout << "Program BUG! Encountered a counter-example." << std::endl;
-			std::cout << &TS[CNE] << std::endl;
-			return -1;
-		}
-
-	istart:
-		std::cout << "\t(2) start training process...[";
-		std::cout << "+" << TS[POS].length << " | -" << TS[NEG].length << " | ";
-		psvm->insertFromTraceSet<int>(&TS[POS]);
-		psvm->insertFromTraceSet<int>(&TS[NEG]);
-		std::cout << psvm->size() << "]" << std::endl;
-		//	std::cout << psvm->problem.l << "]" << std::endl;
-		//	std::cout << &(psvm->problem) << std::endl;
-
-		psvm->train();
-		std::cout << "\t |-->> " << psvm; //<< std::endl;
+#ifdef __OPT
+	agent_set[pIndex + nIndex] = agent_set[pIndex];
+	psvmi->problem1.l = pIndex;
+	psvmi->problem2.l = nIndex;
+	psvmi->problem1.y = agent_label;
+	psvmi->problem2.y = agent_label + pIndex + 1;
+	psvmi->problem1.x = (svm_node**)agent_set;
+	psvmi->problem2.x = (svm_node**)(agent_set + pIndex + 1);
+#else
+	std::cout << "\t(2) start training process...[";
+	std::cout << "+" << TS[POS].length << " | -" << TS[NEG].length << " | ";
+	psvmi->insertFromTraceSet<int>(&TS[POS]);
+	psvmi->insertFromTraceSet<int>(&TS[NEG]);
+	std::cout << psvm->size() << "]" << std::endl;
+	//	std::cout << psvm->problem.l << "]" << std::endl;
+	//	std::cout << &(psvm->problem) << std::endl;
+#endif
+	psvmi->train();
+	std::cout << "\t |-->> " << psvmi; //<< std::endl;
 
 
-		/*
-		*	check on its own training data.
-		*	There should be no prediction errors.
-		*/
-		std::cout << "\t(3) checking on training traces.";
-		double passRat = psvm->predictOnProblem();
-		std::cout << " [" << passRat * 100 << "%]";
-		if (passRat < 1) {
-			std::cout << " [FAIL] \n The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
-			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
-			psvm = new SVM_I_algo(print_null);
-			rnd = 1;
-			goto init;
-		}
-		std::cout << " [PASS]" << std::endl;
-
-
-		/*
-		*	Check on Question traces.
-		*	There should not exists one traces, in which a negative state is behind a positive state.
-		*/
-		std::cout << "\t(4) checking on Question traces.";
-		std::cout << " [" << TS[QST].length << "]";
-
-
-		//std::cout << "\t    ";
-		std::cout << " [PASS]" << std::endl;
-
-
-		/*
-		*	bCon is used to store the convergence check return value for the last time.
-		*	We only admit convergence if the three consecutive round are converged.
-		*	This is to prevent in some round the points are too right to adjust the classifier.
-		*/
-		std::cout << "\t(5) check convergence: ";
-		if (psvm->equation->isSimilar(p) == 0) {
-			if (bCon == true) {
-				std::cout << "[TT] \t[SUCCESS] rounding off" << std::endl;
-				break;
-			}
-			std::cout << "[FT]";
-			bCon = true;
-		}
-		else {
-			std::cout << ((bCon == true) ? "[T" : "[F") << "F] ";
-			bCon = false;
-		}
-		std::cout << "\t [FAIL] neXt round " << std::endl;
-		if (p != NULL) {
-			delete p;
-		}
-		p = psvm->equation;
+	/*
+	*	check on its own training data.
+	*	There should be no prediction errors.
+	*/
+	std::cout << "\t(3) checking on training traces.";
+	double passRat = psvmi->predictOnProblem();
+	std::cout << " [" << passRat * 100 << "%]";
+	if (passRat < 1) {
+		//std::cout << " [FAIL] at SVM-I algo" << std::endl;
+		//exit(-1);
 	}
+	std::cout << " [PASS]" << std::endl;
 
 
+	/*
+	*	Check on Question traces.
+	*	There should not exists one traces, in which a negative state is behind a positive state.
+	*/
+	std::cout << "\t(4) checking on Question traces.";
+	std::cout << " [" << TS[QST].length << "]";
+
+
+	//std::cout << "\t    ";
+	std::cout << " NEED TO BE DONE HERE... [PASS]" << std::endl;
+
+	Equation equs[32];
+	int equ_num = psvmi->roundoff(equs);
+	std::cout << "Hypothesis Invairant: {\n";
+	std::cout << "\t    " << &equs[0] << std::endl;
+	for (int i = 1; i < equ_num; i++)
+		std::cout << "\t  /\\ " << &equs[i] << std::endl;
+	std::cout << "}" << std::endl;
 	return 0;
 }

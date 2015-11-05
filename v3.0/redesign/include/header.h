@@ -24,8 +24,14 @@ extern bool _passQ;
 extern int maxv;
 extern int minv;
 
-extern double PS[max_items][vars];
-extern double NS[max_items][vars];
+#ifdef __OPT
+//extern double set[max_items][vars];
+//extern double slabel[max_items];
+//extern int sIndex;
+
+extern double Pset[max_items][vars];
+extern double Nset[max_items][vars];
 extern int pIndex, nIndex;
+#endif
 
 #endif
