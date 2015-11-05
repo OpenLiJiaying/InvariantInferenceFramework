@@ -1,15 +1,7 @@
 #ifndef _HEADER_H_
 #define _HEADER_H_
 
-//#define VARS 3
-
-#ifndef VARS 
-const int vars = 2;
-#else
-const int vars = VARS;
-#endif
-
-const int max_items = 100000;
+#include "config.h"
 
 #include <stdarg.h>
 #include <iostream>
@@ -31,10 +23,6 @@ extern bool _passQ;
 
 extern int maxv;
 extern int minv;
-
-const int inputs_init = 4 * vars;
-const int inputs_aft = 2 * vars;
-const int max_iter = 64;
 
 extern double PS[max_items][vars];
 extern double NS[max_items][vars];

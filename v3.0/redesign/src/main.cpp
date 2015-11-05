@@ -40,6 +40,7 @@ int fromSetToProblem(double** set, int length, int label, svm_problem& pro)
 		pro.x[start + i] = (svm_node*)&set[i];
 	}
 	pro.l += length;
+	return length;
 }
 
 
