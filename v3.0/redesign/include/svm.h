@@ -23,13 +23,13 @@ extern const int vars;
 struct svm_node
 {
 	double value;
-#ifndef __OPT
+
+
 	friend std::ostream& operator << (std::ostream& out, const svm_node* sn)
 	{
 		out << sn->value;
 		return out;
 	}
-#endif
 };
 
 struct svm_problem
@@ -51,8 +51,7 @@ struct svm_problem
 	}
 };
 
-extern struct svm_node* positive_nodes;
-extern struct svm_node* negative_nodes;
+
 
 enum { C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR, NU_SVR };	/* svm_type */
 enum { LINEAR, POLY, RBF, SIGMOID, PRECOMPUTED }; /* kernel_type */
@@ -189,12 +188,14 @@ class SVM_algo // : public ClassifyAlgo
 			// here we should check x[i] for each.
 			// be careful about whether it is imported from double trace set or int trace set.
 			// these two cases should be handled separatly.
+#ifndef __OPT
 			if (problem.x != NULL) {
 				for (int i = 0; i < problem.l; i++)
 					if (problem.x[i] != NULL)
 						delete problem.x[i];
 					delete []problem.x;
 			}
+#endif
 		}
 
 
@@ -218,6 +219,7 @@ class SVM_algo // : public ClassifyAlgo
 			svm_free_and_destroy_model(&model);
 			return 0;
 		}
+
 
 		template<class T>
 		int insertFromTraceSet(TraceSet<T>* ts)
@@ -244,6 +246,7 @@ class SVM_algo // : public ClassifyAlgo
 			return l;
 		}
 
+
 		template<class T>
 		int predict(T* v)
 		{
@@ -253,6 +256,7 @@ class SVM_algo // : public ClassifyAlgo
 			if (res >= 0) return 1;
 			else return -1;
 		}
+
 
 		virtual double predictOnProblem()
 		{
@@ -264,17 +268,20 @@ class SVM_algo // : public ClassifyAlgo
 			return (double)pass / problem.l;
 		}
 
+
 		friend std::ostream& operator << (std::ostream& out, const SVM_algo* si) {
 			out << "Learnt from SVM...";
 			out << si->equation << std::endl;
 			return out;
 		}
 
+
 		virtual int roundoff(Equation* p)
 		{
 			equation->roundoff(&p[0]);
 			return 1;
 		}
+
 
 		virtual int size()
 		{
@@ -286,13 +293,13 @@ class SVM_algo // : public ClassifyAlgo
 
 const int max_equ = 8;
 
-class SVM_I_algo : public SVM_algo
+class SVM_I_algo // : public SVM_algo
 {
 public:
-	//svm_model* model;
+	svm_model* model;
 	Equation* equation[max_equ];
 	int equ_num;
-	//svm_parameter param;
+	svm_parameter param;
 	svm_problem problem1;  // 1
 	svm_problem problem2;  // -1
 
@@ -369,6 +376,7 @@ public:
 		return l;
 	}
 
+
 	template<class T>
 	int predict(T* v)
 	{
@@ -406,6 +414,7 @@ public:
 		return 0;
 	}
 
+
 	double CheckPostive()
 	{
 		int total = problem1.l;
@@ -428,8 +437,6 @@ public:
 			}
 		}
 		std::cout << std::endl << pass << "/" << total << "..";
-
-	
 		return (double)pass / total;
 	}
 
@@ -487,6 +494,7 @@ public:
 		return 0;
 	}
 
+
 	friend std::ostream& operator << (std::ostream& out, const SVM_I_algo* si) {
 		out << "Learnt from SVM-I...";
 		if (si->equ_num <= 0) {
@@ -494,18 +502,20 @@ public:
 			return out;
 		}
 		out << std::setprecision(16);
-		out << "{ \n\t    " << si->equation[0] << "\t\t(0)";
+		out << "{ \n\t    " << si->equation[0];
 		for (int i = 1; i < si->equ_num; i++) {
-			out << " \n\t /\\ " << si->equation[i] << "\t\t" << "(" << i << ")";
+			out << " \n\t /\\ " << si->equation[i];
 		}
 		out << "}\n";
 		return out;
 	}
 
+
 	int size()
 	{
 		return problem1.l + problem2.l;
 	}
+
 
 	 int roundoff(Equation *p)
 	{
@@ -516,4 +526,6 @@ public:
 	}
 private:
 };
+
+
 #endif /* _LIBSVM_H */
