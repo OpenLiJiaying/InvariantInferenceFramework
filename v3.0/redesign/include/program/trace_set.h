@@ -75,14 +75,6 @@ class TraceSet
 
 		int reset()
 		{
-			/*Trace<type>* p = first;
-			Trace<type>* pp;
-			while (p != NULL) {
-				pp = p->next;
-				delete p;
-				p = pp;
-			}
-			*/
 			first = NULL;
 			last = NULL;
 			length = 0;
