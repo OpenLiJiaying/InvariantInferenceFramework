@@ -136,7 +136,7 @@ init:
 			std::cout << "\t(1) running programs...[" << inputs_aft << "] {";
 			for (int i = 0; i < inputs_aft; i++) {
 				Equation::linearSolver(p, inputs);
-				std::cout << inputs << " | ";
+				std::cout << *inputs << " | ";
 				run_target(inputs);
 			}
 		}

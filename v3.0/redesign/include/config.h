@@ -8,7 +8,7 @@
 //#define VARS 3
 #define __OPT
 
-#define VARS 2
+#define VARS 1
 
 #ifndef VARS 
 const int vars = 2;

@@ -502,9 +502,9 @@ public:
 			return out;
 		}
 		out << std::setprecision(16);
-		out << "{ \n\t    " << si.equation[0];
+		out << "{ \n\t    " << *(si.equation[0]);
 		for (int i = 1; i < si.equ_num; i++) {
-			out << " \n\t /\\ " << si.equation[i];
+			out << " \n\t /\\ " << *(si.equation[i]);
 		}
 		out << "}\n";
 		return out;

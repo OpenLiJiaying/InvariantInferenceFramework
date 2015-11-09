@@ -15,7 +15,7 @@
 #include "program/state.h"
 #include "program/trace.h"
 #include "program/trace_set.h"
-#include "assert.h"
+#include "iif_assert.h"
 #include "svm.h"
 #include "instrumentation.h"
 
