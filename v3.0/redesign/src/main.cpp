@@ -105,14 +105,14 @@ init:
 			std::cout << "\t(1) running programs... [" << inputs_init << "] {" ;
 			for (int i = 0; i < inputs_init; i++) {
 				Equation::linearSolver(NULL, inputs);
-				std::cout << inputs <<" | "; 
+				std::cout << *inputs <<" | "; 
 				run_target(inputs);
 			}
 
 
 			if (TS[CNE].length > 0) {
 				std::cout << "}\nProgram BUG! Encountered a counter-example." << std::endl;
-				std::cout << &TS[CNE] << std::endl;
+				std::cout << TS[CNE] << std::endl;
 				return -1;
 			}
 
@@ -144,7 +144,7 @@ init:
 
 		if (TS[CNE].length > 0) {
 			std::cout << "Program BUG! Encountered counter-example(s)." << std::endl;
-			std::cout << &TS[CNE] << std::endl;
+			std::cout << TS[CNE] << std::endl;
 			return -1;
 		}
 
@@ -173,7 +173,7 @@ init:
 		//	std::cout << "SVM_PROBLEM: " << std::endl;
 		//	std::cout << &(psvm->problem) << std::endl; 
 		psvm->train();
-		std::cout << "\t |-->> " << psvm; //<< std::endl;
+		std::cout << "\t |-->> " << *psvm; //<< std::endl;
 
 
 		/*
@@ -200,12 +200,12 @@ init:
 
 		std::cout << " [" << TS[QST].length << "]";
 		if (TS[QST].length != 0) {
-			for (Trace<int>* lt = TS[QST].first; lt != NULL; lt = lt->next) {
-				if (lt->length <= 1) continue;
+			for (Trace<int>* t = TS[QST].first; t != NULL; t = t->next) {
+				if (t->length <= 1) continue;
 				int pre = -1, cur = 0;
 				std::cout << std::endl;
-				std::cout << "\t\t##" << lt << " >>> ";
-				for (State<int>* ls = lt->first; ls != NULL; ls = ls->next) {
+				std::cout << "\t\t##" << *t << " >>> ";
+				for (State<int>* ls = t->first; ls != NULL; ls = ls->next) {
 					cur = Equation::calc<int>(psvm->equation, ls->values);
 					std::cout << ((cur >= 0) ? "+" : "-");
 					if ((pre > 0) && (cur < 0)) {
@@ -260,7 +260,7 @@ init:
 		Equation equ;
 		psvm->roundoff(&equ);
 		std::cout << "Hypothesis Invairant: {\n";
-		std::cout << "\t\t" << &equ << std::endl;
+		std::cout << "\t\t" << equ << std::endl;
 		std::cout << "}" << std::endl;
 		delete p;
 		delete psvm->equation;
@@ -274,14 +274,14 @@ init:
 	SVM_I_algo * psvmi = new SVM_I_algo(print_null);
 
 	rnd = 1;
-	while (rnd < 2) {
+	while (rnd < 4) {
 		if (rnd != 1) {
 			std::cout << "[" << rnd << "]-----------------------------------------------------------------------------------------------------"
 				<< std::endl;
 			std::cout << "\t(1) running programs...[" << psvmi->equ_num << "] {";
 			for (int i = 0; i < psvmi->equ_num; i++) {
 				Equation::linearSolver(psvmi->equation[i], inputs);
-				std::cout << inputs << " | ";
+				std::cout << *inputs << " | ";
 				run_target(inputs);
 			}
 		}
@@ -317,7 +317,7 @@ init:
 		//	std::cout << &(psvm->problem) << std::endl;
 #endif
 		psvmi->train();
-		std::cout << "\t |-->> " << psvmi; //<< std::endl;
+		std::cout << "\t |-->> " << *psvmi; //<< std::endl;
 
 
 		/*
@@ -349,9 +349,9 @@ init:
 	Equation equs[32];
 	int equ_num = psvmi->roundoff(equs);
 	std::cout << "Hypothesis Invairant: {\n";
-	std::cout << "\t     " << &equs[0] << std::endl;
+	std::cout << "\t     " << equs[0] << std::endl;
 	for (int i = 1; i < equ_num; i++)
-		std::cout << "\t  /\\ " << &equs[i] << std::endl;
+		std::cout << "\t  /\\ " << equs[i] << std::endl;
 	std::cout << "}" << std::endl;
 	return 0;
 }

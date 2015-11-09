@@ -18,14 +18,14 @@ class Trace
 
 		~Trace() 
 		{
-			State<T>* p = first;
+/*			State<T>* p = first;
 			State<T>* pp; 
 			while (p != NULL) {
 				pp = p->next;
 				delete p;
 				p = pp;
 			}
-		}
+*/		}
 
 		int addState(State<T>* ps) 
 		{
@@ -43,20 +43,20 @@ class Trace
 			return 0;
 		}
 
-		friend std::ostream& operator << (std::ostream& out, const Trace* lt)
+		friend std::ostream& operator << (std::ostream& out, const Trace t)
 		{
-			out << LabelTable[lt->label] << " trace: ";
-			if (lt->first == NULL) {
+			out << LabelTable[t.label] << " trace: ";
+			if (t.first == NULL) {
 				out << "NULL";
 				return out;
 			}
-			State<T>* p = lt->first;
+			State<T>* p = t.first;
 			while (p != NULL) {
-				out << p << " -> ";
+				out << *p << " -> ";
 				p = p->next;
 			}
 			out << "END";
-			out << "[" << lt->length <<"]";
+			out << "[" << t.length <<"]";
 			return out;
 		}
 

@@ -44,16 +44,16 @@ class TraceSet
 			return 0;
 		}
 
-		friend std::ostream& operator << (std::ostream& out, const TraceSet* ts)
+		friend std::ostream& operator << (std::ostream& out, const TraceSet ts)
 		{
-			if (ts->first == NULL) {
+			if (ts.first == NULL) {
 				out << "NULL";
 				return out;
 			}
-			Trace<type>* p = ts->first;
+			Trace<type>* p = ts.first;
 
 			while (p != NULL) {
-				out  << p << "\n" /*<< " ||-->|| "*/;
+				out  << *p << "\n" /*<< " ||-->|| "*/;
 				p = p->next;
 			}
 			return out;

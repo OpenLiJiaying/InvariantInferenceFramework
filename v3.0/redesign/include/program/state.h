@@ -10,8 +10,8 @@ template<class T>
 class State{
 	public:
 		~State() {
-			if (values != NULL)
-				delete [] values;
+//			if (values != NULL)
+//				delete [] values;
 		}
 
 		State(T first, ...) {
@@ -26,14 +26,14 @@ class State{
 			va_end(ap);
 		}
 
-		friend std::ostream& operator << (std::ostream& out, const State* ps){
-			if (ps->values == NULL) { 
+		friend std::ostream& operator << (std::ostream& out, const State s){
+			if (s.values == NULL) { 
 				out << "(NULL)";
 				return out;
 			}
-			out << "(" << ps->values[0];
+			out << "(" << s.values[0];
 			for (int i = 1; i < vars; i++) {
-				out << ", " << ps->values[i];
+				out << ", " << s.values[i];
 			}
 			out << ")";
 			return out;
@@ -50,7 +50,6 @@ class State{
 		T *values;
 		int label; // -1, 0, 1 or otherss
 	private:
-//		static int num = vars;
 };
 
 

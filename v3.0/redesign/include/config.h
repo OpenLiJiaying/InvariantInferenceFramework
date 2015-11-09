@@ -8,11 +8,14 @@
 //#define VARS 3
 #define __OPT
 
+#define VARS 2
+
 #ifndef VARS 
 const int vars = 2;
 #else
 const int vars = VARS;
 #endif
+
 
 const int max_items = 100000;
 

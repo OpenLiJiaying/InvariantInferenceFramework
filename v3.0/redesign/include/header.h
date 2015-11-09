@@ -3,6 +3,8 @@
 
 #include "config.h"
 
+
+
 #include <stdarg.h>
 #include <iostream>
 #include <cstdlib>
@@ -16,6 +18,7 @@
 #include "assert.h"
 #include "svm.h"
 #include "instrumentation.h"
+
 
 
 extern bool _passP;
@@ -34,4 +37,4 @@ extern double Nset[max_items][vars];
 extern int pIndex, nIndex;
 #endif
 
-#endif
+#endif /*end of #ifndef _HEADER_H_*/

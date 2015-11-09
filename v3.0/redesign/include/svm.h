@@ -183,8 +183,8 @@ class SVM_algo // : public ClassifyAlgo
 		{
 			if (model != NULL)
 				delete model;
-			if (problem.y != NULL)
-				delete problem.y;
+			//if (problem.y != NULL)
+			//	delete problem.y;
 			// here we should check x[i] for each.
 			// be careful about whether it is imported from double trace set or int trace set.
 			// these two cases should be handled separatly.
@@ -269,9 +269,9 @@ class SVM_algo // : public ClassifyAlgo
 		}
 
 
-		friend std::ostream& operator << (std::ostream& out, const SVM_algo* si) {
+		friend std::ostream& operator << (std::ostream& out, const SVM_algo sa) {
 			out << "Learnt from SVM...";
-			out << si->equation << std::endl;
+			out << sa.equation << std::endl;
 			return out;
 		}
 
@@ -495,16 +495,16 @@ public:
 	}
 
 
-	friend std::ostream& operator << (std::ostream& out, const SVM_I_algo* si) {
+	friend std::ostream& operator << (std::ostream& out, const SVM_I_algo si) {
 		out << "Learnt from SVM-I...";
-		if (si->equ_num <= 0) {
+		if (si.equ_num <= 0) {
 			out << "Having Learnt...\n";
 			return out;
 		}
 		out << std::setprecision(16);
-		out << "{ \n\t    " << si->equation[0];
-		for (int i = 1; i < si->equ_num; i++) {
-			out << " \n\t /\\ " << si->equation[i];
+		out << "{ \n\t    " << si.equation[0];
+		for (int i = 1; i < si.equ_num; i++) {
+			out << " \n\t /\\ " << si.equation[i];
 		}
 		out << "}\n";
 		return out;

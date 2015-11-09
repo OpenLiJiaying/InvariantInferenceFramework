@@ -36,15 +36,14 @@ class Solution{
 			va_end(ap);
 		}
 
-		friend std::ostream& operator << (std::ostream& out, const Solution* sol)
+		friend std::ostream& operator << (std::ostream& out, const Solution sol)
 		{
-			out << "(" << sol->x[0];
+			out << "(" << sol.x[0];
 			for (int j = 1; j < vars; j++)
-				out << ", " << sol->x[j];
+				out << ", " << sol.x[j];
 			out << ")";
 			return out;
 		}
-
 
 
 		T x[vars];
@@ -69,12 +68,12 @@ class Equation{
 			va_end(ap);
 		}
 
-		friend std::ostream& operator << (std::ostream& out, const Equation* equ)
+		friend std::ostream& operator << (std::ostream& out, const Equation equ)
 		{
-			out << std::setprecision(16) << equ->theta[0] << " {0}";
+			out << std::setprecision(16) << equ.theta[0] << " {0}";
 			for (int j = 1; j < vars; j++)
-				out << "  +  " << equ->theta[j] << "{" <<j << "}";
-			out << " >= " << - equ->theta0;
+				out << "  +  " << equ.theta[j] << "{" <<j << "}";
+			out << " >= " << - equ.theta0;
 			return out;
 		}
 
