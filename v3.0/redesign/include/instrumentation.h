@@ -5,9 +5,15 @@
 #include "program/state.h"
 #include "program/trace.h"
 
+
 #ifdef WIN32
-#define recordi(first, args, ...) LT->addState(new State<int>(first, ##args))
-#define recordd(first, args, ...) LT->addState(new State<double>(first, ##args))
+	#if VARS == 1
+		#define recordi(first) LT->addState(new State<int>(first))
+		#define recordd(first) LT->addState(new State<double>(first))
+	#else
+		#define recordi(first, args, ...) LT->addState(new State<int>(first, ##args))
+		#define recordd(first, args, ...) LT->addState(new State<double>(first, ##args))
+	#endif
 #endif
 
 #ifdef linux
