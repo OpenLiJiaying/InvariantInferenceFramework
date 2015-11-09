@@ -480,7 +480,7 @@ public:
 			problem1.x[length] = problem2.x[misidx];
 			problem1.l++;
 
-			std::cout << "." << equ_num << std::endl;
+			std::cout << "." << equ_num; // << std::endl;
 
 			model = svm_train(&problem1, &param);
 			svm_model_visualization(model, equation[equ_num]);
@@ -488,7 +488,7 @@ public:
 			double precision = CheckPostive();
 			svm_free_and_destroy_model(&model);
 			problem1.l--;
-			std::cout << "\n On training set precision: " << precision * 100 << "%" << std::endl;
+			std::cout << " On training set precision: " << precision * 100 << "%" << std::endl;
 			//std::cout << "\n On whole set precision: " << predictOnProblem() * 100 << "%" << std::endl;
 		}
 		return 0;

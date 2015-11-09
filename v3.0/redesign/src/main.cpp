@@ -274,7 +274,9 @@ init:
 	SVM_I_algo * psvmi = new SVM_I_algo(print_null);
 
 	rnd = 1;
-	while (rnd < 4) {
+	Equation **pEqu = NULL;
+	int pEquNum = 0;
+	while (rnd < 16) {
 		if (rnd != 1) {
 			std::cout << "[" << rnd << "]-----------------------------------------------------------------------------------------------------"
 				<< std::endl;
@@ -319,7 +321,6 @@ init:
 		psvmi->train();
 		std::cout << "\t |-->> " << *psvmi; //<< std::endl;
 
-
 		/*
 		 *	check on its own training data.
 		 *	There should be no prediction errors.
@@ -344,8 +345,39 @@ init:
 
 		//std::cout << "\t    ";
 		std::cout << " NEED TO BE DONE HERE... [PASS]" << std::endl;
+
+
+		/*
+		 *	bCon is used to store the convergence check return value for the last time.
+		 *	We only admit convergence if the three consecutive round are converged.
+		 *	This is to prevent in some round the points are too right to adjust the classifier.
+		 */
+		std::cout << "\t(5) check convergence: ";
+		int converge = 0;
+		if (psvmi->equ_num != pEquNum)
+			std::cout << "\t [FAIL] neXt round " << std::endl;
+		else {
+			for (int i = 0; i < pEquNum; i++){
+				if (psvm->equation[i].isSimilar(pEqu[i]) != 0) {
+					converge = -1;
+					break;
+				}
+			}
+			if (converge == 0) {
+				std::cout << "[TT] \t[SUCCESS] rounding off" << std::endl;
+				break;
+			} else if (converge == -1) {
+					std::cout << "[FT]";
+					std::cout << "\t [FAIL] neXt round " << std::endl;
+			}
+		}
+
+		pEqu = psvmi->equation;
+		pEquNum = psvmi->equ_num;
 		rnd++;
 	}
+
+	std::cout << "finish running svm-I for " << rnd << "times." << std::endl; 
 	Equation equs[32];
 	int equ_num = psvmi->roundoff(equs);
 	std::cout << "Hypothesis Invairant: {\n";

@@ -1,13 +1,11 @@
 #include "../include/header.h"
 //#include <iostream>
 
-#define ex1 m
+#define conj m
 int nondet() {
 	return rand() % 4;
 	return rand() % 20;
 }
-
-
 
 
 int f1(int* a){
@@ -91,8 +89,8 @@ int conj(int* a)
 	int x;
 	x = a[0];
 	iif_assume((x > 0) && (x < 50));
-	int flag = 0;
-	while (nondet) {
+	int flag = 1;
+	while (nondet()) {
 		recordi(x);
 		x = x + flag;
 		if (x >= 50) {
