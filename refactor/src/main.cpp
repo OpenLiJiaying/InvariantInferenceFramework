@@ -13,8 +13,10 @@ int minv = -100, maxv = 100;
 void print_null(const char *s) {}
 
 //double set[max_items][vars];
-double Pset[max_items][vars], Nset[max_items][vars];
-int pIndex, nIndex;
+
+double Pset[max_items][vars], Nset[max_items][vars], Qset[q_items][vars];
+int pIndex, nIndex, qIndex;
+int qNum;
 
 
 double agent_label[max_items * 2];
@@ -22,6 +24,7 @@ double* agent_set[max_items * 2];
 
 
 Trace<int>* LT;
+// TS[-1,1] does not used here if __OPT defined.
 TraceSet<int>* TS;
 Solution<int>* inputs;
 enum{NEG=-1, QST, POS, CNE};
@@ -67,6 +70,9 @@ int main(int argc, char** argv)
 	int oldpIndex = 0, oldnIndex = 0;
 	pIndex = 0;
 	nIndex = 0;
+	qIndex = 0;
+	qNum = 0;
+
 	for (int i = 0; i < 2 * max_items; i++)
 		agent_label[i] = -1;
 
@@ -167,6 +173,7 @@ init:
 		oldpIndex = pIndex;
 		oldnIndex = nIndex;
 #endif
+
 		std::cout << psvm->size() << "]" << std::endl;
 		//	std::cout << psvm->problem.l << "]" << std::endl;
 		//	std::cout << &(psvm->problem) << std::endl;
@@ -197,6 +204,34 @@ init:
 		 *	There should not exists one traces, in which a negative state is behind a positive state.
 		 */
 		std::cout << "\t(4) checking on Question traces.";
+/*		std::cout << "[" << qNum << "]";
+		if (qIndex != 0) {
+			std::cout << std::endl;
+			int num = 0;
+			for (int i = 0; i < qIndex; i++) {
+				num++;
+				int pre = -1, cur = 0;
+				std::cout << "\t\t" << num << ">";
+				while (Qset[i][0] != PI) {
+					cur = Equation::calc<double>(psvm->equation, Qset[i]);
+					std::cout << "(" << Qset[i][0];
+					for (int j = 1; j < vars; j++)
+						std::cout << "," << Qset[i][j];
+					std::cout << ")";
+					std::cout << ((cur >= 0) ? "[+]" : "[-]");
+					std::cout << " -> ";
+					if ((pre > 0) && (cur < 0)) {
+						std::cerr << "\n Predict wrongly on Question traces." << std::endl;
+						return -1;
+					}
+					pre = cur;
+					i++;
+				}
+				std::cout << "END" << std::endl;
+			}
+		}
+		std::cout << "\t\t [PASS]" << std::endl;
+*/
 
 		std::cout << " [" << TS[QST].length << "]";
 		if (TS[QST].length != 0) {

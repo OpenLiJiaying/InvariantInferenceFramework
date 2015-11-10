@@ -19,7 +19,7 @@
 #include "svm.h"
 #include "instrumentation.h"
 
-
+#define PI (3.1415926) // as a stop sentinel for questions chain
 
 extern bool _passP;
 extern bool _passQ;
@@ -34,7 +34,9 @@ extern int minv;
 
 extern double Pset[max_items][vars];
 extern double Nset[max_items][vars];
-extern int pIndex, nIndex;
+extern double Qset[q_items][vars];
+extern int pIndex, nIndex, qIndex;
+extern int qNum;
 #endif
 
 #endif /*end of #ifndef _HEADER_H_*/

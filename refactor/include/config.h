@@ -6,7 +6,7 @@
  ************************************************************************/
 
 //#define VARS 3
-#define __OPT
+//#define __OPT
 
 #define VARS 1
 
@@ -18,6 +18,7 @@ const int vars = VARS;
 
 
 const int max_items = 100000;
+const int q_items = 1000;
 
 const int inputs_init = 4 * vars;
 const int inputs_aft = 2 * vars;

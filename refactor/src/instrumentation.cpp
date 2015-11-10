@@ -13,6 +13,7 @@
 
 //int trace_idx = 0;
 
+
 bool _passP = false;
 bool _passQ = false;
 char lt[4][10] =  { "Negative", "Question", "Positive", "Bugtrace"};
@@ -31,6 +32,35 @@ int before_loop()
 template<class T>
 static int insertTrace(int label, Trace<T>* t)
 {
+	switch (label) {
+	case 1:
+		for (State<T>* s = t->first; s != NULL; s = s->next) {
+			for (int i = 0; i < vars; i++)
+				Pset[pIndex][i] = s->values[i];
+			pIndex++;
+		}
+		break;
+
+	case -1:
+		for (State<T>* s = t->first; s != NULL; s = s->next) {
+			for (int i = 0; i < vars; i++)
+				Nset[nIndex][i] = s->values[i];
+			nIndex++;
+		}
+		break;
+
+	case 0:
+		for (State<T>* s = t->first; s != NULL; s = s->next) {
+			for (int i = 0; i < vars; i++)
+				Qset[qIndex][i] = s->values[i];
+			qIndex++;
+		}
+		Qset[qIndex][0] = PI;
+		qIndex++;
+		break;
+	}
+
+	/*
 	if (label == 1) {
 		for (State<T>* s = t->first; s != NULL; s = s->next) {
 			for (int i = 0; i < vars; i++)
@@ -44,6 +74,14 @@ static int insertTrace(int label, Trace<T>* t)
 			nIndex++;
 		}
 	}
+	else if (label == 0) {
+		for (State<T>* s = t->first; s != NULL; s = s->next) {
+			for (int i = 0; i < vars; i++)
+				Nset[nIndex][i] = s->values[i];
+			nIndex++;
+		}
+	}
+	*/
 	return 0;
 }
 #endif
@@ -66,6 +104,12 @@ int after_loop()
 #endif
 	} else if (!_passP && _passQ) {
 		label = 0; 
+		
+#ifdef __OPT
+		qNum++;
+		insertTrace<int>(0, LT);
+//		return 0;
+#endif
 	} else if (_passP && !_passQ) {
 		label = 2;
 	}
