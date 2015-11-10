@@ -13,8 +13,11 @@ int minv = -100, maxv = 100;
 void print_null(const char *s) {}
 
 States global_states_sets[4];
+global_states_sets[0].label = -1;
+global_states_sets[0].label = 0;
+global_states_sets[0].label = 1;
+global_states_sets[0].label = 2;
 States* gsets = &global_states_sets[1];
-
 
 double Pset[max_items][vars], Nset[max_items][vars], Qset[q_items][vars];
 int pIndex, nIndex, qIndex;

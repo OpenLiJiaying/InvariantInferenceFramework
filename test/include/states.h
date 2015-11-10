@@ -2,6 +2,7 @@
 #define _STATES_H_
 #include "header.h"
 #include <iostream>
+#include "string.h"
 
 
 class States{
@@ -13,7 +14,7 @@ class States{
 				delete[] index;
 		}
 
-		States() {
+		States() : max_items(100000) {
 			values = new double [max_items][vars];
 			index = new int [max_items];
 			p_index = 0;
@@ -54,7 +55,7 @@ class States{
 		int p_index;
 		int label;
 	private:
-		const int max_items = 100000;
+		const int max_items;
 };
 
 

@@ -244,12 +244,11 @@ class SVM_algo // : public ClassifyAlgo
 		}
 		*/
 
-		template<class T>
-		int predict(T* v)
+		int predict(double* v)
 		{
 			if (equation == NULL) return -2;
 			if (v == NULL) return -2;
-			double res = Equation::calc<T>(equation, v);
+			double res = Equation::calc(equation, v);
 			if (res >= 0) return 1;
 			else return -1;
 		}
@@ -374,8 +373,7 @@ public:
 	}
 	*/
 
-	template<class T>
-	int predict(T* v)
+	int predict(double* v)
 	{
 		if (equ_num <= 0) return -2;
 		if (v == NULL) return -2;
@@ -399,12 +397,12 @@ public:
 		int pass = 0;
 		if (problem1.l > 0) {
 			for (int i = 0; i < problem1.l; i++) {
-				pass += (predict<double>((double*)problem1.x[i]) >= 0) ? 1 : 0;
+				pass += (predict((double*)problem1.x[i]) >= 0) ? 1 : 0;
 			}
 		}
 		if (problem2.l > 0) {
 			for (int i = 0; i < problem2.l; i++) {
-				pass += (predict<double>((double*)problem2.x[i]) < 0) ? 1 : 0;
+				pass += (predict((double*)problem2.x[i]) < 0) ? 1 : 0;
 			}
 		}
 		return (double)pass / total;
@@ -447,7 +445,7 @@ public:
 			return 0;
 		}
 		for (int i = 0; i < problem2.l; i++)
-			if (predict<double>((double*)problem2.x[i]) >= 0) {
+			if (predict((double*)problem2.x[i]) >= 0) {
 				idx = i;
 				return 0;
 			}
