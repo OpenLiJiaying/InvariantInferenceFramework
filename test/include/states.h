@@ -7,12 +7,7 @@
 
 class States{
 	public:
-		~States() {
-//			if (values != NULL)
-//				delete [] values[vars];
-//			if (index != NULL)
-//				delete[] index;
-		}
+
 
 		States() : max_items(100000) {
 			values = new double [max_items][vars];
@@ -21,6 +16,20 @@ class States{
 			p_index = 0;
 		}
 
+		//States(const States& ps) : max_items(10000) {
+		//	std::cout << "clone constructor called." << __FILE__ << ":" << __LINE__ << std::endl;
+		//}
+		
+		~States() {
+			std::cout << "--> destructor of label: " << label << std::endl;
+			if (values != NULL)
+				delete[] values;
+			values = NULL;
+			if (index != NULL)
+				delete[] index;
+			index = NULL;
+			std::cout << "<-- destructor of label: " << label << "[done]" << std::endl;
+		}
 
 		int add_states(double st[][vars], int len){
 			if (index[p_index] + len >= max_items) {
@@ -48,7 +57,7 @@ class States{
 		}
 
 		
-		friend std::ostream& operator << (std::ostream& out, const States ss){
+		friend std::ostream& operator << (std::ostream& out, const States& ss){
 			std::cout << "lable[" << ss.label << "]:" << std::endl;
 			for (int i = 0; i < ss.p_index; i++) {
 				std::cout << "\tTr." << i << ":";
@@ -64,11 +73,12 @@ class States{
 		}
 
 	
-		double (*values)[vars];
-		int* index;
+		double (*values)[vars] = NULL;
+		int* index = NULL;
 		int p_index;
 		int label;
 	private:
+		
 		const int max_items;
 };
 

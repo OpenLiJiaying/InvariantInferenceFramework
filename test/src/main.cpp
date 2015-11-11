@@ -87,9 +87,10 @@ int main(int argc, char** argv)
 	}
 	std::cout << std::endl;
 
-	for (int i = -1; i < 2; i++)
+	for (int i = -1; i < 3; i++)
 		std::cout << gsets[i] << std::endl;
 
+	//gsets = global_states_sets;
 	return 0;
 
 
