@@ -73,8 +73,8 @@ class States{
 		}
 
 	
-		double (*values)[vars] = NULL;
-		int* index = NULL;
+		double (*values)[vars];
+		int* index;
 		int p_index;
 		int label;
 	private:
