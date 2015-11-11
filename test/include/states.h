@@ -28,7 +28,19 @@ class States{
 				exit(-1);
 			}
 			
+			/*
+			std::cout << "+++";
+			for (int i = 0; i < len; i++)  {
+				std::cout << "{";
+				for (int j = 0 ; j < vars; j++)
+					std::cout << st[i][j] << ",";
+				std::cout << "}-";
+			}
+			std::cout << std::endl;
+			*/
+
 			memcpy(values[index[p_index]], st, sizeof(double) * vars * len);
+			//memmove(values[index[p_index]], st, sizeof(double) * vars * len);
 			
 			index[p_index+1] = index[p_index] + len;
 			p_index++;
@@ -43,7 +55,7 @@ class States{
 				for (int j = ss.index[i]; j < ss.index[i + 1]; j++) {
 					std::cout << "(" << ss.values[j][0];
 					for (int k = 1; k < vars; k++)
-						std::cout << "," << ss.values[j][i];
+						std::cout << "," << ss.values[j][k];
 					std::cout << ")->";
 				}
 				std::cout << "eot." << std::endl;

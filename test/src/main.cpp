@@ -67,6 +67,7 @@ int main(int argc, char** argv)
 		maxv = atoi(argv[2]);
 	}
 
+	srand(time(NULL));
 	bool bSvmI = false;
 
 	int oldpIndex = 0, oldnIndex = 0;
@@ -84,6 +85,7 @@ int main(int argc, char** argv)
 		std::cout << inputs << " | ";
 		run_target(inputs);
 	}
+	std::cout << std::endl;
 
 	for (int i = -1; i < 2; i++)
 		std::cout << gsets[i] << std::endl;
