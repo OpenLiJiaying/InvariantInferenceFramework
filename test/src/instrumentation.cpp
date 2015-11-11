@@ -20,7 +20,7 @@ double temp_states[256][vars];
 int temp_index;
 
 
-int add_state_I(int first ...)
+int add_state_int(int first ...)
 {
 	va_list ap;
 	va_start(ap, first);
@@ -33,7 +33,7 @@ int add_state_I(int first ...)
 	return 0;
 }
 
-int add_state_D(double first, ...)
+int add_state_double(double first, ...)
 {
 	va_list ap;
 	va_start(ap, first);
@@ -70,6 +70,15 @@ int after_loop()
 	} else if (_passP && !_passQ) {
 		label = 2;
 	}
+
+	std::cout << "TRACE: ";
+	for (int i = 0; i < temp_index; i++) {
+		std::cout << "(";
+		for (int j = 0; j < vars; j++)
+			std::cout << temp_states[i][j] << ",";
+		std::cout << ")->";
+	}
+	std::cout << "END[" << label << "]" << std::endl;
 
 	gsets[label].add_states(temp_states, temp_index);
 	//TS[label].addLoopTrace(LT);

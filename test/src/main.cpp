@@ -79,14 +79,16 @@ int main(int argc, char** argv)
 		agent_label[i] = -1;
 
 
-	for (int i = 0; i < 4 * inputs_init; i++) {
+	for (int i = 0; i < inputs_init; i++) {
 		Equation::linearSolver(NULL, &inputs);
 		std::cout << inputs << " | ";
 		run_target(inputs);
 	}
 
-	for (int i = -1; i < 3; i++)
+	for (int i = -1; i < 2; i++)
 		std::cout << gsets[i] << std::endl;
+
+	return 0;
 
 
 
@@ -219,7 +221,7 @@ init:
 		 *	Check on Question traces.
 		 *	There should not exists one traces, in which a negative state is behind a positive state.
 		 */
-		std::cout << "\t(4) checking on Question traces.";
+//		std::cout << "\t(4) checking on Question traces.";
 /*		std::cout << "[" << qNum << "]";
 		if (qIndex != 0) {
 			std::cout << std::endl;

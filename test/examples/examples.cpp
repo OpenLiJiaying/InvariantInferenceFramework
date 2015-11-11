@@ -92,7 +92,7 @@ int conj(int* a)
 	iif_assume((x > 0) && (x < 50));
 	int flag = 1;
 	while (nondet()) {
-		recordi(x);
+		recordi(x, 0);
 		x = x + flag;
 		if (x >= 50) {
 			x -= 2;
@@ -103,7 +103,7 @@ int conj(int* a)
 			flag = 1;
 		}
 	}
-	recordi(x);
+	recordi(x, 0);
 	iif_assert((x > 0) && (x < 50));
 	return 0;
 }

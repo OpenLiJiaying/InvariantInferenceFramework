@@ -8,15 +8,16 @@
 class States{
 	public:
 		~States() {
-			if (values != NULL)
-				delete [] values;
-			if (index != NULL)
-				delete[] index;
+//			if (values != NULL)
+//				delete [] values[vars];
+//			if (index != NULL)
+//				delete[] index;
 		}
 
 		States() : max_items(100000) {
 			values = new double [max_items][vars];
 			index = new int [max_items];
+			index[0] = 0;
 			p_index = 0;
 		}
 
@@ -26,6 +27,7 @@ class States{
 				std::cerr << "exceed maximium program states." << std::endl;
 				exit(-1);
 			}
+			
 			memcpy(values[index[p_index]], st, sizeof(double) * vars * len);
 			
 			index[p_index+1] = index[p_index] + len;
@@ -34,14 +36,14 @@ class States{
 		}
 
 		
-		friend std::ostream& operator << (std::ostream& out, const States s){
-			std::cout << "lable[" << s.label << "]:" << std::endl;
-			for (int i = 0; i < s.p_index; i++) {
+		friend std::ostream& operator << (std::ostream& out, const States ss){
+			std::cout << "lable[" << ss.label << "]:" << std::endl;
+			for (int i = 0; i < ss.p_index; i++) {
 				std::cout << "\tTr." << i << ":";
-				for (int j = s.index[i]; j < s.index[i + 1]; j++) {
-					std::cout << "(" << s.values[j][0];
+				for (int j = ss.index[i]; j < ss.index[i + 1]; j++) {
+					std::cout << "(" << ss.values[j][0];
 					for (int k = 1; k < vars; k++)
-						std::cout << "," << s.values[j][i];
+						std::cout << "," << ss.values[j][i];
 					std::cout << ")->";
 				}
 				std::cout << "eot." << std::endl;
