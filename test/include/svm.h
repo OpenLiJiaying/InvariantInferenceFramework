@@ -12,9 +12,6 @@
 //#endif
 
 extern int libsvm_version;
-extern const int vars;
-//const int max_items = 1000000;
-
 
 
 struct svm_node
@@ -35,13 +32,12 @@ struct svm_problem
 	double *y;
 	struct svm_node **x;
 
-	friend std::ostream& operator << (std::ostream& out, const svm_problem* sp)
+	friend std::ostream& operator << (std::ostream& out, const svm_problem& sp)
 	{
-		for (int i = 0; i < sp->l; i++) {
-			out << sp->y[i] << "(" << (sp->x[i][0]).value;
-			for (int j = 1; j < vars; j++)
-				out << ", " << (sp->x[i][j]).value;
-//				out << ", " << &(sp->x[i][j]);
+		for (int i = 0; i < sp.l; i++) {
+			out << sp.y[i] << "(" << (sp.x[i][0]).value;
+			for (int j = 1; j < VARS; j++)
+				out << ", " << (sp.x[i][j]).value;
 			out << ") ";
 		}
 		return out;
@@ -141,19 +137,15 @@ class SVM_algo // : public ClassifyAlgo
 {
 	public:
 		svm_model* model;
-		Equation* equation;
+		Equation* main_equation;
 		svm_parameter param;
 		svm_problem problem;
 
 		SVM_algo(void (*f) (const char*) = NULL)
 		{
-#ifndef __OPT
-			problem.y = new double [max_items];
-			problem.x = new svm_node* [max_items];
-#endif
 			problem.l = 0;
-			
-			equation = NULL;
+
+			main_equation = NULL;
 			model = NULL;
 
 			param.svm_type = C_SVC;
@@ -164,7 +156,8 @@ class SVM_algo // : public ClassifyAlgo
 			param.nu = 0.5;
 			param.cache_size = 100;
 			//	param.C = 1;
-			param.C = DBL_MAX;
+			//param.C = DBL_MAX;
+			param.C = 1000;
 			param.eps = 1e-3;
 			param.p = 0.1;
 			param.shrinking = 1;
@@ -185,14 +178,6 @@ class SVM_algo // : public ClassifyAlgo
 			// here we should check x[i] for each.
 			// be careful about whether it is imported from double trace set or int trace set.
 			// these two cases should be handled separatly.
-#ifndef __OPT
-			if (problem.x != NULL) {
-				for (int i = 0; i < problem.l; i++)
-					if (problem.x[i] != NULL)
-						delete problem.x[i];
-					delete []problem.x;
-			}
-#endif
 		}
 
 
@@ -211,71 +196,38 @@ class SVM_algo // : public ClassifyAlgo
 				if (sin(i) + cos(i) > 1.414)
 					std::cout << ".";
 					*/
-			equation = new Equation();
-			svm_model_visualization(model, equation);
+			main_equation = new Equation();
+			svm_model_visualization(model, main_equation);
 			svm_free_and_destroy_model(&model);
 			return 0;
 		}
 
-/*
-		template<class T>
-		int insertFromTraceSet(TraceSet<T>* ts)
-		{
-			int l = 0;
-			for (Trace<int>* lt = ts->first; lt != NULL; lt = lt->next)
-					l += lt->length;
-			if (problem.l + l > max_items) {
-				std::cout << "exceed max items SVM can handle." << std::endl;
-				return -1;
-			}
-			int i = problem.l;
-			problem.l += l;
-			for (Trace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
-				for (State<T>* ls = lt->first; ls != NULL; ls = ls->next) {
-					problem.y[i] = ls->label;
-					problem.x[i] = new svm_node[vars];
-					for (int j = 0; j < vars; j++) {
-						problem.x[i][j].value = ls->values[j];
-					}
-					i++;
-				}
-			}
-			return l;
-		}
-		*/
 
 		int predict(double* v)
 		{
-			if (equation == NULL) return -2;
+			if (main_equation == NULL) return -2;
 			if (v == NULL) return -2;
-			double res = Equation::calc(equation, v);
+			double res = Equation::calc(main_equation, v);
 			if (res >= 0) return 1;
 			else return -1;
 		}
 
 
-		virtual double predictOnProblem()
+		virtual double predict_on_training_set()
 		{
 			if (problem.l <= 0) return 0;
 			int pass = 0;
 			for (int i = 0; i < problem.l; i++) {
-				pass += (Equation::calc(equation, (double*)problem.x[i]) * problem.y[i] > 0) ? 1 : 0;
+				pass += (Equation::calc(main_equation, (double*)problem.x[i]) * problem.y[i] > 0) ? 1 : 0;
 			}
-			return (double)pass / problem.l;
+			return static_cast<double>(pass) / problem.l;
 		}
 
 
-		friend std::ostream& operator << (std::ostream& out, const SVM_algo sa) {
+		friend std::ostream& operator << (std::ostream& out, const SVM_algo& sa) {
 			out << "Learnt from SVM...";
-			out << sa.equation << std::endl;
+			out << *sa.main_equation << std::endl;
 			return out;
-		}
-
-
-		virtual int roundoff(Equation* p)
-		{
-			equation->roundoff(&p[0]);
-			return 1;
 		}
 
 
@@ -287,34 +239,29 @@ class SVM_algo // : public ClassifyAlgo
 };
 
 
-const int max_equ = 8;
 
-class SVM_I_algo // : public SVM_algo
+const int max_equ = 8;
+class SVM_I_algo : public SVM_algo
 {
 public:
 	svm_model* model;
-	Equation* equation[max_equ];
+	Equation* equations[max_equ];
 	int equ_num;
 	svm_parameter param;
 	svm_problem problem1;  // 1
 	svm_problem problem2;  // -1
 
-	SVM_I_algo(void(*f) (const char*) = NULL)
-	{
-#ifndef __OPT
-		problem1.y = new double[max_items];
-		problem1.x = new svm_node*[max_items];
-		problem2.y = new double[max_items];
-		problem2.x = new svm_node*[max_items];
-#endif
+	SVM_I_algo(void(*f) (const char*) = NULL, const Equation& eq = NULL) : SVM_algo(f) {
 		problem1.l = 0;
 		problem2.l = 0;
 
+		main_equation = new Equation(eq);
 		equ_num = 0;
 		for (int i = 0; i < max_equ; i++)
-			equation[i] = new Equation();
+			equations[i] = new Equation();
 		model = NULL;
 
+		/*
 		param.svm_type = C_SVC;
 		param.kernel_type = LINEAR;
 		param.degree = 3;
@@ -323,7 +270,8 @@ public:
 		param.nu = 0.5;
 		param.cache_size = 100;
 		//	param.C = 1;
-		param.C = DBL_MAX;
+		//param.C = DBL_MAX;
+		param.C = 1000;
 		param.eps = 1e-3;
 		param.p = 0.1;
 		param.shrinking = 1;
@@ -333,45 +281,16 @@ public:
 		param.weight = NULL;
 		if (f != NULL)
 			svm_set_print_string_function(f);
+		*/
 	}
 
 	~SVM_I_algo()
 	{
 		if (model != NULL)
 			svm_free_and_destroy_model(&model);
+		for (int i = 0; i < max_equ; i++)
+			delete equations[i];
 	}
-
-
-/*
-	template<class T>
-	int insertFromTraceSet(TraceSet<T>* ts)
-	{
-		svm_problem* problem;
-		if (ts->label == 1) problem = &problem1;
-		if (ts->label == -1) problem = &problem2;
-
-		int l = 0;
-		for (Trace<int>* lt = ts->first; lt != NULL; lt = lt->next)
-			l += lt->length;
-		if (problem->l + l > max_items) {
-			std::cout << "exceed max items SVM can handle." << std::endl;
-			return -1;
-		}
-		int i = problem->l;
-		problem->l += l;
-		for (Trace<T>* lt = ts->first; lt != NULL; lt = lt->next) {
-			for (State<T>* ls = lt->first; ls != NULL; ls = ls->next) {
-				problem->y[i] = ls->label;
-				problem->x[i] = new svm_node[vars];
-				for (int j = 0; j < vars; j++) {
-					problem->x[i][j].value = ls->values[j];
-				}
-				i++;
-			}
-		}
-		return l;
-	}
-	*/
 
 	int predict(double* v)
 	{
@@ -380,11 +299,11 @@ public:
 		/*
 		 * We use conjunction of positive as predictor.
 		 * For example, (A >= 0) /\ (B >= 0) /\ (C >= 0) /\ ...
-		 * Only when the give input pass all the equations, it returns 1;
+		 * Only when the give input pass all the equationss, it returns 1;
 		 * Otherwise, -1 will be returned.
 		*/
 		for (int i = 0; i < equ_num; i++) {
-			double res = Equation::calc(equation[i], v);
+			double res = Equation::calc(equations[i], v);
 			if (res < 0) return -1;
 		}
 		return 1;
@@ -417,7 +336,7 @@ public:
 		std::cout << "\t";
 		if (problem1.l > 1) {
 			for (int i = 0; i < problem1.l; i++) {
-				bool bPass = (Equation::calc(equation[equ_num], (double*)problem1.x[i]) * problem1.y[i] >= 0) ? 1 : 0;
+				bool bPass = (Equation::calc(equations[equ_num], (double*)problem1.x[i]) * problem1.y[i] >= 0) ? 1 : 0;
 				pass += bPass;
 			/*	
 				std::cout << "(";
@@ -478,7 +397,7 @@ public:
 			std::cout << "." << equ_num; // << std::endl;
 
 			model = svm_train(&problem1, &param);
-			svm_model_visualization(model, equation[equ_num]);
+			svm_model_visualization(model, equations[equ_num]);
 			
 			double precision = CheckPostive();
 			svm_free_and_destroy_model(&model);
@@ -497,9 +416,9 @@ public:
 			return out;
 		}
 		out << std::setprecision(16);
-		out << "{ \n\t    " << *(si.equation[0]);
+		out << "{ \n\t    " << *(si.equations[0]);
 		for (int i = 1; i < si.equ_num; i++) {
-			out << " \n\t /\\ " << *(si.equation[i]);
+			out << " \n\t /\\ " << *(si.equations[i]);
 		}
 		out << "}\n";
 		return out;
@@ -512,13 +431,14 @@ public:
 	}
 
 
-	 int roundoff(Equation *p)
+/*	 int roundoff(Equation *p)
 	{
 		for (int i = 0; i < equ_num; i++) {
-			equation[i]->roundoff(&p[i]);
+			equations[i]->roundoff(p[i]);
 		}
 		return equ_num;
 	}
+	*/
 private:
 };
 

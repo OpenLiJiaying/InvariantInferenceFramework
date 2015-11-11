@@ -297,7 +297,7 @@ Kernel::~Kernel()
 double Kernel::dot(const svm_node *px, const svm_node *py)
 {
 	double sum = 0;
-	for (int i = 0; i < vars; i++)
+	for (int i = 0; i < VARS; i++)
 	{
 		sum += px->value * py->value;
 		++px;
@@ -318,7 +318,7 @@ double Kernel::k_function(const svm_node *x, const svm_node *y,
 		case RBF:
 		{
 			double sum = 0;
-			for (int i = 0; i < vars; i++)
+			for (int i = 0; i < VARS; i++)
 			{
 				double d = x->value - y->value;
 				sum += d*d;
@@ -1679,7 +1679,7 @@ static void sigmoid_train(
 		if (labels[i] > 0) prior1+=1;
 		else prior0+=1;
 	
-	int max_iter=30;	// Maximal number of iterations
+	int max_iter=10;	// Maximal number of iterations
 	double min_step=1e-10;	// Minimal step taken in line search
 	double sigma=1e-12;	// For numerically strict PD of Hessian
 	double eps=1e-5;
@@ -2683,7 +2683,7 @@ int svm_save_model(const char *model_file_name, const svm_model *model)
 		if(param.kernel_type == PRECOMPUTED)
 			fprintf(fp,"0:%d ",(int)(p->value));
 		else
-			for (int i = 0; i < vars; i++)
+			for (int i = 0; i < VARS; i++)
 			{
 				fprintf(fp,"%d:%.8g ",i,p->value);
 				p++;
@@ -3159,7 +3159,7 @@ int svm_model_visualization(const svm_model *model, Equation* equ)
 
 	double* theta = equ->theta;
 	double theta0 = sv_coef[0][0] > 0? 1 : -1;
-	for (int i = 0; i < vars; i++)
+	for (int i = 0; i < VARS; i++)
 		theta[i] = 0;
 
 	for(int i=0;i<l;i++)
@@ -3168,7 +3168,7 @@ int svm_model_visualization(const svm_model *model, Equation* equ)
 //		double label[i] = sv_coef[0][i];
 		double temp = 0;
 		const svm_node *p = SV[i];
-		for (int j = 0; j < vars; j++)
+		for (int j = 0; j < VARS; j++)
 		{
 //			double x[i][j] = p->value;
 			theta[j] += sv_coef[0][i] * p->value;

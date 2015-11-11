@@ -24,18 +24,13 @@ extern bool _passQ;
 extern int maxv;
 extern int minv;
 
-#ifdef __OPT
-//extern double set[max_items][vars];
-//extern double slabel[max_items];
-//extern int sIndex;
 
-extern double temp_states[256][vars];
+extern double temp_states[256][VARS];
 
-extern double Pset[max_items][vars];
-extern double Nset[max_items][vars];
-extern double Qset[q_items][vars];
+extern double Pset[max_items][VARS];
+extern double Nset[max_items][VARS];
+extern double Qset[q_items][VARS];
 extern int pIndex, nIndex, qIndex;
 extern int qNum;
-#endif
 
 #endif /*end of #ifndef _HEADER_H_*/

@@ -15,18 +15,12 @@ void print_null(const char *s) {}
 States global_states_sets[4];
 States* gsets = &global_states_sets[1];
 
-double Pset[max_items][vars], Nset[max_items][vars], Qset[q_items][vars];
-int pIndex, nIndex, qIndex;
-int qNum;
 
 
-double agent_label[max_items * 2];
-double* agent_set[max_items * 2];
-
-
-
+double training_label[max_items * 2];
+double* training_set[max_items * 2];
 Solution inputs;
-enum{NEG=-1, QST, POS, CNE};
+
 
 void run_target(Solution inp)
 {
@@ -34,10 +28,14 @@ void run_target(Solution inp)
 	before_loop();
 	m_double(inp.x);
 	after_loop();
+	if (gsets[COUNT_EXAMPLE].traces_num() > 0) {
+		std::cout << "}\nProgram BUG! Program have encountered a Counter-Example trace." << std::endl;
+		std::cout << gsets[COUNT_EXAMPLE] << std::endl;
+		exit(-1);
+	}
 }
 
 
-#ifdef __OPT
 int fromSetToProblem(double** set, int length, int label, svm_problem& pro)
 {
 	int start = pro.l;
@@ -49,15 +47,18 @@ int fromSetToProblem(double** set, int length, int label, svm_problem& pro)
 	pro.l += length;
 	return length;
 }
-#endif
 
+
+void init_gsets()
+{
+	gsets[NEGATIVE].label = -1;
+	gsets[QUESTION].label = 0;
+	gsets[POSITIVE].label = 1;
+	gsets[COUNT_EXAMPLE].label = 2;
+}
 
 int main(int argc, char** argv)
 {
-	gsets[-1].label = -1;
-	gsets[0].label = 0;
-	gsets[1].label = 1;
-	gsets[2].label = 2;
 	if (argc < 1) {
 		std::cout << "Arguments less than 2.\n";
 		exit(-1);
@@ -67,31 +68,224 @@ int main(int argc, char** argv)
 		maxv = atoi(argv[2]);
 	}
 
-	srand(time(NULL));
-	bool bSvmI = false;
+	srand(time(NULL)); // initialize seed for rand() function
+	init_gsets();
 
+	/*
+	bool bSvmI = false;
 	int oldpIndex = 0, oldnIndex = 0;
 	pIndex = 0;
 	nIndex = 0;
 	qIndex = 0;
 	qNum = 0;
+	*/
 
 	for (int i = 0; i < 2 * max_items; i++)
-		agent_label[i] = -1;
+		training_label[i] = -1;
 
 
-	for (int i = 0; i < inputs_init; i++) {
-		Equation::linearSolver(NULL, &inputs);
-		std::cout << inputs << " | ";
-		run_target(inputs);
+	//for (int i = -1; i < 3; i++)
+	//	std::cout << gsets[i] << std::endl;
+
+	int rnd;
+	bool b_similar_last_time = false;
+	Equation* p = NULL;
+
+	SVM_algo svm(print_null);
+	svm.problem.x = (svm_node**)(training_set);
+	svm.problem.y = training_label;
+
+	int pre_positive_size = 0, pre_negative_size = 0, pre_question_size = 0;
+	int cur_positive_size = 0, cur_negative_size = 0, cur_question_size = 0;
+
+	for (rnd = 1; rnd <= max_iter; rnd++) {
+		svm.main_equation = NULL;
+		/*
+		*	The first round is very special, so we put this round apart with its following rounds.
+		*	1> We used random values as inputs for program executions in the first round.
+		*	2> We need to make sure there are at last two classes of generated traces. "positive" and "negative"
+		*/
+
+	init:
+		std::cout << "[" << rnd << "]----------------------------------------" << "-------------------------------------------------------------" << std::endl;
+		if (rnd == 1) {
+			std::cout << "\t(1) execute programs... [" << init_exes << "] {";
+			for (int i = 0; i < init_exes; i++) {
+				Equation::linearSolver(NULL, inputs);
+				std::cout << inputs;
+				if (i < init_exes - 1) std::cout << "|";
+				run_target(inputs);
+			}
+			std::cout << "}" << std::endl;
+
+			if (gsets[POSITIVE].traces_num() == 0 || gsets[NEGATIVE].traces_num() == 0) {
+				if (gsets[POSITIVE].traces_num() == 0) std::cout << "[0] Positive trace, execute program again." << std::endl;
+				if (gsets[NEGATIVE].traces_num() == 0) std::cout << "[0] Negative trace, execute program again." << std::endl;
+				goto init;
+			}
+		}
+		else {
+			std::cout << "\t(1) execute programs...[" << after_exes << "] {";
+			for (int i = 0; i < after_exes; i++) {
+				Equation::linearSolver(p, inputs);
+				std::cout << inputs;
+				if (i < after_exes - 1) std::cout << " | ";
+				run_target(inputs);
+			}
+			std::cout << "}" << std::endl;
+		}
+		
+		cur_positive_size = gsets[POSITIVE].size();
+		cur_negative_size = gsets[NEGATIVE].size();
+		cur_question_size = gsets[QUESTION].size();
+
+
+		std::cout << "\t(2) start training process... +[";
+		std::cout << cur_positive_size - pre_positive_size << "|";
+		std::cout << cur_negative_size - pre_negative_size << "";
+		std::cout << "] ==> [";
+		std::cout << cur_positive_size << "+|";
+		std::cout << cur_negative_size << "-";
+		std::cout << "]" << std::endl;
+
+
+		// prepare new training data set
+		// training set & label layout:
+		// data :  0 | positive states | negative states | ...
+		// label:    | 1, 1, ..., 1, . | -1, -1, ..., -1, -1, -1, ...
+		// move the negative states from old OFFSET: [pre_positive_size] to new OFFSET: [cur_positive_size]
+		memmove(training_set + cur_positive_size, training_set + pre_positive_size, pre_negative_size * sizeof(double*));
+		// add new positive states at OFFSET: [pre_positive_size]
+		for (int i = pre_positive_size; i < cur_positive_size; i++) {
+			training_set[i] = gsets[POSITIVE].values[i];
+			training_label[i] = 1;
+		}
+		// add new negative states at OFFSET: [cur_positive_size + pre_negative_size]
+		for (int i = pre_negative_size; i < cur_negative_size; i++) {
+			training_set[cur_positive_size + i] = gsets[NEGATIVE].values[i];
+		}
+		svm.problem.l = cur_positive_size + cur_negative_size;
+		pre_positive_size = cur_positive_size;
+		pre_negative_size = cur_negative_size;
+
+
+		svm.train();
+		std::cout << "\t |-->> " << svm; //<< std::endl;
+
+		
+
+		/*
+		*	check on its own training data.
+		*	There should be no prediction errors.
+		*/
+		std::cout << "\t(3) checking training traces.";
+		double passRat = svm.predict_on_training_set();
+		std::cout << " [" << passRat * 100 << "%]";
+		if (passRat < 1) {
+			std::cout << " [FAIL] \n The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
+			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
+			//bSvmI = true;
+			break;
+		}
+		std::cout << " [PASS]" << std::endl;
+
+
+		/*
+		*	Check on Question traces.
+		*	There should not exists one traces, in which a negative state is behind a positive state.
+		*/
+		std::cout << "\t(4) checking question traces.";
+		std::cout << " [" << gsets[QUESTION].traces_num() << "]";
+		for (int i = 0; i < gsets[QUESTION].p_index; i++) {
+			int pre = -1, cur = 0;
+			std::cout << ".";
+			//std::cout << "\t\t" << i << ">";
+			//gsets[QUESTION].print_trace(i);
+			for (int j = gsets[QUESTION].index[i]; j < gsets[QUESTION].index[i + 1]; j++) {
+				cur = Equation::calc(svm.main_equation, gsets[QUESTION].values[j]);
+				//std::cout << ((cur >= 0) ? "+" : "-");
+				if ((pre > 0) && (cur < 0)) {
+					// deal with wrong question trace.
+					// Trace back to print out the whole trace and the predicted labels.
+					std::cerr << "\t\t[FAIL]\n \t  Predict wrongly on Question traces." << std::endl;
+					gsets[QUESTION].print_trace(i);
+					for (int j = gsets[QUESTION].index[i]; j < gsets[QUESTION].index[i + 1]; j++) {
+						cur = Equation::calc(svm.main_equation, gsets[QUESTION].values[j]);
+						std::cout << ((cur >= 0) ? "+" : "-");
+					}
+					std::cout << std::endl;
+					return -1;
+				}
+				pre = cur;
+			}
+			//std::cout << "END" << std::endl;
+		}
+		std::cout << " [PASS]" << std::endl;
+
+
+		/*
+		*	bCon is used to store the convergence check return value for the last time.
+		*	We only admit convergence if the three consecutive round are converged.
+		*	This is to prevent in some round the points are too right to adjust the classifier.
+		*/
+		std::cout << "\t(5) check convergence:        ";
+		if (svm.main_equation->is_similar(p) == 0) {
+			if (b_similar_last_time == true) {
+				std::cout << "[TT]  [SUCCESS] rounding off" << std::endl;
+				Equation equ;
+				p->roundoff(equ);
+				std::cout << "Hypothesis Invairant: {\n";
+				std::cout << "\t\t" << equ << std::endl;
+				std::cout << "}" << std::endl;
+				delete p;
+				delete svm.main_equation;
+				return 0;
+				break;
+			}
+			std::cout << "[FT]";
+			b_similar_last_time = true;
+		}
+		else {
+			std::cout << ((b_similar_last_time == true) ? "[T" : "[F") << "F] ";
+			b_similar_last_time = false;
+		}
+		std::cout << "  [FAIL] neXt round " << std::endl;
+		if (p != NULL) {
+			delete p;
+		}
+		p = svm.main_equation;
 	}
-	std::cout << std::endl;
 
-	for (int i = -1; i < 3; i++)
-		std::cout << gsets[i] << std::endl;
-
-	//gsets = global_states_sets;
 	return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -442,5 +636,3 @@ init:
 		std::cout << "\t  /\\ " << equs[i] << std::endl;
 	std::cout << "}" << std::endl;
 	*/
-	return 0;
-}

@@ -16,7 +16,7 @@ bool _passQ = false;
 char lt[4][10] =  { "Negative", "Question", "Positive", "Bugtrace"};
 char(*LabelTable)[10] = &lt[1];
 
-double temp_states[256][vars];
+double temp_states[256][VARS];
 int temp_index;
 
 
@@ -25,7 +25,7 @@ int add_state_int(int first ...)
 	va_list ap;
 	va_start(ap, first);
 	temp_states[temp_index][0] = first;
-	for (int i = 1; i < vars; i++) {
+	for (int i = 1; i < VARS; i++) {
 		temp_states[temp_index][i] = va_arg(ap, int);
 	}
 	va_end(ap);
@@ -38,7 +38,7 @@ int add_state_double(double first, ...)
 	va_list ap;
 	va_start(ap, first);
 	temp_states[temp_index][0] = first;
-	for (int i = 1; i < vars; i++) {
+	for (int i = 1; i < VARS; i++) {
 		temp_states[temp_index][i] = va_arg(ap, double);
 	}
 	va_end(ap);
@@ -90,8 +90,8 @@ int after_loop()
 
 int m_double(double* p)
 {
-	int a[vars];
-	for (int i = 0; i < vars; i++)
+	int a[VARS];
+	for (int i = 0; i < VARS; i++)
 		a[i] = static_cast<int>(p[i]);
 	return m_int(a);
 }

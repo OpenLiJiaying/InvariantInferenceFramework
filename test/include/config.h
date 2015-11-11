@@ -8,18 +8,16 @@
 //#define VARS 3
 #define __OPT
 
-#define VARS 2
+#define VARS (2)
 
 #ifndef VARS 
-const int vars = 2;
-#else
-const int vars = VARS;
+#define VARS (2)
 #endif
 
 
 const int max_items = 100000;
 const int q_items = 1000;
 
-const int inputs_init = 4 * vars;
-const int inputs_aft = 2 * vars;
-const int max_iter = 64;
+const int init_exes = 4 * VARS;
+const int after_exes = 2 * VARS;
+const int max_iter = 32;

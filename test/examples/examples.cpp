@@ -3,6 +3,8 @@
 
 //#define conj m
 #define f1 m
+
+
 int nondet() {
 	return rand() % 4;
 	return rand() % 20;
