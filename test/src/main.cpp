@@ -8,6 +8,9 @@
 #include <float.h>
 #include <string.h>
 #include "../include/header.h"
+#include "../include/svm.h"
+#include "../include/svm_i.h"
+#include "../include/svm_ii.h"
 
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}
@@ -36,18 +39,6 @@ void run_target(Solution inp)
 }
 
 
-int fromSetToProblem(double** set, int length, int label, svm_problem& pro)
-{
-	int start = pro.l;
-	for (int i = 0; i < length; i++) 
-	{
-		pro.y[start + i] = label;
-		pro.x[start + i] = (svm_node*)&set[i];
-	}
-	pro.l += length;
-	return length;
-}
-
 
 void init_gsets()
 {
@@ -71,14 +62,6 @@ int main(int argc, char** argv)
 	srand(time(NULL)); // initialize seed for rand() function
 	init_gsets();
 
-	/*
-	bool bSvmI = false;
-	int oldpIndex = 0, oldnIndex = 0;
-	pIndex = 0;
-	nIndex = 0;
-	qIndex = 0;
-	qNum = 0;
-	*/
 
 	for (int i = 0; i < 2 * max_items; i++)
 		training_label[i] = -1;
@@ -91,7 +74,7 @@ int main(int argc, char** argv)
 	bool b_similar_last_time = false;
 	Equation* p = NULL;
 
-	SVM_algo svm(print_null);
+	SVM svm(print_null);
 	svm.problem.x = (svm_node**)(training_set);
 	svm.problem.y = training_label;
 
@@ -107,7 +90,7 @@ int main(int argc, char** argv)
 		*/
 
 	init:
-		std::cout << "[" << rnd << "]----------------------------------------" << "-------------------------------------------------------------" << std::endl;
+		std::cout << "[" << rnd << "]--------------------------------------------------" << "-------------------------------------------------------------" << std::endl;
 		if (rnd == 1) {
 			std::cout << "\t(1) execute programs... [" << init_exes << "] {";
 			for (int i = 0; i < init_exes; i++) {
@@ -134,43 +117,14 @@ int main(int argc, char** argv)
 			}
 			std::cout << "}" << std::endl;
 		}
-		
-		cur_positive_size = gsets[POSITIVE].size();
-		cur_negative_size = gsets[NEGATIVE].size();
-		cur_question_size = gsets[QUESTION].size();
 
+		std::cout << "\t(2) prepare training data... ";
+		svm.prepare_training_data(gsets, pre_positive_size, pre_negative_size);
+		std::cout << std::endl;
 
-		std::cout << "\t(2) start training process... +[";
-		std::cout << cur_positive_size - pre_positive_size << "|";
-		std::cout << cur_negative_size - pre_negative_size << "";
-		std::cout << "] ==> [";
-		std::cout << cur_positive_size << "+|";
-		std::cout << cur_negative_size << "-";
-		std::cout << "]" << std::endl;
-
-
-		// prepare new training data set
-		// training set & label layout:
-		// data :  0 | positive states | negative states | ...
-		// label:    | 1, 1, ..., 1, . | -1, -1, ..., -1, -1, -1, ...
-		// move the negative states from old OFFSET: [pre_positive_size] to new OFFSET: [cur_positive_size]
-		memmove(training_set + cur_positive_size, training_set + pre_positive_size, pre_negative_size * sizeof(double*));
-		// add new positive states at OFFSET: [pre_positive_size]
-		for (int i = pre_positive_size; i < cur_positive_size; i++) {
-			training_set[i] = gsets[POSITIVE].values[i];
-			training_label[i] = 1;
-		}
-		// add new negative states at OFFSET: [cur_positive_size + pre_negative_size]
-		for (int i = pre_negative_size; i < cur_negative_size; i++) {
-			training_set[cur_positive_size + i] = gsets[NEGATIVE].values[i];
-		}
-		svm.problem.l = cur_positive_size + cur_negative_size;
-		pre_positive_size = cur_positive_size;
-		pre_negative_size = cur_negative_size;
-
-
+		std::cout << "\t(3) start training... ";
 		svm.train();
-		std::cout << "\t |-->> " << svm; //<< std::endl;
+		std::cout << "|-->> " << svm << std::endl;
 
 		
 
@@ -178,7 +132,7 @@ int main(int argc, char** argv)
 		*	check on its own training data.
 		*	There should be no prediction errors.
 		*/
-		std::cout << "\t(3) checking training traces.";
+		std::cout << "\t(4) checking training traces.";
 		double passRat = svm.predict_on_training_set();
 		std::cout << " [" << passRat * 100 << "%]";
 		if (passRat < 1) {
@@ -194,7 +148,7 @@ int main(int argc, char** argv)
 		*	Check on Question traces.
 		*	There should not exists one traces, in which a negative state is behind a positive state.
 		*/
-		std::cout << "\t(4) checking question traces.";
+		std::cout << "\t(5) checking question traces.";
 		std::cout << " [" << gsets[QUESTION].traces_num() << "]";
 		for (int i = 0; i < gsets[QUESTION].p_index; i++) {
 			int pre = -1, cur = 0;
@@ -228,7 +182,7 @@ int main(int argc, char** argv)
 		*	We only admit convergence if the three consecutive round are converged.
 		*	This is to prevent in some round the points are too right to adjust the classifier.
 		*/
-		std::cout << "\t(5) check convergence:        ";
+		std::cout << "\t(6) check convergence:        ";
 		if (svm.main_equation->is_similar(p) == 0) {
 			if (b_similar_last_time == true) {
 				std::cout << "[TT]  [SUCCESS] rounding off" << std::endl;

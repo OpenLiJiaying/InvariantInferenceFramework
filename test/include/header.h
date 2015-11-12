@@ -11,7 +11,7 @@
 
 #include "equation.h"
 #include "iif_assert.h"
-#include "svm.h"
+
 #include "states.h"
 #include "instrumentation.h"
 
