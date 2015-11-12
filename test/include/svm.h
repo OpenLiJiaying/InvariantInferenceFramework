@@ -4,7 +4,7 @@
 #include <iostream>
 //#include <stdarg.h>
 //#include "float.h"
-#include "color.h"
+//#include "color.h"
 #define LIBSVM_VERSION 320
 
 extern int libsvm_version;
@@ -258,9 +258,7 @@ class SVM // : public ClassifyAlgo
 
 
 		friend std::ostream& operator << (std::ostream& out, const SVM& svm) {
-			set_console_color(out);
 			out << *svm.main_equation; // << std::endl;
-			unset_console_color(out);
 			return out;
 		}
 

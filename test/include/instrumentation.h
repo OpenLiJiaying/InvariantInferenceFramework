@@ -6,8 +6,8 @@
 
 enum { NEGATIVE = -1, QUESTION, POSITIVE, COUNT_EXAMPLE };	/* trace_type */
 
-int add_state_int(int first ...);
-int add_state_double(double first ...);
+int add_state_int(int first, ...);
+int add_state_double(double first, ...);
 
 
 #ifdef WIN32  

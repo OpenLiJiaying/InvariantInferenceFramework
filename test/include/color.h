@@ -6,7 +6,7 @@
 #include <windows.h>
 	void set_console_color(std::ostream& out) {
 		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_GREEN);
+		SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	}
 	void unset_console_color(std::ostream& out) {
 		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -17,7 +17,7 @@
 
 #ifdef linux
 	void set_console_color(std::ostream& out) {
-		out << "\033[31;4m"; 
+		out << "\033[33;4m"; 
 	}
 	void unset_console_color(std::ostream& out) {
 		out << "\033[0m"; 

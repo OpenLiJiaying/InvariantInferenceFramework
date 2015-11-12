@@ -11,6 +11,7 @@
 #include "../include/svm.h"
 #include "../include/svm_i.h"
 #include "../include/svm_ii.h"
+#include "../include/color.h"
 
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}
@@ -124,7 +125,10 @@ int main(int argc, char** argv)
 
 		std::cout << "\t(3) start training... ";
 		svm.train();
-		std::cout << "|-->> " << svm << std::endl;
+		std::cout << "|-->> ";
+		set_console_color(std::cout);
+		std::cout << svm << std::endl;
+		unset_console_color(std::cout);
 
 		
 
@@ -188,9 +192,11 @@ int main(int argc, char** argv)
 				std::cout << "[TT]  [SUCCESS] rounding off" << std::endl;
 				Equation equ;
 				p->roundoff(equ);
+				set_console_color(std::cout);
 				std::cout << "Hypothesis Invairant: {\n";
 				std::cout << "\t\t" << equ << std::endl;
 				std::cout << "}" << std::endl;
+				unset_console_color(std::cout);
 				delete p;
 				delete svm.main_equation;
 				return 0;
