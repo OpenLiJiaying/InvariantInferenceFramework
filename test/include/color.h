@@ -17,7 +17,7 @@
 
 #ifdef linux
 	void set_console_color(std::ostream& out) {
-		out << "\033[33;4m"; 
+		out << "\033[33;\x1b[33m"; 
 	}
 	void unset_console_color(std::ostream& out) {
 		out << "\033[0m"; 
