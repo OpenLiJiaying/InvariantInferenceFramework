@@ -10,7 +10,6 @@
 #include <time.h>
 #include "../include/header.h"
 
-
 bool _passP = false;
 bool _passQ = false;
 char lt[4][10] =  { "Negative", "Question", "Positive", "Bugtrace"};

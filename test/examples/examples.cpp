@@ -2,7 +2,7 @@
 //#include <iostream>
 
 //#define conj m
-#define f1 m
+#define ex1 m
 
 
 int nondet() {

@@ -15,8 +15,7 @@ struct svm_node
 	double value;
 
 
-	friend std::ostream& operator << (std::ostream& out, const svm_node* sn)
-	{
+	friend std::ostream& operator << (std::ostream& out, const svm_node* sn) {
 		out << sn->value;
 		return out;
 	}
@@ -28,8 +27,7 @@ struct svm_problem
 	double *y;
 	struct svm_node **x;
 
-	friend std::ostream& operator << (std::ostream& out, const svm_problem& sp)
-	{
+	friend std::ostream& operator << (std::ostream& out, const svm_problem& sp) {
 		for (int i = 0; i < sp.l; i++) {
 			out << sp.y[i] << "(" << (sp.x[i][0]).value;
 			for (int j = 1; j < VARS; j++)
@@ -136,9 +134,10 @@ class SVM // : public ClassifyAlgo
 		Equation* main_equation;
 		svm_parameter param;
 		svm_problem problem;
+		double training_label[max_items * 2];
+		double* training_set[max_items * 2];
 
-		SVM(void (*f) (const char*) = NULL)
-		{
+		SVM(void (*f) (const char*) = NULL) {
 			problem.l = 0;
 
 			main_equation = NULL;
@@ -163,10 +162,14 @@ class SVM // : public ClassifyAlgo
 			param.weight = NULL;
 			if (f != NULL)
 				svm_set_print_string_function(f);
+
+			for (int i = 0; i < 2 * max_items; i++)
+				training_label[i] = -1;
+			problem.x = (svm_node**)(training_set);
+			problem.y = training_label;
 		}
 
-		~SVM()
-		{
+		~SVM() {
 			if (model != NULL)
 				delete model;
 			//if (problem.y != NULL)
@@ -176,8 +179,7 @@ class SVM // : public ClassifyAlgo
 			// these two cases should be handled separatly.
 		}
 
-		virtual int prepare_training_data(States* gsets, int& pre_positive_size, int& pre_negative_size)
-		{
+		virtual int prepare_training_data(States* gsets, int& pre_positive_size, int& pre_negative_size) {
 			int cur_positive_size = gsets[POSITIVE].size();
 			int cur_negative_size = gsets[NEGATIVE].size();
 
@@ -189,15 +191,13 @@ class SVM // : public ClassifyAlgo
 			std::cout << cur_negative_size << "-";
 			std::cout << "]";
 
-
+			//double** training_set = (double**)(problem.x);
+			//double* training_label = (double*)(problem.y);
 			// prepare new training data set
 			// training set & label layout:
 			// data :  0 | positive states | negative states | ...
 			// label:    | 1, 1, ..., 1, . | -1, -1, ..., -1, -1, -1, ...
 			// move the negative states from old OFFSET: [pre_positive_size] to new OFFSET: [cur_positive_size]
-			double** training_set = (double**)(problem.x);
-			double* training_label = (double*)(problem.y);
-
 			memmove(training_set + cur_positive_size, training_set + pre_positive_size, pre_negative_size * sizeof(double*));
 			// add new positive states at OFFSET: [pre_positive_size]
 			for (int i = pre_positive_size; i < cur_positive_size; i++) {
@@ -215,8 +215,7 @@ class SVM // : public ClassifyAlgo
 		}
 
 
-		virtual int train() 
-		{
+		virtual int train() {
 			if (problem.y == NULL || problem.x == NULL)
 				return -1;
 			const char* error_msg = svm_check_parameter(&problem, &param);
@@ -236,18 +235,7 @@ class SVM // : public ClassifyAlgo
 		}
 
 
-		int predict(double* v)
-		{
-			if (main_equation == NULL) return -2;
-			if (v == NULL) return -2;
-			double res = Equation::calc(main_equation, v);
-			if (res >= 0) return 1;
-			else return -1;
-		}
-
-
-		virtual double predict_on_training_set()
-		{
+		virtual double predict_on_training_set() {
 			if (problem.l <= 0) return 0;
 			int pass = 0;
 			for (int i = 0; i < problem.l; i++) {
@@ -257,7 +245,40 @@ class SVM // : public ClassifyAlgo
 		}
 
 
+		virtual int check_question_set(States& qset) {
+			if (main_equation == NULL) return -1;
+			std::cout << " [" << qset.traces_num() << "]";
+			for (int i = 0; i < qset.p_index; i++) {
+				int pre = -1, cur = 0;
+				std::cout << ".";
+				//std::cout << "\t\t" << i << ">";
+				//gsets[QUESTION].print_trace(i);
+				for (int j = qset.index[i]; j < qset.index[i + 1]; j++) {
+					cur = Equation::calc(main_equation, qset.values[j]);
+					//std::cout << ((cur >= 0) ? "+" : "-");
+					if ((pre > 0) && (cur < 0)) {
+						// deal with wrong question trace.
+						// Trace back to print out the whole trace and the predicted labels.
+						std::cerr << "\t\t[FAIL]\n \t  Predict wrongly on Question traces." << std::endl;
+						qset.print_trace(i);
+						for (int j = qset.index[i]; j < qset.index[i + 1]; j++) {
+							cur = Equation::calc(main_equation, qset.values[j]);
+							std::cout << ((cur >= 0) ? "+" : "-");
+						}
+						std::cout << std::endl;
+						return -1;
+					}
+					pre = cur;
+				}
+				//std::cout << "END" << std::endl;
+			}
+			std::cout << " [PASS]";
+			return 0;
+		}
+
+
 		friend std::ostream& operator << (std::ostream& out, const SVM& svm) {
+			out << "SVM: ";
 			out << *svm.main_equation; // << std::endl;
 			return out;
 		}
@@ -267,7 +288,15 @@ class SVM // : public ClassifyAlgo
 		{
 			return problem.l;
 		}
+
 	private:
+		virtual int predict(double* v) {
+			if (main_equation == NULL) return -2;
+			if (v == NULL) return -2;
+			double res = Equation::calc(main_equation, v);
+			if (res >= 0) return 1;
+			else return -1;
+		}
 };
 
 #endif /* _LIBSVM_H */
