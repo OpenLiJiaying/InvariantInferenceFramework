@@ -3,30 +3,24 @@
 #include "header.h"
 #include <stdarg.h>
 
+
 enum { NEGATIVE = -1, QUESTION, POSITIVE, COUNT_EXAMPLE };	/* trace_type */
 
 int add_state_int(int first ...);
 int add_state_double(double first ...);
 
 
-
-#ifdef WIN32
+#ifdef WIN32  
 	#if VARS == 1
-		//int add_state_int(int first);
-		//int add_state_double(double first);
 		#define recordi(first) add_state_int(first)
 		#define recordd(first) add_state_double(first)
 	#else
-		//int add_state_int(int first ...);
-		//int add_state_double(double first ...);
 		#define recordi(first, args, ...) add_state_int(first, ##args)
 		#define recordd(first, args, ...) add_state_double(first, ##args)
 	#endif
 #endif
 
 #ifdef linux
-	//int add_state_int(int first, ...);
-	//int add_state_double(double first, ...);
 	#define recordi(first, args ...) add_state_int(first, ##args)
 	#define recordd(first, args ...) add_state_double(first, ##args)
 #endif

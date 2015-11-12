@@ -14,7 +14,6 @@
 #define VARS (2)
 #endif
 
-
 const int max_items = 100000;
 const int q_items = 1000;
 

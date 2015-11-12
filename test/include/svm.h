@@ -2,14 +2,10 @@
 #define _LIBSVM_H_
 #include "header.h"
 #include <iostream>
-#include <stdarg.h>
-#include "float.h"
+//#include <stdarg.h>
+//#include "float.h"
+#include "color.h"
 #define LIBSVM_VERSION 320
-
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 
 extern int libsvm_version;
 
@@ -262,7 +258,9 @@ class SVM // : public ClassifyAlgo
 
 
 		friend std::ostream& operator << (std::ostream& out, const SVM& svm) {
-			out << "\033[31;4m" << *svm.main_equation << "\033[0m"; // << std::endl;
+			set_console_color(out);
+			out << *svm.main_equation; // << std::endl;
+			unset_console_color(out);
 			return out;
 		}
 
