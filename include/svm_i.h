@@ -153,7 +153,10 @@ public:
 			//std::cout << "\n On whole set precision: " << predictOnProblem() * 100 << "%" << std::endl;
 #endif
 		}
+		set_console_color(std::cout, RED);
 		std::cout << "Can not divide all the data by SVM-I with equations number limit to " << equ_num + 1 << "." << std::endl;
+		std::cerr << "You can increase the limit by modifying [classname::methodname]=SVM-I::SVM-I(..., int equ = **) " << std::endl;
+		unset_console_color(std::cout);
 		return -1;
 	}
 

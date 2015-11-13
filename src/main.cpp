@@ -286,7 +286,9 @@ int main(int argc, char** argv)
 		std::cout << std::endl;
 
 		std::cout << "\t(3) start training... ";
-		svm_i->train();
+		int ret = svm_i->train();
+		if (ret == -1)
+			return -1;
 		std::cout << svm_i->equ_num;
 		std::cout << "|-->> ";
 		set_console_color(std::cout);
@@ -304,8 +306,9 @@ int main(int argc, char** argv)
 		std::cout << " [" << passRat * 100 << "%]";
 		if (passRat < 1) {
 			set_console_color(std::cout, RED);
-			std::cerr << "[FAIL] ..... Reaching maximium num of equation supported by SVM_I." << std::endl;
-			std::cerr << "You can increase the limit by modifying [classname::methodname]=SVM-I::SVM-I(..., int equ = **) " << std::endl;
+			std::cerr << "[FAIL] ..... Can not dividey by SVM_I." << std::endl;
+			//std::cerr << "[FAIL] ..... Reaching maximium num of equation supported by SVM_I." << std::endl;
+			//std::cerr << "You can increase the limit by modifying [classname::methodname]=SVM-I::SVM-I(..., int equ = **) " << std::endl;
 			unset_console_color(std::cout);
 			return -1;
 			//			b_svm_i = true;
