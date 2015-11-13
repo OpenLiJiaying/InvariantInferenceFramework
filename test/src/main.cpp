@@ -28,7 +28,7 @@ void run_target(Solution inp)
 	m_double(inp.x);
 	after_loop();
 	if (gsets[COUNT_EXAMPLE].traces_num() > 0) {
-		set_console_color(std::cout, 1);
+		set_console_color(std::cout, RED);
 		std::cout << "}\nProgram BUG! Program have encountered a Counter-Example trace." << std::endl;
 		std::cout << gsets[COUNT_EXAMPLE] << std::endl;
 		unset_console_color(std::cout);
@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 		*	There should not exists one traces, in which a negative state is behind a positive state.
 		*/
 		std::cout << "\t(5) checking question traces.";
-		set_console_color(std::cout, 1);
+		set_console_color(std::cout, RED);
 		
 		if (svm->check_question_set(gsets[QUESTION]) != 0) {	
 			std::cout << std::endl << "check on question set return error." << std::endl;

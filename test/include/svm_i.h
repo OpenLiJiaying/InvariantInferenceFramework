@@ -20,7 +20,7 @@ public:
 	svm_parameter param;
 	States* negatives; 
 
-	SVM_I(void(*f) (const char*) = NULL, Equation* eq = NULL, int equ = 32) : SVM(f), max_equ(equ) {
+	SVM_I(void(*f) (const char*) = NULL, Equation* eq = NULL, int equ = 16) : SVM(f), max_equ(equ) {
 		negatives = NULL;
 		main_equation = eq;
 		equ_num = 0;
@@ -216,7 +216,7 @@ public:
 		out << std::setprecision(16);
 		out << "{ \n\t    " << *svm_i.main_equation;
 		for (int i = 0; i < svm_i.equ_num; i++) {
-			out << " \n\t /\\ " << svm_i.equations[i];
+			out << " \n\t  /\\ " << svm_i.equations[i];
 		}
 		out << "}\n";
 		return out;

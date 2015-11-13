@@ -1,7 +1,7 @@
 #include "../include/header.h"
 //#include <iostream>
 
-#define conj m
+//#define conj m
 //#define ex1 m
 
 
