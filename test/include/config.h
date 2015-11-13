@@ -18,5 +18,5 @@ const int max_items = 100000;
 const int q_items = 1000;
 
 const int init_exes = 4 * VARS;
-const int after_exes = 2 * VARS;
+const int after_exes = 2 * VARS + 2;
 const int max_iter = 32;

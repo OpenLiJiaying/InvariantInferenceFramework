@@ -27,6 +27,7 @@ public:
 		equations = new Equation[max_equ];
 		model = NULL;
 
+		/*
 		param.svm_type = C_SVC;
 		param.kernel_type = LINEAR;
 		param.degree = 3;
@@ -51,7 +52,8 @@ public:
 			training_label[i] = -1;
 		problem.x = (svm_node**)(training_set);
 		problem.y = training_label;
-
+*/
+		//param.C = DBL_MAX;
 	}
 
 	~SVM_I()

@@ -116,7 +116,7 @@ solve:
 				if (i != pick)
 					reminder -= sol.x[i] * equ->theta[i];
 			}
-			sol.x[pick] = nearbyint(reminder / equ->theta[pick]); // + rand() % 3 - 1);
+			sol.x[pick] = nearbyint(reminder / equ->theta[pick]) + rand() % 3 - 1;
 			if (sol.x[pick] > maxv || sol.x[pick] < minv) {
 				if (++times > 10)
 					goto solve;
@@ -162,6 +162,7 @@ solve:
 
 		int roundoff(Equation& e)
 		{
+			std::cout << "ROUND OFF " << *this << " --> ";
 			double min = std::abs(theta0);
 			for (int i = 0; i < VARS; i++)
 				min = (std::abs(theta[i]) < min) ? std::abs(theta[i]) : min;
@@ -170,6 +171,7 @@ solve:
 			for (int i = 0; i < VARS; i++)
 				e.theta[i] = _roundoff(theta[i] / min);
 			e.theta0 = _roundoff(theta0 / min);
+			std::cout << e << std::endl;
 			return 0;
 		}
 

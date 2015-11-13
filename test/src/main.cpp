@@ -47,6 +47,17 @@ void init_gsets()
 
 int main(int argc, char** argv)
 {
+	/*
+	Equation eq;
+	eq.theta0 = -1;
+	eq.theta[0] = 2;
+	Equation eq1;
+	eq.roundoff(eq1);
+	std::cout << eq << std::endl;
+	std::cout << eq1 << std::endl;
+	return 0;
+	*/
+
 	if (argc < 1) {
 		std::cout << "Arguments less than 2.\n";
 		exit(-1);
@@ -192,13 +203,8 @@ int main(int argc, char** argv)
 		p = svm->main_equation;
 	} // end of SVM training procedure
 
-	if (p == NULL) { // get out svm in the first round, p has not been set yet
-		p = svm->main_equation;
-	} else {
-		delete svm->main_equation;
-	}
 	
-	if ((b_converged) || (rnd == max_iter)) {
+	if ((b_converged) || (rnd >= max_iter)) {
 		std::cout << "-------------------------------------------------------" << "-------------------------------------------------------------" << std::endl;
 		std::cout << "finish running svm for " << rnd << "times." << std::endl;
 		int equation_num = -1;
@@ -214,11 +220,14 @@ int main(int argc, char** argv)
 		unset_console_color(std::cout);
 		delete[]equs;
 		delete p;
+		delete svm->main_equation;
 		delete svm;
 		return 0;
 	}
-	
 
+	if (p == NULL) { // get out svm in the first round, p has not been set yet
+		p = svm->main_equation;
+	}
 	delete svm;
 
 
@@ -346,15 +355,6 @@ int main(int argc, char** argv)
 	unset_console_color(std::cout);
 	
 	
-
-#if defined (_DEBUG) && DEBUG == 1
-	set_console_color(std::cout);
-	std::cout << "In DEBUG mode" << std::endl;
-	unset_console_color(std::cout);
-	
-#endif
-	int i;
-	std::cin >> i;
 	delete[]equs;
 	delete svm_i->main_equation;
 	delete svm_i;

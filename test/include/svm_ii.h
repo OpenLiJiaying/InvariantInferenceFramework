@@ -20,7 +20,7 @@ public:
 	svm_problem problem1;  // 1
 	svm_problem problem2;  // -1
 
-	SVM_II(void(*f) (const char*) = NULL, const Equation& eq = NULL, int equ = 8) : SVM(f), max_equ(equ) {
+	SVM_II(void(*f) (const char*) = NULL, const Equation& eq = 0, int equ = 8) : SVM(f), max_equ(equ) {
 		problem1.l = 0;
 		problem2.l = 0;
 
