@@ -1,4 +1,4 @@
-# A  Invariant Inference Framework using Active Learning and SVMs
+# An  Invariant Inference Framework using Active Learning and SVMs
 
 
 This is the homepage of our iif project of the paper [An Invariant Inference Framework by
