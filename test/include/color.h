@@ -22,7 +22,7 @@ enum color {RED = 0, YELLOW, GREEN, BLUE, WHITE};
 			SetConsoleTextAttribute(hOut, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 			break;
 		case WHITE: // white
-			SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+			SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 			break;
 		}
 	}

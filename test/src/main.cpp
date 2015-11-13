@@ -99,11 +99,11 @@ int main(int argc, char** argv)
 			*	1> We used random values as inputs for program executions in the first round.
 			*	2> We need to make sure there are at last two classes of generated traces. "positive" and "negative"
 			*/
-			std::cout << "\t(1) execute programs... [" << init_exes << "] {";
-			for (int i = 0; i < init_exes; i++) {
+			std::cout << "\t(1) execute programs... [" << init_exes + random_exes << "] {";
+			for (int i = 0; i < init_exes + random_exes; i++) {
 				Equation::linearSolver(NULL, inputs);
 				std::cout << inputs;
-				if (i < init_exes - 1) std::cout << "|";
+				if (i < init_exes + random_exes - 1) std::cout << "|";
 				run_target(inputs);
 			}
 			std::cout << "}" << std::endl;
@@ -115,11 +115,16 @@ int main(int argc, char** argv)
 			}
 		}
 		else {
-			std::cout << "\t(1) execute programs...[" << after_exes << "] {";
+			std::cout << "\t(1) execute programs...[" << after_exes + random_exes << "] {";
+			for (int i = 0; i < random_exes; i++) {
+				Equation::linearSolver(NULL, inputs);
+				std::cout << inputs;
+				std::cout << " | ";
+				run_target(inputs);
+			}
 			for (int i = 0; i < after_exes; i++) {
 				Equation::linearSolver(p, inputs);
-				std::cout << inputs;
-				if (i < after_exes - 1) std::cout << " | ";
+				std::cout << " | " << inputs;
 				run_target(inputs);
 			}
 			std::cout << "}" << std::endl;
@@ -204,9 +209,10 @@ int main(int argc, char** argv)
 	} // end of SVM training procedure
 
 	
+
 	if ((b_converged) || (rnd >= max_iter)) {
 		std::cout << "-------------------------------------------------------" << "-------------------------------------------------------------" << std::endl;
-		std::cout << "finish running svm for " << rnd << "times." << std::endl;
+		std::cout << "finish running svm for " << rnd << " times." << std::endl;
 		int equation_num = -1;
 		Equation* equs = svm->roundoff(equation_num);
 		assert(equation_num == 1);
@@ -232,12 +238,13 @@ int main(int argc, char** argv)
 
 
 
+
+
+
+	b_similar_last_time = false;
+	int pre_equation_num = 1;
 	//start SVM_I training
 	assert(b_svm_i == true);
-	if (p == NULL) {
-		std::cout << "BUGGGGGGGGGG. P == NULL" << std::endl;
-		return -1;
-	}
 	SVM_I* svm_i = new SVM_I(print_null, p);
 
 	int svm_i_start = rnd;
@@ -246,14 +253,24 @@ int main(int argc, char** argv)
 		std::cout << "[" << rnd << "]SVM-I---------------------------------------------" << "-------------------------------------------------------------" << std::endl;
 		if (rnd != svm_i_start) {
 			
-			int exes_each_equation = (after_exes + svm_i->equ_num - 1) / svm_i->equ_num;
-			std::cout << "\t(1) execute programs...[" << exes_each_equation * svm_i->equ_num << "] {";
+			int exes_each_equation = (after_exes + pre_equation_num - 1) / pre_equation_num;
+			std::cout << "\t(1) execute programs...[" << exes_each_equation * pre_equation_num + random_exes << "] {";
+			for (int i = 0; i < random_exes; i++) {
+				Equation::linearSolver(NULL, inputs);
+				std::cout << inputs << " | ";
+				run_target(inputs);
+			}
+			p = svm_i->main_equation;
+			for (int j = 0; j < exes_each_equation; j++) {
+				Equation::linearSolver(p, inputs);
+				std::cout << " | " << inputs;
+				run_target(inputs);
+			}
 			for (int i = 0; i < svm_i->equ_num; i++) {
 				p = &(svm_i->equations[i]);
 				for (int j = 0; j < exes_each_equation; j++) {
 					Equation::linearSolver(p, inputs);
-					std::cout << inputs;
-					std::cout << " | ";
+					std::cout << " | " << inputs;
 					run_target(inputs);
 				}
 			}
@@ -286,8 +303,11 @@ int main(int argc, char** argv)
 		double passRat = svm_i->predict_on_training_set();
 		std::cout << " [" << passRat * 100 << "%]";
 		if (passRat < 1) {
-			std::cout << " [FAIL] to be continue..." << std::endl;
-			//			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
+			set_console_color(std::cout, RED);
+			std::cerr << "[FAIL] ..... Reaching maximium num of equation supported by SVM_I." << std::endl;
+			std::cerr << "You can increase the limit by modifying [classname::methodname]=SVM-I::SVM-I(..., int equ = **) " << std::endl;
+			unset_console_color(std::cout);
+			return -1;
 			//			b_svm_i = true;
 			//			break;
 		}
@@ -302,21 +322,21 @@ int main(int argc, char** argv)
 		*	Check on Question traces.
 		*	There should not exists one traces, in which a negative state is behind a positive state.
 		*/
-		/*std::cout << "\t(5) checking question traces.";
+		std::cout << "\t(5) checking question traces.";
 		if (svm_i->check_question_set(gsets[QUESTION]) != 0) {
 			std::cout << std::endl << "check on question set return error." << std::endl;
 			return -1;
 		}
 		std::cout << std::endl;
-		*/
+		
 
 		/*
 		*	b_similar_last_time is used to store the convergence check return value for the last time.
 		*	We only admit convergence if the three consecutive round are converged.
 		*	This is to prevent in some round the points are too right to adjust the classifier.
 		*/
-		std::cout << "\t(6) check convergence:        TOBEDONE";
-		/*if (svm->main_equation->is_similar(p) == 0) {
+		std::cout << "\t(6) check convergence:        ";
+		if (pre_equation_num == svm_i->equ_num + 1) {
 			if (b_similar_last_time == true) {
 				std::cout << "[TT]  [SUCCESS] rounding off" << std::endl;
 				b_converged = true;
@@ -330,11 +350,8 @@ int main(int argc, char** argv)
 			b_similar_last_time = false;
 		}
 		std::cout << "  [FAIL] neXt round " << std::endl;
-		if (p != NULL) {
-			delete p;
-		}
-		p = svm->.main_equation;
-		*/
+		pre_equation_num = svm_i->equ_num + 1;
+
 		std::cout << std::endl;
 	} // end of SVM-I training procedure
 
@@ -343,7 +360,7 @@ int main(int argc, char** argv)
 
 	
 	std::cout << "-------------------------------------------------------" << "-------------------------------------------------------------" << std::endl;
-	std::cout << "finish running svm-I for " << rnd << "times." << std::endl;
+	std::cout << "finish running svm-I for " << rnd - svm_i_start << " times." << std::endl;
 	int equation_num = -1;
 	Equation* equs = svm_i->roundoff(equation_num);
 	set_console_color(std::cout);

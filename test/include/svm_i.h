@@ -20,14 +20,14 @@ public:
 	svm_parameter param;
 	States* negatives; 
 
-	SVM_I(void(*f) (const char*) = NULL, Equation* eq = NULL, int equ = 16) : SVM(f), max_equ(equ) {
+	SVM_I(void(*f) (const char*) = NULL, Equation* eq = NULL, int equ = 32) : SVM(f), max_equ(equ) {
 		negatives = NULL;
 		main_equation = eq;
 		equ_num = 0;
 		equations = new Equation[max_equ];
 		model = NULL;
 
-		/*
+		
 		param.svm_type = C_SVC;
 		param.kernel_type = LINEAR;
 		param.degree = 3;
@@ -47,12 +47,12 @@ public:
 		param.weight = NULL;
 		if (f != NULL)
 			svm_set_print_string_function(f);
-
+		
 		for (int i = 0; i < 2 * max_items; i++)
 			training_label[i] = -1;
 		problem.x = (svm_node**)(training_set);
 		problem.y = training_label;
-*/
+
 		//param.C = DBL_MAX;
 	}
 
@@ -104,22 +104,25 @@ public:
 			int ret = getMisclassified(misidx);
 			if (ret == -1) return -1;  // something wrong in misclassified.
 			if ((ret == 0) && (misidx == -1)) {	// can divide all the negative points correctly
+#ifdef __PRT
 				std::cout << "finish classified..." << std::endl;
+#endif				
 				return 0;
 			}
 
-			std::cout << "." << equ_num; // << std::endl;
+#ifdef __PRT
+			std::cout << "." << equ_num << ">"; // << std::endl;
+#endif
 			// there is some point which is misclassified by current dividers.
 			// "negatives->values[misidx]" 
-			std::cout << "add " << misidx << "-th element(mis classified): (";
-			for (int i = 0; i < VARS; i++)
-				std::cout << negatives->values[misidx][i] << ",";
-			std::cout << ")   ==>";
+			
 			int length = problem.l;
 			training_label[length] = -1;
 			training_set[length] = negatives->values[misidx];
 			problem.l++;
 			
+#ifdef __PRT
+			std::cout << " NEW TRAINING SET:";
 			for (int i = 0; i < problem.l; i++) {
 				std::cout << "(" << problem.x[i][0].value;
 				for (int j = 1; j < VARS; j++)
@@ -127,23 +130,31 @@ public:
 				std::cout << ")";
 				if (problem.y[i] == 1) std::cout << "+";
 				if (problem.y[i] == -1) std::cout << "-";
-				std::cout << ", ";
+				std::cout << "|";
 			}
 			std::cout << std::endl;
-			
+#endif			
 
 			model = svm_train(&problem, &param);
 			svm_model_visualization(model, &equations[equ_num]);
+
+#ifdef __PRT
 			std::cout << equations[equ_num];
+#endif
 
 			double precision = check_postives_and_one_negative();
 			svm_free_and_destroy_model(&model);
 			problem.l--;
-			std::cout << " On training set precision: " << precision * 100 << "%" << std::endl;
-			if (precision < 1) std::cout << "CAN NOT DIVIDE THE PICKED NEGATIVE FROM POSITIVES..." << std::endl;
+
+			//if (precision == 1) break;
+#ifdef __PRT
+			std::cout << " precision=[" << precision * 100 << "%]." << std::endl;
+			//if (precision < 1) std::cout << "CAN NOT DIVIDE THE PICKED NEGATIVE FROM POSITIVES..." << std::endl;
 			//std::cout << "\n On whole set precision: " << predictOnProblem() * 100 << "%" << std::endl;
+#endif
 		}
-		return 0;
+		std::cout << "Can not divide all the data by SVM-I with equations number limit to " << equ_num + 1 << "." << std::endl;
+		return -1;
 	}
 
 	double predict_on_training_set()
@@ -167,22 +178,26 @@ public:
 		std::cout << " [" << qset.traces_num() << "]";
 		for (int i = 0; i < qset.p_index; i++) {
 			int pre = -1, cur = 0;
+			set_console_color(std::cout, GREEN);
 			std::cout << ".";
 			//std::cout << "\t\t" << i << ">";
 			//gsets[QUESTION].print_trace(i);
+
 			for (int j = qset.index[i]; j < qset.index[i + 1]; j++) {
 				cur = predict(qset.values[j]);
 				//std::cout << ((cur >= 0) ? "+" : "-");
 				if ((pre > 0) && (cur < 0)) {
 					// deal with wrong question trace.
 					// Trace back to print out the whole trace and the predicted labels.
-					std::cerr << "\t\t[FAIL]\n \t  Predict wrongly on Question traces." << std::endl;
+					set_console_color(std::cout, RED);
+					std::cerr << "\t\t[FAIL]\n \t  Predict wrongly on Question trace";
 					qset.print_trace(i);
 					for (int j = qset.index[i]; j < qset.index[i + 1]; j++) {
-						cur = Equation::calc(main_equation, qset.values[j]);
+						cur = predict(qset.values[j]);
 						std::cout << ((cur >= 0) ? "+" : "-");
 					}
 					std::cout << std::endl;
+					unset_console_color(std::cout);
 					return -1;
 				}
 				pre = cur;
@@ -190,6 +205,7 @@ public:
 			//std::cout << "END" << std::endl;
 		}
 		std::cout << " [PASS]";
+		unset_console_color(std::cout);
 		return 0;
 	}
 
@@ -245,6 +261,7 @@ private:
 			}
 		}
 
+#ifdef __PRT
 		if (label == 0) {
 			return (res >= 0) ? 1 : -1;
 		}
@@ -252,12 +269,13 @@ private:
 			set_console_color(std::cout, GREEN);
 		else 
 			set_console_color(std::cout, RED);
+
 		std::cout << "(" << v[0];
 		for (int i = 1; i < VARS; i++)
 			std::cout << "," << v[i];
 		std::cout << ")";
 		unset_console_color(std::cout);
-
+#endif
 		return (res >= 0) ? 1 : -1;
 	}
 
@@ -265,11 +283,15 @@ private:
 	{
 		int total = problem.l;
 		int pass = 0;
+#ifdef __PRT
 		std::cout << "\t";
+#endif
 		for (int i = 0; i < problem.l; i++) {
 			pass += (predict((double*)(problem.x[i])) * problem.y[i] >= 0) ? 1 : 0;
 		}
-		std::cout << std::endl << pass << "/" << total << "..";
+#ifdef __PRT
+		std::cout << std::endl << "Check on training set result: " << pass << "/" << total << "..";
+#endif
 		return (double)pass / total;
 	}
 
@@ -286,14 +308,21 @@ private:
 		int negatives_size = negatives->size();
 		for (int i = 0; i < negatives_size; i++) {
 			if (predict(negatives->values[i], -1) >= 0) {
-				std::cout << "\nMISclassified" << i << std::endl;
+#ifdef __PRT
+				std::cout << "\n [FAIL] @" << i << ": (" << negatives->values[i][0];
+				for (int j = 1; j < VARS; j++)
+					std::cout << "," << negatives->values[i][j];
+				std::cout << ")  \t add it to training set... ==>" << std::endl;
+#endif
 				idx = i;
 				return 0;
 			}
 		}
 
 		// there should be no negatives misclassified.
-		std::cout << "No misclassified.\n";
+#ifdef __PRT
+		std::cout << "\n [PASS] @all";
+#endif
 		idx = -1;
 		return 0;	
 	}

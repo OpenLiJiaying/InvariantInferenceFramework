@@ -162,7 +162,7 @@ solve:
 
 		int roundoff(Equation& e)
 		{
-			std::cout << "ROUND OFF " << *this << " --> ";
+			//std::cout << "ROUND OFF " << *this << " --> ";
 			double min = std::abs(theta0);
 			for (int i = 0; i < VARS; i++)
 				min = (std::abs(theta[i]) < min) ? std::abs(theta[i]) : min;
@@ -171,7 +171,7 @@ solve:
 			for (int i = 0; i < VARS; i++)
 				e.theta[i] = _roundoff(theta[i] / min);
 			e.theta0 = _roundoff(theta0 / min);
-			std::cout << e << std::endl;
+			//std::cout << e << std::endl;
 			return 0;
 		}
 
