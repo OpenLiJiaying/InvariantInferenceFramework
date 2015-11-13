@@ -289,6 +289,15 @@ class SVM // : public ClassifyAlgo
 			return problem.l;
 		}
 
+
+		virtual Equation* roundoff(int& num)
+		{
+			num = 1;
+			Equation* equs = new Equation[1];
+			main_equation->roundoff(equs[0]);
+			return equs;
+		}
+
 	private:
 		virtual int predict(double* v) {
 			if (main_equation == NULL) return -2;

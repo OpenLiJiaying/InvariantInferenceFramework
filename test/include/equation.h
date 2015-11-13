@@ -89,10 +89,27 @@ class Equation{
 					sol.x[i] = rand() % (maxv - minv + 1) + minv;
 				return 0;
 			}
+
+			int j;
+			for (j = 0; j < VARS; j++) {
+				if (equ->theta[j] != 0) break;
+			}
+			// all the coefficients are zeros....
+			if (j == VARS) {
+				for (int i = 0; i < VARS; i++) {
+					sol.x[i] = rand() % (maxv - minv + 1) + minv;
+				}
+				return 0;
+			}
+
+
 			int pick;
 			double reminder;
+			int times = 0;
 solve:
 			pick = rand() % VARS;
+			while (equ->theta[pick] == 0)
+				pick = (pick + 1) % VARS;
 			reminder = - equ->theta0;
 			for (int i = 0; i < VARS; i++) {
 				sol.x[i] = rand() % (maxv - minv + 1) + minv;
@@ -101,7 +118,8 @@ solve:
 			}
 			sol.x[pick] = nearbyint(reminder / equ->theta[pick]); // + rand() % 3 - 1);
 			if (sol.x[pick] > maxv || sol.x[pick] < minv) {
-				goto solve;
+				if (++times > 10)
+					goto solve;
 			}
 			//std::cout << "solved the equation to get one solution";
 			return 0;
@@ -147,6 +165,7 @@ solve:
 			double min = std::abs(theta0);
 			for (int i = 0; i < VARS; i++)
 				min = (std::abs(theta[i]) < min) ? std::abs(theta[i]) : min;
+			if (min == 0) min = 1;
 			//if (min <= pow(0.1, 5)) min = 1;
 			for (int i = 0; i < VARS; i++)
 				e.theta[i] = _roundoff(theta[i] / min);

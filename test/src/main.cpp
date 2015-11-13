@@ -197,19 +197,29 @@ int main(int argc, char** argv)
 	} else {
 		delete svm->main_equation;
 	}
-	delete svm;
-	if (b_converged) {
-		Equation equ;
-		p->roundoff(equ);
-		set_console_color(std::cout);
+	
+	if ((b_converged) || (rnd == max_iter)) {
 		std::cout << "-------------------------------------------------------" << "-------------------------------------------------------------" << std::endl;
-		std::cout << "  Hypothesis Invairant: {\n";
-		std::cout << "\t\t" << equ << std::endl;
+		std::cout << "finish running svm for " << rnd << "times." << std::endl;
+		int equation_num = -1;
+		Equation* equs = svm->roundoff(equation_num);
+		assert(equation_num == 1);
+		set_console_color(std::cout);
+		if (b_converged)
+			std::cout << "  Hypothesis Invairant(Converged): {\n";
+		else 
+			std::cout << "  Hypothesis Invairant(Reaching Maximium Iteration): {\n";
+		std::cout << "\t\t" << equs[0] << std::endl;
 		std::cout << "  }" << std::endl;
 		unset_console_color(std::cout);
+		delete[]equs;
 		delete p;
+		delete svm;
 		return 0;
 	}
+	
+
+	delete svm;
 
 
 
@@ -220,23 +230,27 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	SVM_I* svm_i = new SVM_I(print_null, p);
-	//svm->problem.x = (svm_node**)(training_set);
-	//svm->problem.y = training_label;
 
 	int svm_i_start = rnd;
 	for (; rnd <= max_iter; rnd++) {
 	init_svm_i:
 		std::cout << "[" << rnd << "]SVM-I---------------------------------------------" << "-------------------------------------------------------------" << std::endl;
 		if (rnd != svm_i_start) {
-			std::cout << "\t(1) execute programs...[" << after_exes << "] {";
-			for (int i = 0; i < after_exes; i++) {
-				Equation::linearSolver(p, inputs);
-				std::cout << inputs;
-				if (i < after_exes - 1) std::cout << " | ";
-				run_target(inputs);
+			
+			int exes_each_equation = (after_exes + svm_i->equ_num - 1) / svm_i->equ_num;
+			std::cout << "\t(1) execute programs...[" << exes_each_equation * svm_i->equ_num << "] {";
+			for (int i = 0; i < svm_i->equ_num; i++) {
+				p = &(svm_i->equations[i]);
+				for (int j = 0; j < exes_each_equation; j++) {
+					Equation::linearSolver(p, inputs);
+					std::cout << inputs;
+					std::cout << " | ";
+					run_target(inputs);
+				}
 			}
 			std::cout << "}" << std::endl;
-		} else {
+		}
+		else {
 			pre_positive_size = 0;
 			pre_negative_size = 0;
 		}
@@ -272,19 +286,20 @@ int main(int argc, char** argv)
 			std::cout << " [PASS]" << std::endl;
 		}
 		
+		
 
 
 		/*
 		*	Check on Question traces.
 		*	There should not exists one traces, in which a negative state is behind a positive state.
 		*/
-		std::cout << "\t(5) checking question traces.";
+		/*std::cout << "\t(5) checking question traces.";
 		if (svm_i->check_question_set(gsets[QUESTION]) != 0) {
 			std::cout << std::endl << "check on question set return error." << std::endl;
 			return -1;
 		}
 		std::cout << std::endl;
-
+		*/
 
 		/*
 		*	b_similar_last_time is used to store the convergence check return value for the last time.
@@ -317,23 +332,21 @@ int main(int argc, char** argv)
 
 
 
+	
+	std::cout << "-------------------------------------------------------" << "-------------------------------------------------------------" << std::endl;
+	std::cout << "finish running svm-I for " << rnd << "times." << std::endl;
+	int equation_num = -1;
+	Equation* equs = svm_i->roundoff(equation_num);
+	set_console_color(std::cout);
+	std::cout << "Hypothesis Invairant: {\n";
+	std::cout << "\t     " << equs[0] << std::endl;
+	for (int i = 1; i < equation_num; i++)
+		std::cout << "\t  /\\ " << equs[i] << std::endl;
+	std::cout << "}" << std::endl;
+	unset_console_color(std::cout);
+	
+	
 
-
-
-
-/*
-converged:
-	if (!b_svm_i) {
-		Equation equ;
-		p->roundoff(equ);
-		set_console_color(std::cout);
-		std::cout << "-------------------------------------------------------" << "-------------------------------------------------------------" << std::endl;
-		std::cout << "  Hypothesis Invairant: {\n";
-		std::cout << "\t\t" << equ << std::endl;
-		std::cout << "  }" << std::endl;
-		unset_console_color(std::cout);
-	}
-*/
 #if defined (_DEBUG) && DEBUG == 1
 	set_console_color(std::cout);
 	std::cout << "In DEBUG mode" << std::endl;
@@ -342,8 +355,9 @@ converged:
 #endif
 	int i;
 	std::cin >> i;
-	delete svm->main_equation;
-	delete svm;
+	delete[]equs;
+	delete svm_i->main_equation;
+	delete svm_i;
 	return 0;
 }
 

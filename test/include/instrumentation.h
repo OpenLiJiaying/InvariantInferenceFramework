@@ -11,13 +11,13 @@ int add_state_double(double first, ...);
 
 
 #ifdef WIN32  
-	#if VARS == 1
-		#define recordi(first) add_state_int(first)
-		#define recordd(first) add_state_double(first)
-	#else
-		#define recordi(first, args, ...) add_state_int(first, ##args)
-		#define recordd(first, args, ...) add_state_double(first, ##args)
-	#endif
+	//#if VARS == 1
+	//	#define recordi(first) add_state_int(first)
+	//	#define recordd(first) add_state_double(first)
+	//#else
+		#define recordi(first, ...) add_state_int(first, ##__VA_ARGS__)
+		#define recordd(first, ...) add_state_double(first, ##__VA_ARGS__)
+	//#endif
 #endif
 
 #ifdef linux

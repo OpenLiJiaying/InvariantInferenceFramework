@@ -4,6 +4,7 @@
 #include <iostream>
 //#include <stdarg.h>
 //#include "float.h"
+#include "color.h"
 
 
 
@@ -19,12 +20,38 @@ public:
 	svm_parameter param;
 	States* negatives; 
 
-	SVM_I(void(*f) (const char*) = NULL, Equation* eq = NULL, int equ = 8) : SVM(f), max_equ(equ) {
+	SVM_I(void(*f) (const char*) = NULL, Equation* eq = NULL, int equ = 16) : SVM(f), max_equ(equ) {
 		negatives = NULL;
 		main_equation = eq;
 		equ_num = 0;
 		equations = new Equation[max_equ];
 		model = NULL;
+
+		param.svm_type = C_SVC;
+		param.kernel_type = LINEAR;
+		param.degree = 3;
+		param.gamma = 0;	// 1/num_features
+		param.coef0 = 0;
+		param.nu = 0.5;
+		param.cache_size = 100;
+		//	param.C = 1;
+		//param.C = DBL_MAX;
+		param.C = 1000;
+		param.eps = 1e-3;
+		param.p = 0.1;
+		param.shrinking = 1;
+		param.probability = 0;
+		param.nr_weight = 0;
+		param.weight_label = NULL;
+		param.weight = NULL;
+		if (f != NULL)
+			svm_set_print_string_function(f);
+
+		for (int i = 0; i < 2 * max_items; i++)
+			training_label[i] = -1;
+		problem.x = (svm_node**)(training_set);
+		problem.y = training_label;
+
 	}
 
 	~SVM_I()
@@ -79,18 +106,29 @@ public:
 				return 0;
 			}
 
+			std::cout << "." << equ_num; // << std::endl;
 			// there is some point which is misclassified by current dividers.
 			// "negatives->values[misidx]" 
-			std::cout << "add " << misidx << "-th element: (";
+			std::cout << "add " << misidx << "-th element(mis classified): (";
 			for (int i = 0; i < VARS; i++)
 				std::cout << negatives->values[misidx][i] << ",";
-			std::cout << ")   ";
+			std::cout << ")   ==>";
 			int length = problem.l;
-			problem.y[length] = -1;
-			problem.x[length] = (svm_node*)negatives->values[misidx];
+			training_label[length] = -1;
+			training_set[length] = negatives->values[misidx];
 			problem.l++;
-
-			std::cout << "." << equ_num; // << std::endl;
+			
+			for (int i = 0; i < problem.l; i++) {
+				std::cout << "(" << problem.x[i][0].value;
+				for (int j = 1; j < VARS; j++)
+					std::cout << "," << problem.x[i][j].value;
+				std::cout << ")";
+				if (problem.y[i] == 1) std::cout << "+";
+				if (problem.y[i] == -1) std::cout << "-";
+				std::cout << ", ";
+			}
+			std::cout << std::endl;
+			
 
 			model = svm_train(&problem, &param);
 			svm_model_visualization(model, &equations[equ_num]);
@@ -174,13 +212,21 @@ public:
 		return problem.l + negatives->size();
 	}
 
-private:
-	virtual int predict(double* v)
+
+	virtual Equation* roundoff(int& num)
 	{
-		std::cout << "(";
-		for (int i = 0; i < VARS; i++)
-			std::cout << v[i] << ",";
-		std::cout << ")";
+		num = 1 + equ_num;
+		Equation* equs = new Equation[equ_num + 1];
+		main_equation->roundoff(equs[0]);
+		for (int i = 0; i < equ_num; i++)
+			equations[i].roundoff(equs[i + 1]);
+		return equs;
+	}
+
+
+private:
+	virtual int predict(double* v, int label = 0)
+	{
 		if (v == NULL) return -2;
 		/*
 		* We use conjunction of positive as predictor.
@@ -189,19 +235,28 @@ private:
 		* Otherwise, -1 will be returned.
 		*/
 		double res = Equation::calc(main_equation, v);
-		if (res < 0) {
-			std::cout << "[-]";
-			return -1;
-		}
-		for (int i = 0; i < equ_num; i++) {
-			res = Equation::calc(&equations[i], v);
-			if (res < 0) {
-				std::cout << "[-]";
-				return -1;
+		if (res >= 0) {
+			for (int i = 0; i < equ_num; i++) {
+				res = Equation::calc(&equations[i], v);
+				if (res < 0)
+					break;
 			}
 		}
-		std::cout << "[+]";
-		return 1;
+
+		if (label == 0) {
+			return (res >= 0) ? 1 : -1;
+		}
+		if (res * label >= 0)
+			set_console_color(std::cout, GREEN);
+		else 
+			set_console_color(std::cout, RED);
+		std::cout << "(" << v[0];
+		for (int i = 1; i < VARS; i++)
+			std::cout << "," << v[i];
+		std::cout << ")";
+		unset_console_color(std::cout);
+
+		return (res >= 0) ? 1 : -1;
 	}
 
 	double check_postives_and_one_negative()
@@ -228,7 +283,7 @@ private:
 
 		int negatives_size = negatives->size();
 		for (int i = 0; i < negatives_size; i++) {
-			if (predict(negatives->values[i]) >= 0) {
+			if (predict(negatives->values[i], -1) >= 0) {
 				std::cout << "\nMISclassified" << i << std::endl;
 				idx = i;
 				return 0;

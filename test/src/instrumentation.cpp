@@ -71,15 +71,15 @@ int after_loop()
 	}
 
 	/*
-	 * std::cout << "TRACE: ";
+	 */ std::cout << "TRACE: ";
 	for (int i = 0; i < temp_index; i++) {
-		std::cout << "(";
-		for (int j = 0; j < vars; j++)
-			std::cout << temp_states[i][j] << ",";
+		std::cout << "(" << temp_states[i][0];
+		for (int j = 1; j < VARS; j++)
+			std::cout << "," << temp_states[i][j];
 		std::cout << ")->";
 	}
 	std::cout << "END[" << label << "]" << std::endl;
-	*/
+	/**/
 
 	gsets[label].add_states(temp_states, temp_index);
 	//TS[label].addLoopTrace(LT);
