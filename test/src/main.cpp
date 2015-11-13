@@ -136,6 +136,13 @@ int main(int argc, char** argv)
 		std::cout << " [" << passRat * 100 << "%]";
 		if (passRat < 1) {
 			std::cout << " [FAIL] \n The problem is not linear separable.. Trying to solve is by SVM-I algo" << std::endl;
+			if (p != NULL) {
+				Equation* tmp = svm->main_equation;
+				svm->main_equation = p;
+				double passRat = svm->predict_on_training_set();
+				std::cout << " last divide: " << *p << " accuracy[" << passRat * 100 << "%]\n";
+				svm->main_equation = tmp;
+			}
 			std::cerr << "*******************************USING SVM_I NOW******************************" << std::endl;
 			b_svm_i = true;
 			break;
@@ -185,7 +192,11 @@ int main(int argc, char** argv)
 		p = svm->main_equation;
 	} // end of SVM training procedure
 
-	delete svm->main_equation;
+	if (p == NULL) { // get out svm in the first round, p has not been set yet
+		p = svm->main_equation;
+	} else {
+		delete svm->main_equation;
+	}
 	delete svm;
 	if (b_converged) {
 		Equation equ;
@@ -197,10 +208,8 @@ int main(int argc, char** argv)
 		std::cout << "  }" << std::endl;
 		unset_console_color(std::cout);
 		delete p;
-
 		return 0;
 	}
-
 
 
 
@@ -227,6 +236,9 @@ int main(int argc, char** argv)
 				run_target(inputs);
 			}
 			std::cout << "}" << std::endl;
+		} else {
+			pre_positive_size = 0;
+			pre_negative_size = 0;
 		}
 
 		std::cout << "\t(2) prepare training data... ";

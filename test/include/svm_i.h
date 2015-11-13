@@ -81,6 +81,10 @@ public:
 
 			// there is some point which is misclassified by current dividers.
 			// "negatives->values[misidx]" 
+			std::cout << "add " << misidx << "-th element: (";
+			for (int i = 0; i < VARS; i++)
+				std::cout << negatives->values[misidx][i] << ",";
+			std::cout << ")   ";
 			int length = problem.l;
 			problem.y[length] = -1;
 			problem.x[length] = (svm_node*)negatives->values[misidx];
@@ -90,6 +94,7 @@ public:
 
 			model = svm_train(&problem, &param);
 			svm_model_visualization(model, &equations[equ_num]);
+			std::cout << equations[equ_num];
 
 			double precision = check_postives_and_one_negative();
 			svm_free_and_destroy_model(&model);
@@ -224,6 +229,7 @@ private:
 		int negatives_size = negatives->size();
 		for (int i = 0; i < negatives_size; i++) {
 			if (predict(negatives->values[i]) >= 0) {
+				std::cout << "\nMISclassified" << i << std::endl;
 				idx = i;
 				return 0;
 			}

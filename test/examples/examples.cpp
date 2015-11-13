@@ -1,8 +1,8 @@
 #include "../include/header.h"
 //#include <iostream>
 
-//#define conj m
-#define ex1 m
+#define conj m
+//#define ex1 m
 
 
 int nondet() {
@@ -94,7 +94,7 @@ int conj(int* a)
 	iif_assume((x > 0) && (x < 50));
 	int flag = 1;
 	while (nondet()) {
-		recordi(x, 0);
+		recordi(x);
 		x = x + flag;
 		if (x >= 50) {
 			x -= 2;
@@ -105,7 +105,7 @@ int conj(int* a)
 			flag = 1;
 		}
 	}
-	recordi(x, 0);
+	recordi(x);
 	iif_assert((x > 0) && (x < 50));
 	return 0;
 }
