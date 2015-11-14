@@ -161,7 +161,7 @@ Equation* SVM::roundoff(int& num)
 	return equs;
 }
 
-int SVM::predict(double* v) {
+int SVM::predict(double* v, int label) {
 	if (main_equation == NULL) return -2;
 	if (v == NULL) return -2;
 	double res = Equation::calc(main_equation, v);

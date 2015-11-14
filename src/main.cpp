@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	bool b_svm_i = false;
 	Equation* p = NULL;
 	int pre_positive_size = 0, pre_negative_size = 0; // , pre_question_size = 0;
-	int cur_positive_size = 0, cur_negative_size = 0; // , cur_question_size = 0;
+	//int cur_positive_size = 0, cur_negative_size = 0; // , cur_question_size = 0;
 
 
 
@@ -249,7 +249,7 @@ int main(int argc, char** argv)
 
 	int svm_i_start = rnd;
 	for (; rnd <= max_iter; rnd++) {
-	init_svm_i:
+//	init_svm_i:
 		std::cout << "[" << rnd << "]SVM-I---------------------------------------------" << "-------------------------------------------------------------" << std::endl;
 		if (rnd != svm_i_start) {
 			

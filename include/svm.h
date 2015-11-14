@@ -14,7 +14,7 @@ class SVM // : public ClassifyAlgo
 
 		SVM(void (*f) (const char*) = NULL);
 
-		~SVM(); 
+		virtual ~SVM(); 
 
 		virtual int prepare_training_data(States* gsets, int& pre_positive_size, int& pre_negative_size);
 
@@ -31,7 +31,7 @@ class SVM // : public ClassifyAlgo
 		virtual Equation* roundoff(int& num);
 
 	private:
-		virtual int predict(double* v);
+		virtual int predict(double* v, int label = 0);
 };
 
 #endif /* _SVM_H */

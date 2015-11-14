@@ -59,7 +59,7 @@ public:
 		delete[]equations;
 	}
 
-	int predict(double* v)
+	int predict(double* v, int label = 0)
 	{
 		if (equ_num <= 0) return -2;
 		if (v == NULL) return -2;
