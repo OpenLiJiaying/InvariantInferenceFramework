@@ -1,7 +1,14 @@
 #ifndef _EQUATION_H_
 #define _EQUATION_H_
-#include "header.h"
+
+//#include "header.h"
+#include "config.h"
+
+#include <cmath>
+#include <stdarg.h>
+#include <iostream>
 #include <iomanip>
+
 
 
 extern int maxv;

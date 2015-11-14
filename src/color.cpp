@@ -47,6 +47,30 @@ void set_console_color(std::ostream& out, int choice) {
 }
 #endif
 
+
+#ifdef __MACH__
+void set_console_color(std::ostream& out, int choice) {
+	switch (choice) {
+		case RED: // red
+			out << "\033[33;\x1b[31m";
+			break;
+		case YELLOW: // yellow
+			out << "\033[33;\x1b[33m";
+			break;
+		case GREEN: // green
+			out << "\033[33;\x1b[32m";
+			break;
+		case BLUE: // blue
+			out << "\033[33;\x1b[34m";
+			break;
+		case WHITE: // white
+			out << "\033[0m";
+			break;
+	}	
+}
+#endif
+
+
 void unset_console_color(std::ostream& out) {
 	set_console_color(out, WHITE);
 }

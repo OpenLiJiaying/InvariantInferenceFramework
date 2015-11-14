@@ -8,7 +8,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <time.h>
-#include "header.h"
+//#include "header.h"
+#include "instrumentation.h"
 
 bool _passP = false;
 bool _passQ = false;

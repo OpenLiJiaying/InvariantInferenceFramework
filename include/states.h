@@ -1,9 +1,10 @@
 #ifndef _STATES_H_
 #define _STATES_H_
-#include "header.h"
-#include <iostream>
+//#include "header.h"
+#include "config.h"
 #include "string.h"
 
+#include <iostream>
 
 class States{
 	public:

@@ -1,4 +1,5 @@
 #include "svm.h"
+#include "svm_core.h"
 
 SVM::SVM(void (*f) (const char*)) {
 	problem.l = 0;

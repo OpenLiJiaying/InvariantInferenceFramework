@@ -1,10 +1,10 @@
 #ifndef _SVM_I_H_
 #define _SVM_I_H_
+
 #include "svm.h"
-#include <iostream>
-//#include <stdarg.h>
-//#include "float.h"
 #include "color.h"
+#include <iostream>
+
 
 class SVM_I : public SVM
 {

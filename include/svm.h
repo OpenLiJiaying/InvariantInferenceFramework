@@ -1,8 +1,9 @@
 #ifndef _SVM_H_
 #define _SVM_H_
+#include "ml_algo.h"
 #include "svm_core.h"
 
-class SVM // : public ClassifyAlgo
+class SVM : public ML_Algo
 {
 	public:
 		svm_model* model;

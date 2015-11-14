@@ -4,15 +4,19 @@
   > Mail: lijiaying1989@gmail.com 
   > Created Time: Wed Oct 28 01:47:17 2015
  ************************************************************************/
+//#include "header.h"
+#include "config.h"
+//#include "instrumentation.h"
+#include "ml_algo.h"
+#include "svm.h"
+#include "svm_i.h"
+//#include "svm_ii.h"
+#include "color.h"
+
 #include <iostream>
 #include <float.h>
 #include <string.h>
 #include <assert.h>
-#include "header.h"
-#include "svm.h"
-#include "svm_i.h"
-#include "svm_ii.h"
-#include "color.h"
 
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}

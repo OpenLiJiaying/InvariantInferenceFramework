@@ -1,10 +1,13 @@
 #ifndef _SVM_CORE_H_
 #define _SVM_CORE_H_
-#include "header.h"
-#include <iostream>
+
+//#include "header.h"
 //#include <stdarg.h>
-//#include "float.h"
-//#include "color.h"
+#include "config.h"
+#include "instrumentation.h"
+#include "color.h"
+
+#include <iostream>
 #define LIBSVM_VERSION 320
 
 extern int libsvm_version;

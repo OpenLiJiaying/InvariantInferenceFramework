@@ -1,8 +1,12 @@
 #ifndef _INSTRUMENTATION_H_
 #define _INSTRUMENTATION_H_
-#include "header.h"
+//#include "header.h"
+#include "config.h"
+#include "states.h"
+
 #include <stdarg.h>
 
+extern States* gsets;
 
 enum { NEGATIVE = -1, QUESTION, POSITIVE, COUNT_EXAMPLE };	/* trace_type */
 
@@ -25,6 +29,10 @@ int add_state_double(double first, ...);
 	#define recordd(first, args ...) add_state_double(first, ##args)
 #endif
 
+#ifdef __MACH__ 
+	#define recordi(first, args ...) add_state_int(first, ##args)
+	#define recordd(first, args ...) add_state_double(first, ##args)
+#endif
 
 // function lists
 

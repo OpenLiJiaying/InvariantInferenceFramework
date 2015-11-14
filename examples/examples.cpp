@@ -1,5 +1,9 @@
-#include "header.h"
-//#include <iostream>
+//#include "header.h"
+#include "config.h"
+#include "instrumentation.h"
+#include "iif_assert.h"
+
+#include <iostream>
 
 //#define conj m
 //#define ex1 m
