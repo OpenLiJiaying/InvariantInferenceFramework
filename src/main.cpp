@@ -8,11 +8,11 @@
 #include <float.h>
 #include <string.h>
 #include <assert.h>
-#include "../include/header.h"
-#include "../include/svm.h"
-#include "../include/svm_i.h"
-#include "../include/svm_ii.h"
-#include "../include/color.h"
+#include "header.h"
+#include "svm.h"
+#include "svm_i.h"
+#include "svm_ii.h"
+#include "color.h"
 
 int minv = -100, maxv = 100;
 void print_null(const char *s) {}

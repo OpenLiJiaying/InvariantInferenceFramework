@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <time.h>
-#include "../include/header.h"
+#include "header.h"
 
 bool _passP = false;
 bool _passQ = false;
